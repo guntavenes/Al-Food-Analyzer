@@ -129,6 +129,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'AI-POWERED NUTRITION'**
   String get aiPowered;
+
+  /// Camera screen title
+  ///
+  /// In en, this message translates to:
+  /// **'Frame your meal'**
+  String get cameraTitle;
+
+  /// Camera composition guidance
+  ///
+  /// In en, this message translates to:
+  /// **'Keep the whole plate inside the frame'**
+  String get cameraHint;
+
+  /// Shown when camera initialization fails
+  ///
+  /// In en, this message translates to:
+  /// **'Camera is unavailable'**
+  String get cameraUnavailable;
+
+  /// Guidance shown after camera permission failure
+  ///
+  /// In en, this message translates to:
+  /// **'Allow camera access in Settings, then try again.'**
+  String get cameraPermissionHint;
+
+  /// Retry action label
+  ///
+  /// In en, this message translates to:
+  /// **'Try again'**
+  String get tryAgain;
+
+  /// Selected photo preview screen title
+  ///
+  /// In en, this message translates to:
+  /// **'Your meal'**
+  String get previewTitle;
+
+  /// Confirms that a photo was selected
+  ///
+  /// In en, this message translates to:
+  /// **'Photo ready'**
+  String get previewReady;
+
+  /// Returns from preview to photo selection
+  ///
+  /// In en, this message translates to:
+  /// **'Choose another photo'**
+  String get chooseAnother;
 }
 
 class _AppLocalizationsDelegate

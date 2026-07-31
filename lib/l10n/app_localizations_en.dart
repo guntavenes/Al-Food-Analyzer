@@ -26,4 +26,29 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get aiPowered => 'AI-POWERED NUTRITION';
+
+  @override
+  String get cameraTitle => 'Frame your meal';
+
+  @override
+  String get cameraHint => 'Keep the whole plate inside the frame';
+
+  @override
+  String get cameraUnavailable => 'Camera is unavailable';
+
+  @override
+  String get cameraPermissionHint =>
+      'Allow camera access in Settings, then try again.';
+
+  @override
+  String get tryAgain => 'Try again';
+
+  @override
+  String get previewTitle => 'Your meal';
+
+  @override
+  String get previewReady => 'Photo ready';
+
+  @override
+  String get chooseAnother => 'Choose another photo';
 }

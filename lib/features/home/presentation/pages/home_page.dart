@@ -1,6 +1,9 @@
+import 'package:ai_food_analyzer/core/router/app_router.dart';
 import 'package:ai_food_analyzer/core/theme/app_colors.dart';
 import 'package:ai_food_analyzer/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:image_picker/image_picker.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -93,9 +96,15 @@ class HomePage extends StatelessWidget {
                           ),
                           Column(
                             children: [
-                              _CameraButton(label: l10n.takePhoto),
+                              _CameraButton(
+                                label: l10n.takePhoto,
+                                onPressed: () => context.push(AppRoutes.camera),
+                              ),
                               const SizedBox(height: 14),
-                              _GalleryButton(label: l10n.chooseFromGallery),
+                              _GalleryButton(
+                                label: l10n.chooseFromGallery,
+                                onPressed: () => _pickFromGallery(context),
+                              ),
                             ],
                           ),
                         ],
@@ -109,6 +118,17 @@ class HomePage extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Future<void> _pickFromGallery(BuildContext context) async {
+    final image = await ImagePicker().pickImage(
+      source: ImageSource.gallery,
+      imageQuality: 92,
+    );
+
+    if (image != null && context.mounted) {
+      await context.push(AppRoutes.preview, extra: image.path);
+    }
   }
 }
 
@@ -165,9 +185,10 @@ class _BrandMark extends StatelessWidget {
 }
 
 class _CameraButton extends StatelessWidget {
-  const _CameraButton({required this.label});
+  const _CameraButton({required this.label, required this.onPressed});
 
   final String label;
+  final VoidCallback onPressed;
 
   @override
   Widget build(BuildContext context) {
@@ -186,7 +207,7 @@ class _CameraButton extends StatelessWidget {
         ],
       ),
       child: FilledButton.icon(
-        onPressed: () {},
+        onPressed: onPressed,
         style: FilledButton.styleFrom(
           backgroundColor: Colors.transparent,
           shadowColor: Colors.transparent,
@@ -203,14 +224,15 @@ class _CameraButton extends StatelessWidget {
 }
 
 class _GalleryButton extends StatelessWidget {
-  const _GalleryButton({required this.label});
+  const _GalleryButton({required this.label, required this.onPressed});
 
   final String label;
+  final VoidCallback onPressed;
 
   @override
   Widget build(BuildContext context) {
     return OutlinedButton.icon(
-      onPressed: () {},
+      onPressed: onPressed,
       style: OutlinedButton.styleFrom(
         foregroundColor: AppColors.ink,
         backgroundColor: Colors.white.withValues(alpha: 0.72),

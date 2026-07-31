@@ -23,5 +23,37 @@
   "aiPowered": "AI-POWERED NUTRITION",
   "@aiPowered": {
     "description": "Small premium feature label"
+  },
+  "cameraTitle": "Frame your meal",
+  "@cameraTitle": {
+    "description": "Camera screen title"
+  },
+  "cameraHint": "Keep the whole plate inside the frame",
+  "@cameraHint": {
+    "description": "Camera composition guidance"
+  },
+  "cameraUnavailable": "Camera is unavailable",
+  "@cameraUnavailable": {
+    "description": "Shown when camera initialization fails"
+  },
+  "cameraPermissionHint": "Allow camera access in Settings, then try again.",
+  "@cameraPermissionHint": {
+    "description": "Guidance shown after camera permission failure"
+  },
+  "tryAgain": "Try again",
+  "@tryAgain": {
+    "description": "Retry action label"
+  },
+  "previewTitle": "Your meal",
+  "@previewTitle": {
+    "description": "Selected photo preview screen title"
+  },
+  "previewReady": "Photo ready",
+  "@previewReady": {
+    "description": "Confirms that a photo was selected"
+  },
+  "chooseAnother": "Choose another photo",
+  "@chooseAnother": {
+    "description": "Returns from preview to photo selection"
   }
 }
