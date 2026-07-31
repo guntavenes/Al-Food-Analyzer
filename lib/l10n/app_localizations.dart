@@ -190,6 +190,48 @@ abstract class AppLocalizations {
   /// **'Analysis could not be completed. Please try again.'**
   String get analysisFailed;
 
+  /// Shown when the backend detects no food
+  ///
+  /// In en, this message translates to:
+  /// **'No food could be detected in this image. Try another photo.'**
+  String get noFoodDetected;
+
+  /// Shown for an invalid image upload
+  ///
+  /// In en, this message translates to:
+  /// **'This image is not supported. Choose a JPG, PNG, or WebP photo.'**
+  String get invalidImage;
+
+  /// Shown when an image exceeds the upload limit
+  ///
+  /// In en, this message translates to:
+  /// **'This image is too large. Choose a photo under 8 MB.'**
+  String get imageTooLarge;
+
+  /// Shown when the backend rate limits requests
+  ///
+  /// In en, this message translates to:
+  /// **'Too many analyses were requested. Please wait and try again.'**
+  String get rateLimited;
+
+  /// Shown when an analysis request times out
+  ///
+  /// In en, this message translates to:
+  /// **'The analysis took too long. Check your connection and try again.'**
+  String get analysisTimeout;
+
+  /// Shown for network connection failures
+  ///
+  /// In en, this message translates to:
+  /// **'The analysis service could not be reached. Check your connection and try again.'**
+  String get networkError;
+
+  /// Shown when the backend service is unavailable
+  ///
+  /// In en, this message translates to:
+  /// **'The analysis service is temporarily unavailable. Please try again.'**
+  String get serviceUnavailable;
+
   /// Food analysis result screen title
   ///
   /// In en, this message translates to:

@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:ai_food_analyzer/core/router/app_router.dart';
 import 'package:ai_food_analyzer/core/theme/app_colors.dart';
+import 'package:ai_food_analyzer/features/analysis/domain/errors/food_analysis_exception.dart';
 import 'package:ai_food_analyzer/features/analysis/presentation/pages/food_analysis_result_page.dart';
 import 'package:ai_food_analyzer/features/analysis/presentation/providers/food_analysis_providers.dart';
 import 'package:ai_food_analyzer/l10n/app_localizations.dart';
@@ -130,7 +131,7 @@ class _PhotoPreviewPageState extends ConsumerState<PhotoPreviewPage> {
               const SizedBox(height: 16),
               if (hasError) ...[
                 _AnalysisError(
-                  message: l10n.analysisFailed,
+                  message: _analysisErrorMessage(l10n, analysisState?.error),
                   retryLabel: l10n.tryAgain,
                   onRetry: () => _analyzeFood(retry: true),
                 ),
@@ -179,6 +180,20 @@ class _PhotoPreviewPageState extends ConsumerState<PhotoPreviewPage> {
         ),
       ),
     );
+  }
+
+  String _analysisErrorMessage(AppLocalizations l10n, Object? error) {
+    if (error is! FoodAnalysisException) return l10n.analysisFailed;
+    return switch (error.type) {
+      FoodAnalysisErrorType.noFoodDetected => l10n.noFoodDetected,
+      FoodAnalysisErrorType.invalidImage => l10n.invalidImage,
+      FoodAnalysisErrorType.imageTooLarge => l10n.imageTooLarge,
+      FoodAnalysisErrorType.rateLimited => l10n.rateLimited,
+      FoodAnalysisErrorType.timeout => l10n.analysisTimeout,
+      FoodAnalysisErrorType.network => l10n.networkError,
+      FoodAnalysisErrorType.serviceUnavailable => l10n.serviceUnavailable,
+      FoodAnalysisErrorType.unknown => l10n.analysisFailed,
+    };
   }
 }
 

@@ -1,11 +1,16 @@
 import 'package:ai_food_analyzer/features/analysis/data/datasources/food_analysis_data_source.dart';
+import 'package:ai_food_analyzer/features/analysis/data/mappers/backend_error_mapper.dart';
 import 'package:ai_food_analyzer/features/analysis/data/models/food_analysis_model.dart';
+import 'package:ai_food_analyzer/features/analysis/data/models/food_analysis_response.dart';
 import 'package:ai_food_analyzer/features/analysis/data/repositories/food_analysis_repository_impl.dart';
 import 'package:ai_food_analyzer/features/analysis/domain/entities/food_analysis.dart';
+import 'package:ai_food_analyzer/features/analysis/domain/errors/food_analysis_exception.dart';
+import 'package:ai_food_analyzer/features/analysis/domain/repositories/food_analysis_repository.dart';
 import 'package:ai_food_analyzer/features/analysis/presentation/pages/food_analysis_result_page.dart';
 import 'package:ai_food_analyzer/features/analysis/presentation/providers/food_analysis_providers.dart';
 import 'package:ai_food_analyzer/features/capture/presentation/pages/photo_preview_page.dart';
 import 'package:ai_food_analyzer/l10n/app_localizations.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -30,7 +35,11 @@ void main() {
 
   test('provider exposes the fake repository response', () async {
     final container = ProviderContainer(
-      overrides: [foodAnalysisDataSourceProvider.overrideWithValue(dataSource)],
+      overrides: [
+        foodAnalysisRepositoryProvider.overrideWithValue(
+          const FoodAnalysisRepositoryImpl(dataSource),
+        ),
+      ],
     );
     addTearDown(container.dispose);
 
@@ -71,8 +80,8 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
-          foodAnalysisDataSourceProvider.overrideWithValue(
-            const _FailingFoodAnalysisDataSource(),
+          foodAnalysisRepositoryProvider.overrideWithValue(
+            const FoodAnalysisRepositoryImpl(_FailingFoodAnalysisDataSource()),
           ),
         ],
         child: const _LocalizedTestApp(
@@ -91,6 +100,99 @@ void main() {
     expect(find.text('Try again'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
+
+  test('HTTP response DTO maps backend fields to the domain model', () {
+    final response = FoodAnalysisResponse.fromJson({
+      'requestId': 'request-id',
+      'foodName': 'Grilled Chicken Bowl',
+      'calories': 540,
+      'protein': 32,
+      'carbohydrates': 56,
+      'fat': 18,
+      'fiber': 7,
+      'confidence': 0.87,
+      'servingDescription': '1 medium serving',
+      'analysisDescription': 'Balanced meal.',
+      'warnings': <Object?>[],
+      'isFoodDetected': true,
+    });
+
+    final model = response.toModel();
+    expect(model.confidencePercent, 87);
+    expect(model.carbsGrams, 56);
+  });
+
+  test('no-food HTTP response maps to a controlled domain error', () {
+    final response = FoodAnalysisResponse.fromJson({
+      'requestId': 'request-id',
+      'foodName': null,
+      'calories': null,
+      'protein': null,
+      'carbohydrates': null,
+      'fat': null,
+      'fiber': null,
+      'confidence': 0,
+      'servingDescription': null,
+      'analysisDescription': 'No food detected.',
+      'warnings': <Object?>[],
+      'isFoodDetected': false,
+    });
+
+    expect(
+      response.toModel,
+      throwsA(
+        isA<FoodAnalysisException>().having(
+          (error) => error.type,
+          'type',
+          FoodAnalysisErrorType.noFoodDetected,
+        ),
+      ),
+    );
+  });
+
+  test('backend rate limit errors map to a domain error', () {
+    final error = DioException(
+      requestOptions: RequestOptions(path: '/v1/food/analyze'),
+      response: Response<Map<String, Object?>>(
+        requestOptions: RequestOptions(path: '/v1/food/analyze'),
+        statusCode: 429,
+        data: {
+          'error': <String, Object?>{
+            'code': 'RATE_LIMITED',
+            'message': 'Too many requests.',
+          },
+        },
+      ),
+    );
+
+    expect(
+      BackendErrorMapper.fromDioException(error).type,
+      FoodAnalysisErrorType.rateLimited,
+    );
+  });
+
+  test(
+    'same analysis provider prevents duplicate concurrent requests',
+    () async {
+      final repository = _CountingFoodAnalysisRepository();
+      final container = ProviderContainer(
+        overrides: [
+          foodAnalysisRepositoryProvider.overrideWithValue(repository),
+        ],
+      );
+      addTearDown(container.dispose);
+      final provider = foodAnalysisProvider('/tmp/meal.jpg');
+      final subscription = container.listen(provider, (previous, next) {});
+      addTearDown(subscription.close);
+
+      await Future.wait([
+        container.read(provider.future),
+        container.read(provider.future),
+      ]);
+
+      expect(repository.callCount, 1);
+    },
+  );
 
   testWidgets('result content fits a small phone using scrolling', (
     tester,
@@ -130,6 +232,27 @@ void main() {
     expect(find.text('Save Result'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
+}
+
+class _CountingFoodAnalysisRepository implements FoodAnalysisRepository {
+  int callCount = 0;
+
+  @override
+  Future<FoodAnalysis> analyzeFood(String imagePath) async {
+    callCount += 1;
+    await Future<void>.delayed(const Duration(milliseconds: 10));
+    return const FoodAnalysis(
+      foodName: 'Meal',
+      calories: 1,
+      proteinGrams: 1,
+      fatGrams: 1,
+      carbsGrams: 1,
+      fiberGrams: 1,
+      confidencePercent: 100,
+      servingDescription: '1 serving',
+      description: 'Description',
+    );
+  }
 }
 
 class _FailingFoodAnalysisDataSource implements FoodAnalysisDataSource {

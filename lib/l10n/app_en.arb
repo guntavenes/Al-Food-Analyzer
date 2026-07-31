@@ -64,6 +64,20 @@
   "@analysisFailed": {
     "description": "Error shown when food analysis fails"
   },
+  "noFoodDetected": "No food could be detected in this image. Try another photo.",
+  "@noFoodDetected": {"description": "Shown when the backend detects no food"},
+  "invalidImage": "This image is not supported. Choose a JPG, PNG, or WebP photo.",
+  "@invalidImage": {"description": "Shown for an invalid image upload"},
+  "imageTooLarge": "This image is too large. Choose a photo under 8 MB.",
+  "@imageTooLarge": {"description": "Shown when an image exceeds the upload limit"},
+  "rateLimited": "Too many analyses were requested. Please wait and try again.",
+  "@rateLimited": {"description": "Shown when the backend rate limits requests"},
+  "analysisTimeout": "The analysis took too long. Check your connection and try again.",
+  "@analysisTimeout": {"description": "Shown when an analysis request times out"},
+  "networkError": "The analysis service could not be reached. Check your connection and try again.",
+  "@networkError": {"description": "Shown for network connection failures"},
+  "serviceUnavailable": "The analysis service is temporarily unavailable. Please try again.",
+  "@serviceUnavailable": {"description": "Shown when the backend service is unavailable"},
   "resultTitle": "Food Analysis",
   "@resultTitle": {
     "description": "Food analysis result screen title"

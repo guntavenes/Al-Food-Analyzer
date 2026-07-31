@@ -33,6 +33,14 @@ migrate_working_dir/
 /build/
 /coverage/
 
+# Backend
+/backend/node_modules/
+/backend/dist/
+/backend/coverage/
+/backend/.env
+/backend/.env.*
+!/backend/.env.example
+
 # Symbolication related
 app.*.symbols
 

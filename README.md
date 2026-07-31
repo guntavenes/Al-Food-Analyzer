@@ -1,66 +1,86 @@
 # AI Food Analyzer
 
-AI Food Analyzer için Flutter tabanlı, ölçeklenebilir mobil uygulama iskeleti.
-Bu aşamada ürün özelliği, kamera, AI, Firebase veya reklam entegrasyonu bulunmaz.
+Flutter istemcisi, Drift tabanlı yerel geçmiş ve TypeScript/Express mock analiz
+backend'inden oluşan geliştirme projesi. Gerçek AI servisi henüz bağlı değildir.
 
-## Teknoloji
+## Mimari
 
-- Flutter stable ve Dart
-- Clean Architecture
-- Feature-first klasör yapısı
-- Riverpod ile bağımlılık ve durum yönetimi
-- GoRouter ile yönlendirme
-- Material 3, açık/koyu tema
-- Flutter localization (başlangıç dili: English)
-- Flutter Lints ve ek katı analiz kuralları
+- Flutter: feature-first clean architecture, Riverpod, GoRouter, Dio ve Drift
+- Backend: Express, TypeScript, Zod, Multer ve mock `FoodAnalysisProvider`
+- Mobil uygulamada API anahtarı veya başka bir gizli bilgi bulunmaz
 
-## Klasör yapısı
-
-```text
-lib/
-├── app/                    # Uygulama kökü ve global kurulum
-├── core/                   # Tema, router, sabitler ve altyapı
-├── features/               # Feature-first modüller
-│   └── home/
-│       ├── data/           # Veri kaynakları, DTO/model ve repository impl.
-│       ├── domain/         # Entity, repository sözleşmesi ve use case
-│       └── presentation/   # Sayfa, widget ve Riverpod provider'ları
-├── l10n/                   # ARB dosyaları ve üretilen localization kodu
-├── shared/                 # Özellikler arasında paylaşılan bileşenler
-└── main.dart
-
-assets/
-├── animations/
-├── icons/
-└── images/
-```
-
-`data -> domain <- presentation` bağımlılık yönü korunmalıdır. `core`, uygulama
-genelindeki altyapıyı; `shared`, birden fazla özellikte kullanılan yeniden
-kullanılabilir parçaları barındırır.
-
-## Kurulum
-
-Flutter'ın stable kanalında olduğunuzdan emin olun:
+## Backend'i çalıştırma
 
 ```bash
-flutter channel stable
-flutter pub get
-flutter gen-l10n
-flutter analyze
-flutter test
-flutter run
+cd backend
+cp .env.example .env
+npm install
+npm run dev
 ```
 
-## Localization
+Doğrulama komutları:
 
-Kaynak çeviriler `lib/l10n` altındaki ARB dosyalarında tutulur. Yeni bir dil
-için `app_<locale>.arb` ekleyip `flutter gen-l10n` çalıştırın.
+```bash
+npm run typecheck
+npm run lint
+npm test
+npm run build
+```
 
-## Mimari notları
+Mock senaryoları `.env` üzerinden seçilir:
 
-- Her yeni özellik `lib/features/<feature_name>` altında kendi `data`, `domain`
-  ve `presentation` katmanlarıyla oluşturulur.
-- İş kuralları Flutter bağımlılığı taşımayan `domain` katmanında tutulur.
-- Uygulama genelindeki route tanımları `core/router` altında yönetilir.
-- Tema renkleri ve ThemeData tanımları `core/theme` altında merkezidir.
+```dotenv
+MOCK_ANALYSIS_FORCE_ERROR=false
+MOCK_ANALYSIS_NO_FOOD=false
+```
+
+Başarı için ikisini de `false`, kontrollü hata için `MOCK_ANALYSIS_FORCE_ERROR=true`,
+yemek algılanmaması için `MOCK_ANALYSIS_NO_FOOD=true` yapın ve backend'i yeniden
+başlatın.
+
+## Flutter uygulamasını çalıştırma
+
+```bash
+flutter pub get
+flutter gen-l10n
+flutter run --dart-define=API_BASE_URL=http://localhost:8080
+```
+
+Platforma göre API adresleri:
+
+- iOS Simulator: `http://localhost:8080`
+- Android Emulator: `http://10.0.2.2:8080`
+- Fiziksel cihaz: `http://BILGISAYARIN_YEREL_IP_ADRESI:8080`
+
+Android Emulator örneği:
+
+```bash
+flutter run --dart-define=API_BASE_URL=http://10.0.2.2:8080
+```
+
+Fiziksel cihaz ve bilgisayar aynı ağda olmalı; firewall port `8080` erişimine
+izin vermelidir. Android debug network config varsayılan olarak yalnızca
+`localhost` ve `10.0.2.2` için HTTP açar. Fiziksel Android cihazda HTTPS tüneli
+kullanın veya cihaz testi sırasında bilgisayarın tam yerel IP adresini yalnızca
+debug network config'e ekleyin. Release build, HTTPS olmayan `API_BASE_URL`
+değerini reddeder.
+
+## API
+
+- `GET /health`
+- `POST /v1/food/analyze`
+  - `multipart/form-data`
+  - zorunlu `image`
+  - opsiyonel `locale` (`en` veya `tr`)
+  - JPG, PNG ve WebP; en fazla 8 MB
+
+## Gizlilik ve güvenlik
+
+Seçilen fotoğraf analiz amacıyla backend'e gönderilir. Mock backend görseli
+yalnızca request belleğinde tutar; diske veya buluta kaydetmez, loglamaz ve
+response içinde geri döndürmez. Mobil uygulamada gerçek servis anahtarı kesinlikle
+bulundurulmamalıdır. Gerçek AI entegrasyonu yalnızca backend'de yapılacaktır.
+
+Gelecekte gerçek sağlayıcı bağlanmadan önce EXIF metadata'nın upload öncesinde
+silinmesi değerlendirilmelidir. Bu aşamada OpenAI çağrısı, OpenAI paketi veya API
+anahtarı yoktur.

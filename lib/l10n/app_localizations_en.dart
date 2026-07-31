@@ -60,6 +60,34 @@ class AppLocalizationsEn extends AppLocalizations {
       'Analysis could not be completed. Please try again.';
 
   @override
+  String get noFoodDetected =>
+      'No food could be detected in this image. Try another photo.';
+
+  @override
+  String get invalidImage =>
+      'This image is not supported. Choose a JPG, PNG, or WebP photo.';
+
+  @override
+  String get imageTooLarge =>
+      'This image is too large. Choose a photo under 8 MB.';
+
+  @override
+  String get rateLimited =>
+      'Too many analyses were requested. Please wait and try again.';
+
+  @override
+  String get analysisTimeout =>
+      'The analysis took too long. Check your connection and try again.';
+
+  @override
+  String get networkError =>
+      'The analysis service could not be reached. Check your connection and try again.';
+
+  @override
+  String get serviceUnavailable =>
+      'The analysis service is temporarily unavailable. Please try again.';
+
+  @override
   String get resultTitle => 'Food Analysis';
 
   @override
