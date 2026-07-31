@@ -3,31 +3,70 @@ import 'dart:io';
 import 'package:ai_food_analyzer/core/router/app_router.dart';
 import 'package:ai_food_analyzer/core/theme/app_colors.dart';
 import 'package:ai_food_analyzer/features/analysis/domain/entities/food_analysis.dart';
+import 'package:ai_food_analyzer/features/history/presentation/providers/history_providers.dart';
 import 'package:ai_food_analyzer/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 class FoodAnalysisResultArguments {
   const FoodAnalysisResultArguments({
     required this.imagePath,
     required this.analysis,
+    this.initiallySaved = false,
   });
 
   final String imagePath;
   final FoodAnalysis analysis;
+  final bool initiallySaved;
 }
 
-class FoodAnalysisResultPage extends StatelessWidget {
+class FoodAnalysisResultPage extends ConsumerStatefulWidget {
   const FoodAnalysisResultPage({required this.arguments, super.key});
 
   final FoodAnalysisResultArguments arguments;
+
+  @override
+  ConsumerState<FoodAnalysisResultPage> createState() =>
+      _FoodAnalysisResultPageState();
+}
+
+class _FoodAnalysisResultPageState
+    extends ConsumerState<FoodAnalysisResultPage> {
+  late final SaveAnalysisRequest _saveRequest;
+
+  @override
+  void initState() {
+    super.initState();
+    _saveRequest = SaveAnalysisRequest(
+      analysis: widget.arguments.analysis,
+      imagePath: widget.arguments.imagePath,
+    );
+  }
+
+  Future<void> _saveResult() async {
+    final savedId = await ref
+        .read(saveAnalysisProvider(_saveRequest).notifier)
+        .save();
+    if (savedId != null && mounted) {
+      final l10n = AppLocalizations.of(context);
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(l10n.analysisSaved)));
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
-    final analysis = arguments.analysis;
+    final analysis = widget.arguments.analysis;
+    final saveState = widget.arguments.initiallySaved
+        ? const AsyncData<int?>(0)
+        : ref.watch(saveAnalysisProvider(_saveRequest));
+    final isSaved = widget.arguments.initiallySaved || saveState.value != null;
+    final isSaving = saveState.isLoading;
 
     return Scaffold(
       backgroundColor: colors.surface,
@@ -55,7 +94,7 @@ class FoodAnalysisResultPage extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    _MealImage(imagePath: arguments.imagePath),
+                    _MealImage(imagePath: widget.arguments.imagePath),
                     const SizedBox(height: 24),
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -169,22 +208,83 @@ class FoodAnalysisResultPage extends StatelessWidget {
                     ),
                     const SizedBox(height: 12),
                     OutlinedButton.icon(
-                      onPressed: () {},
+                      onPressed: isSaved || isSaving ? null : _saveResult,
                       style: OutlinedButton.styleFrom(
                         minimumSize: const Size.fromHeight(58),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(20),
                         ),
                       ),
-                      icon: const Icon(Icons.bookmark_border_rounded),
-                      label: Text(l10n.saveResult),
+                      icon: isSaving
+                          ? const SizedBox.square(
+                              dimension: 20,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            )
+                          : Icon(
+                              isSaved
+                                  ? Icons.bookmark_added_rounded
+                                  : Icons.bookmark_border_rounded,
+                            ),
+                      label: Text(
+                        isSaving
+                            ? l10n.savingResult
+                            : isSaved
+                            ? l10n.saved
+                            : l10n.saveResult,
+                      ),
                     ),
+                    if (saveState.hasError && !isSaved) ...[
+                      const SizedBox(height: 12),
+                      _SaveError(
+                        message: l10n.saveAnalysisFailed,
+                        retryLabel: l10n.tryAgain,
+                        onRetry: _saveResult,
+                      ),
+                    ],
                   ],
                 ),
               ),
             ),
           );
         },
+      ),
+    );
+  }
+}
+
+class _SaveError extends StatelessWidget {
+  const _SaveError({
+    required this.message,
+    required this.retryLabel,
+    required this.onRetry,
+  });
+
+  final String message;
+  final String retryLabel;
+  final VoidCallback onRetry;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+
+    return Material(
+      color: colors.errorContainer,
+      borderRadius: BorderRadius.circular(16),
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(16, 10, 8, 10),
+        child: Row(
+          children: [
+            Icon(Icons.error_outline_rounded, color: colors.onErrorContainer),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                message,
+                style: TextStyle(color: colors.onErrorContainer),
+              ),
+            ),
+            TextButton(onPressed: onRetry, child: Text(retryLabel)),
+          ],
+        ),
       ),
     );
   }

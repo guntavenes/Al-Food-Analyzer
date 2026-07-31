@@ -104,4 +104,66 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get saveResult => 'Save Result';
+
+  @override
+  String get savingResult => 'Saving...';
+
+  @override
+  String get saved => 'Saved';
+
+  @override
+  String get analysisSaved => 'Analysis saved';
+
+  @override
+  String get saveAnalysisFailed =>
+      'The analysis could not be saved. Please try again.';
+
+  @override
+  String get historyTitle => 'History';
+
+  @override
+  String get emptyHistoryTitle => 'No saved analyses yet';
+
+  @override
+  String get emptyHistoryDescription =>
+      'Your saved meal analyses will appear here.';
+
+  @override
+  String get historyLoadFailed => 'Your saved analyses could not be loaded.';
+
+  @override
+  String get historyActionFailed =>
+      'The history action could not be completed.';
+
+  @override
+  String get deleteAnalysisTitle => 'Delete analysis?';
+
+  @override
+  String get deleteAnalysisMessage =>
+      'This analysis and its saved photo will be permanently deleted.';
+
+  @override
+  String get clearHistory => 'Clear history';
+
+  @override
+  String get clearHistoryTitle => 'Clear all history?';
+
+  @override
+  String get clearHistoryMessage =>
+      'All saved analyses and their photos will be permanently deleted.';
+
+  @override
+  String get cancel => 'Cancel';
+
+  @override
+  String get delete => 'Delete';
+
+  @override
+  String get clear => 'Clear';
+
+  @override
+  String get moreActions => 'More actions';
+
+  @override
+  String get analysisNotFound => 'This saved analysis could not be found.';
 }

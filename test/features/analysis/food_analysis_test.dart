@@ -99,20 +99,22 @@ void main() {
     addTearDown(() => tester.binding.setSurfaceSize(null));
 
     await tester.pumpWidget(
-      const _LocalizedTestApp(
-        home: FoodAnalysisResultPage(
-          arguments: FoodAnalysisResultArguments(
-            imagePath: '/missing/meal.jpg',
-            analysis: FoodAnalysis(
-              foodName: 'Grilled Chicken Bowl',
-              calories: 540,
-              proteinGrams: 32,
-              fatGrams: 18,
-              carbsGrams: 56,
-              fiberGrams: 7,
-              confidencePercent: 87,
-              servingDescription: '1 medium serving',
-              description: 'Balanced meal.',
+      const ProviderScope(
+        child: _LocalizedTestApp(
+          home: FoodAnalysisResultPage(
+            arguments: FoodAnalysisResultArguments(
+              imagePath: '/missing/meal.jpg',
+              analysis: FoodAnalysis(
+                foodName: 'Grilled Chicken Bowl',
+                calories: 540,
+                proteinGrams: 32,
+                fatGrams: 18,
+                carbsGrams: 56,
+                fiberGrams: 7,
+                confidencePercent: 87,
+                servingDescription: '1 medium serving',
+                description: 'Balanced meal.',
+              ),
             ),
           ),
         ),

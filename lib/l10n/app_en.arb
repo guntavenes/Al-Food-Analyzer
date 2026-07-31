@@ -114,5 +114,81 @@
   "saveResult": "Save Result",
   "@saveResult": {
     "description": "Placeholder action for saving the analysis result"
+  },
+  "savingResult": "Saving...",
+  "@savingResult": {
+    "description": "Loading label while an analysis is saved"
+  },
+  "saved": "Saved",
+  "@saved": {
+    "description": "Disabled action label after an analysis has been saved"
+  },
+  "analysisSaved": "Analysis saved",
+  "@analysisSaved": {
+    "description": "Confirmation shown after saving an analysis"
+  },
+  "saveAnalysisFailed": "The analysis could not be saved. Please try again.",
+  "@saveAnalysisFailed": {
+    "description": "Error shown when an analysis cannot be saved"
+  },
+  "historyTitle": "History",
+  "@historyTitle": {
+    "description": "Saved food analyses screen title"
+  },
+  "emptyHistoryTitle": "No saved analyses yet",
+  "@emptyHistoryTitle": {
+    "description": "Title shown when analysis history is empty"
+  },
+  "emptyHistoryDescription": "Your saved meal analyses will appear here.",
+  "@emptyHistoryDescription": {
+    "description": "Description shown when analysis history is empty"
+  },
+  "historyLoadFailed": "Your saved analyses could not be loaded.",
+  "@historyLoadFailed": {
+    "description": "Error shown when history cannot be loaded"
+  },
+  "historyActionFailed": "The history action could not be completed.",
+  "@historyActionFailed": {
+    "description": "Error shown when deleting or clearing history fails"
+  },
+  "deleteAnalysisTitle": "Delete analysis?",
+  "@deleteAnalysisTitle": {
+    "description": "Title of the delete analysis confirmation dialog"
+  },
+  "deleteAnalysisMessage": "This analysis and its saved photo will be permanently deleted.",
+  "@deleteAnalysisMessage": {
+    "description": "Message in the delete analysis confirmation dialog"
+  },
+  "clearHistory": "Clear history",
+  "@clearHistory": {
+    "description": "Tooltip for clearing all history"
+  },
+  "clearHistoryTitle": "Clear all history?",
+  "@clearHistoryTitle": {
+    "description": "Title of the clear history confirmation dialog"
+  },
+  "clearHistoryMessage": "All saved analyses and their photos will be permanently deleted.",
+  "@clearHistoryMessage": {
+    "description": "Message in the clear history confirmation dialog"
+  },
+  "cancel": "Cancel",
+  "@cancel": {
+    "description": "Generic cancel action"
+  },
+  "delete": "Delete",
+  "@delete": {
+    "description": "Generic delete action"
+  },
+  "clear": "Clear",
+  "@clear": {
+    "description": "Generic clear action"
+  },
+  "moreActions": "More actions",
+  "@moreActions": {
+    "description": "Tooltip for opening a record action menu"
+  },
+  "analysisNotFound": "This saved analysis could not be found.",
+  "@analysisNotFound": {
+    "description": "Message shown when a saved analysis no longer exists"
   }
 }

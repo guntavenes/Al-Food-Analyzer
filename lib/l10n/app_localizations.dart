@@ -267,6 +267,120 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Save Result'**
   String get saveResult;
+
+  /// Loading label while an analysis is saved
+  ///
+  /// In en, this message translates to:
+  /// **'Saving...'**
+  String get savingResult;
+
+  /// Disabled action label after an analysis has been saved
+  ///
+  /// In en, this message translates to:
+  /// **'Saved'**
+  String get saved;
+
+  /// Confirmation shown after saving an analysis
+  ///
+  /// In en, this message translates to:
+  /// **'Analysis saved'**
+  String get analysisSaved;
+
+  /// Error shown when an analysis cannot be saved
+  ///
+  /// In en, this message translates to:
+  /// **'The analysis could not be saved. Please try again.'**
+  String get saveAnalysisFailed;
+
+  /// Saved food analyses screen title
+  ///
+  /// In en, this message translates to:
+  /// **'History'**
+  String get historyTitle;
+
+  /// Title shown when analysis history is empty
+  ///
+  /// In en, this message translates to:
+  /// **'No saved analyses yet'**
+  String get emptyHistoryTitle;
+
+  /// Description shown when analysis history is empty
+  ///
+  /// In en, this message translates to:
+  /// **'Your saved meal analyses will appear here.'**
+  String get emptyHistoryDescription;
+
+  /// Error shown when history cannot be loaded
+  ///
+  /// In en, this message translates to:
+  /// **'Your saved analyses could not be loaded.'**
+  String get historyLoadFailed;
+
+  /// Error shown when deleting or clearing history fails
+  ///
+  /// In en, this message translates to:
+  /// **'The history action could not be completed.'**
+  String get historyActionFailed;
+
+  /// Title of the delete analysis confirmation dialog
+  ///
+  /// In en, this message translates to:
+  /// **'Delete analysis?'**
+  String get deleteAnalysisTitle;
+
+  /// Message in the delete analysis confirmation dialog
+  ///
+  /// In en, this message translates to:
+  /// **'This analysis and its saved photo will be permanently deleted.'**
+  String get deleteAnalysisMessage;
+
+  /// Tooltip for clearing all history
+  ///
+  /// In en, this message translates to:
+  /// **'Clear history'**
+  String get clearHistory;
+
+  /// Title of the clear history confirmation dialog
+  ///
+  /// In en, this message translates to:
+  /// **'Clear all history?'**
+  String get clearHistoryTitle;
+
+  /// Message in the clear history confirmation dialog
+  ///
+  /// In en, this message translates to:
+  /// **'All saved analyses and their photos will be permanently deleted.'**
+  String get clearHistoryMessage;
+
+  /// Generic cancel action
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get cancel;
+
+  /// Generic delete action
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get delete;
+
+  /// Generic clear action
+  ///
+  /// In en, this message translates to:
+  /// **'Clear'**
+  String get clear;
+
+  /// Tooltip for opening a record action menu
+  ///
+  /// In en, this message translates to:
+  /// **'More actions'**
+  String get moreActions;
+
+  /// Message shown when a saved analysis no longer exists
+  ///
+  /// In en, this message translates to:
+  /// **'This saved analysis could not be found.'**
+  String get analysisNotFound;
 }
 
 class _AppLocalizationsDelegate

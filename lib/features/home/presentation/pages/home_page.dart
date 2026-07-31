@@ -33,6 +33,21 @@ class HomePage extends StatelessWidget {
               left: -120,
               child: _AmbientGlow(size: 340, color: Color(0x2619B88A)),
             ),
+            Positioned(
+              top: 10,
+              right: 18,
+              child: SafeArea(
+                child: IconButton.filledTonal(
+                  tooltip: l10n.historyTitle,
+                  onPressed: () => context.push(AppRoutes.history),
+                  style: IconButton.styleFrom(
+                    backgroundColor: Colors.white.withValues(alpha: 0.78),
+                    foregroundColor: AppColors.ink,
+                  ),
+                  icon: const Icon(Icons.history_rounded),
+                ),
+              ),
+            ),
             SafeArea(
               child: LayoutBuilder(
                 builder: (context, constraints) {
