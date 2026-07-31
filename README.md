@@ -1,12 +1,12 @@
 # AI Food Analyzer
 
-Flutter istemcisi, Drift tabanlı yerel geçmiş ve TypeScript/Express mock analiz
-backend'inden oluşan geliştirme projesi. Gerçek AI servisi henüz bağlı değildir.
+Flutter istemcisi, Drift tabanlı yerel geçmiş ve TypeScript/Express analiz
+backend'inden oluşan geliştirme projesi. Backend mock veya OpenAI sağlayıcısıyla çalışabilir.
 
 ## Mimari
 
 - Flutter: feature-first clean architecture, Riverpod, GoRouter, Dio ve Drift
-- Backend: Express, TypeScript, Zod, Multer ve mock `FoodAnalysisProvider`
+- Backend: Express, TypeScript, Zod, Multer ve değiştirilebilir `FoodAnalysisProvider`
 - Mobil uygulamada API anahtarı veya başka bir gizli bilgi bulunmaz
 
 ## Backend'i çalıştırma
@@ -37,6 +37,24 @@ MOCK_ANALYSIS_NO_FOOD=false
 Başarı için ikisini de `false`, kontrollü hata için `MOCK_ANALYSIS_FORCE_ERROR=true`,
 yemek algılanmaması için `MOCK_ANALYSIS_NO_FOOD=true` yapın ve backend'i yeniden
 başlatın.
+
+Gerçek analiz yalnızca backend'de etkinleştirilir. Model adı bilinçli olarak
+varsayılan içermez; hesabınızda görsel girdi ve Structured Outputs destekleyen
+modeli açıkça seçin:
+
+```dotenv
+FOOD_ANALYSIS_PROVIDER=openai
+OPENAI_API_KEY=your_server_side_key
+OPENAI_MODEL=your_explicit_model_name
+OPENAI_TIMEOUT_MS=30000
+OPENAI_MAX_RETRIES=1
+OPENAI_IMAGE_DETAIL=low
+```
+
+Anahtar veya model eksikse OpenAI modu başlamaz. `mock` modu API anahtarı olmadan
+çalışmaya devam eder. `low` image detail maliyeti düşürür ancak küçük içeriklerin
+ve porsiyon ipuçlarının doğruluğunu azaltabilir; `high` daha fazla token ve maliyet
+oluşturabilir. Kullanım ve fiyatlandırmayı seçilen model için ayrıca izleyin.
 
 ## Flutter uygulamasını çalıştırma
 
@@ -76,19 +94,19 @@ değerini reddeder.
 
 ## Gizlilik ve güvenlik
 
-Seçilen fotoğraf analiz amacıyla backend'e gönderilir. Mock backend görseli
-yalnızca request belleğinde tutar; diske veya buluta kaydetmez, loglamaz ve
-response içinde geri döndürmez. Mobil uygulamada gerçek servis anahtarı kesinlikle
-bulundurulmamalıdır. Gerçek AI entegrasyonu yalnızca backend'de yapılacaktır.
+Seçilen fotoğraf analiz amacıyla backend'e gönderilir. Backend görseli yalnızca
+request belleğinde tutar; diske kaydetmez, loglamaz ve response içinde geri
+döndürmez. OpenAI modu seçildiğinde görsel analiz için OpenAI API'ye aktarılır ve
+sağlayıcının veri saklama/işleme koşulları ayrıca değerlendirilmelidir. Mobil
+uygulamada gerçek servis anahtarı kesinlikle bulundurulmamalıdır.
 
-Gelecekte gerçek sağlayıcı bağlanmadan önce EXIF metadata'nın upload öncesinde
-silinmesi değerlendirilmelidir. Bu aşamada OpenAI çağrısı, OpenAI paketi veya API
-anahtarı yoktur.
+Production öncesinde EXIF metadata'nın upload öncesinde silinmesi, kullanıcı
+onayı, veri bölgesi ve saklama politikaları değerlendirilmelidir.
 
 ## AI davranış sözleşmesi
 
-Gelecekte bağlanacak AI sağlayıcısı, backend'deki Zod şemasına uyan yapılandırılmış
-JSON üretmelidir. Sistem davranışı [system prompt](backend/prompts/food-analysis-system-prompt.md)
+OpenAI sağlayıcısı, backend'deki Zod şemasından üretilen strict Structured Output
+ile JSON üretir ve sonuç tekrar aynı Zod sözleşmesiyle doğrulanır. Sistem davranışı [system prompt](backend/prompts/food-analysis-system-prompt.md)
 ve [örnekler](backend/prompts/food-analysis-examples.md) ile tanımlanmıştır.
 
 - Yalnızca görsel tarafından desteklenen yemekleri raporlar; belirsiz bilgiyi uydurmaz.
@@ -99,5 +117,7 @@ ve [örnekler](backend/prompts/food-analysis-examples.md) ile tanımlanmıştır
 - Sonuçların tahmin olduğunu ve içerik/porsiyona göre değişebileceğini açıklar.
 - Gerçek sağlayıcı response'u endpoint'e ulaşmadan önce Zod ile doğrulanır.
 
-`OpenAIFoodAnalysisProvider` yalnızca gelecekteki server-side entegrasyon noktalarını
-belgeleyen bir iskelettir; şu anda hiçbir OpenAI isteği yapmaz.
+Görsel içindeki metinler güvenilmeyen içerik sayılır ve talimat olarak uygulanmaz.
+Refusal, timeout, rate limit, yetkilendirme ve şema hataları mevcut güvenli endpoint
+hata sözleşmesine çevrilir. Loglar fotoğraf, base64, prompt, API anahtarı veya ham
+sağlayıcı cevabı içermez.

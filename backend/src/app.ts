@@ -8,15 +8,12 @@ import { localeSchema, foodAnalysisResponseSchema } from './contracts.js';
 import type { AppConfig } from './config.js';
 import { AppError, errorHandler } from './errors.js';
 import { validateImage } from './image-validation.js';
-import { MockFoodAnalysisProvider } from './providers/mock-food-analysis-provider.js';
-import { OpenAIFoodAnalysisProvider } from './providers/openai-food-analysis-provider.js';
+import { createFoodAnalysisProvider } from './providers/create-food-analysis-provider.js';
 import type { FoodAnalysisProvider } from './providers/food-analysis-provider.js';
 
 export function createApp(config: AppConfig, providerOverride?: FoodAnalysisProvider) {
   const app = express();
-  const provider = providerOverride ?? (config.providerName === 'mock'
-    ? new MockFoodAnalysisProvider(config.mockDelayMs, config.mockForceError, config.mockNoFood)
-    : new OpenAIFoodAnalysisProvider());
+  const provider = providerOverride ?? createFoodAnalysisProvider(config);
   const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: config.maxImageBytes, files: 1 } });
 
   app.disable('x-powered-by');

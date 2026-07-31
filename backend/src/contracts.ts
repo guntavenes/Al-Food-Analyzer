@@ -9,15 +9,14 @@ export const detectedFoodSchema = z.object({
   confidence: z.number().min(0).max(1).finite()
 }).strict();
 
-const commonResponseFields = {
-  requestId: z.uuid(),
+const commonModelFields = {
   analysisDescription: z.string().trim().min(1).max(1000),
   warnings: z.array(z.string().trim().min(1).max(300)).max(20),
   detectedFoods: z.array(detectedFoodSchema).max(30)
 };
 
-const detectedFoodResponseSchema = z.object({
-  ...commonResponseFields,
+const detectedFoodModelSchema = z.object({
+  ...commonModelFields,
   foodName: z.string().trim().min(1).max(200),
   calories: z.number().nonnegative().finite(),
   protein: z.number().nonnegative().finite(),
@@ -33,8 +32,8 @@ const detectedFoodResponseSchema = z.object({
   isFoodDetected: z.literal(true)
 }).strict();
 
-const noFoodResponseSchema = z.object({
-  ...commonResponseFields,
+const noFoodModelSchema = z.object({
+  ...commonModelFields,
   foodName: z.null(),
   calories: z.null(),
   protein: z.null(),
@@ -51,11 +50,17 @@ const noFoodResponseSchema = z.object({
   isFoodDetected: z.literal(false)
 }).strict();
 
+export const foodAnalysisModelOutputSchema = z.discriminatedUnion('isFoodDetected', [
+  detectedFoodModelSchema,
+  noFoodModelSchema
+]);
+
 export const foodAnalysisResponseSchema = z.discriminatedUnion('isFoodDetected', [
-  detectedFoodResponseSchema,
-  noFoodResponseSchema
+  detectedFoodModelSchema.extend({ requestId: z.uuid() }).strict(),
+  noFoodModelSchema.extend({ requestId: z.uuid() }).strict()
 ]);
 
 export type DetectedFood = z.infer<typeof detectedFoodSchema>;
 export type FoodAnalysisResponse = z.infer<typeof foodAnalysisResponseSchema>;
+export type FoodAnalysisModelOutput = z.infer<typeof foodAnalysisModelOutputSchema>;
 export type AnalyzeInput = { image: Buffer; mimeType: string; locale?: 'en' | 'tr' };

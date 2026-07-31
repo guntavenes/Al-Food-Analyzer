@@ -7,7 +7,8 @@ const png = Buffer.from([137, 80, 78, 71, 13, 10, 26, 10, 1, 2, 3]);
 const baseConfig: AppConfig = {
   port: 8080, nodeEnv: 'test', providerName: 'mock', maxImageBytes: 8 * 1024 * 1024,
   mockDelayMs: 0, mockForceError: false, mockNoFood: false,
-  corsOrigins: ['http://localhost'], rateLimitWindowMs: 60000, rateLimitMaxRequests: 30
+  corsOrigins: ['http://localhost'], rateLimitWindowMs: 60000, rateLimitMaxRequests: 30,
+  openaiTimeoutMs: 30000, openaiMaxRetries: 1, openaiImageDetail: 'low'
 };
 
 describe('backend API', () => {
