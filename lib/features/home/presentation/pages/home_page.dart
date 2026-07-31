@@ -5,8 +5,24 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
   const HomePage({super.key});
+
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  bool _isOpeningHistory = false;
+
+  Future<void> _openHistory() async {
+    if (_isOpeningHistory) return;
+    setState(() => _isOpeningHistory = true);
+    await context.push(AppRoutes.history);
+    if (mounted) {
+      setState(() => _isOpeningHistory = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -32,21 +48,6 @@ class HomePage extends StatelessWidget {
               bottom: -140,
               left: -120,
               child: _AmbientGlow(size: 340, color: Color(0x2619B88A)),
-            ),
-            Positioned(
-              top: 10,
-              right: 18,
-              child: SafeArea(
-                child: IconButton.filledTonal(
-                  tooltip: l10n.historyTitle,
-                  onPressed: () => context.push(AppRoutes.history),
-                  style: IconButton.styleFrom(
-                    backgroundColor: Colors.white.withValues(alpha: 0.78),
-                    foregroundColor: AppColors.ink,
-                  ),
-                  icon: const Icon(Icons.history_rounded),
-                ),
-              ),
             ),
             SafeArea(
               child: LayoutBuilder(
@@ -127,6 +128,21 @@ class HomePage extends StatelessWidget {
                     ),
                   );
                 },
+              ),
+            ),
+            Positioned(
+              top: 10,
+              right: 18,
+              child: SafeArea(
+                child: IconButton.filledTonal(
+                  tooltip: l10n.historyTitle,
+                  onPressed: _isOpeningHistory ? null : _openHistory,
+                  style: IconButton.styleFrom(
+                    backgroundColor: Colors.white.withValues(alpha: 0.78),
+                    foregroundColor: AppColors.ink,
+                  ),
+                  icon: const Icon(Icons.history_rounded),
+                ),
               ),
             ),
           ],
