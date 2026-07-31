@@ -4,8 +4,24 @@
   "@appName": {
     "description": "Application name"
   },
-  "projectReady": "Project foundation is ready.",
-  "@projectReady": {
-    "description": "Initial placeholder shown before features are implemented"
+  "homeTitle": "Take a photo of\nyour meal",
+  "@homeTitle": {
+    "description": "Main call to action on the home screen"
+  },
+  "homeDescription": "Get instant insights into calories, nutrients, and ingredients with one simple photo.",
+  "@homeDescription": {
+    "description": "Explains the value of photographing a meal"
+  },
+  "takePhoto": "Take a photo",
+  "@takePhoto": {
+    "description": "Primary camera button label"
+  },
+  "chooseFromGallery": "Choose from gallery",
+  "@chooseFromGallery": {
+    "description": "Secondary gallery button label"
+  },
+  "aiPowered": "AI-POWERED NUTRITION",
+  "@aiPowered": {
+    "description": "Small premium feature label"
   }
 }

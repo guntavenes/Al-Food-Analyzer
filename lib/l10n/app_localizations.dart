@@ -100,11 +100,35 @@ abstract class AppLocalizations {
   /// **'AI Food Analyzer'**
   String get appName;
 
-  /// Initial placeholder shown before features are implemented
+  /// Main call to action on the home screen
   ///
   /// In en, this message translates to:
-  /// **'Project foundation is ready.'**
-  String get projectReady;
+  /// **'Take a photo of\nyour meal'**
+  String get homeTitle;
+
+  /// Explains the value of photographing a meal
+  ///
+  /// In en, this message translates to:
+  /// **'Get instant insights into calories, nutrients, and ingredients with one simple photo.'**
+  String get homeDescription;
+
+  /// Primary camera button label
+  ///
+  /// In en, this message translates to:
+  /// **'Take a photo'**
+  String get takePhoto;
+
+  /// Secondary gallery button label
+  ///
+  /// In en, this message translates to:
+  /// **'Choose from gallery'**
+  String get chooseFromGallery;
+
+  /// Small premium feature label
+  ///
+  /// In en, this message translates to:
+  /// **'AI-POWERED NUTRITION'**
+  String get aiPowered;
 }
 
 class _AppLocalizationsDelegate
