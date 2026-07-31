@@ -1,3 +1,4 @@
+import 'package:ai_food_analyzer/features/analysis/presentation/pages/food_analysis_result_page.dart';
 import 'package:ai_food_analyzer/features/capture/presentation/pages/camera_page.dart';
 import 'package:ai_food_analyzer/features/capture/presentation/pages/photo_preview_page.dart';
 import 'package:ai_food_analyzer/features/home/presentation/pages/home_page.dart';
@@ -28,6 +29,18 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           return PhotoPreviewPage(imagePath: imagePath);
         },
       ),
+      GoRoute(
+        path: AppRoutes.result,
+        builder: (context, state) {
+          final arguments = state.extra;
+
+          if (arguments is! FoodAnalysisResultArguments) {
+            return const HomePage();
+          }
+
+          return FoodAnalysisResultPage(arguments: arguments);
+        },
+      ),
     ],
   );
 
@@ -39,4 +52,5 @@ abstract final class AppRoutes {
   static const home = '/';
   static const camera = '/camera';
   static const preview = '/preview';
+  static const result = '/result';
 }

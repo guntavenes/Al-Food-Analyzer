@@ -60,7 +60,48 @@ class AppLocalizationsEn extends AppLocalizations {
       'Analysis could not be completed. Please try again.';
 
   @override
-  String analysisSummary(int calories, int protein, int fat, int carbs) {
-    return 'Calories: $calories  •  Protein: ${protein}g  •  Fat: ${fat}g  •  Carbs: ${carbs}g';
+  String get resultTitle => 'Food Analysis';
+
+  @override
+  String get estimatedCalories => 'ESTIMATED CALORIES';
+
+  @override
+  String calorieValue(int calories) {
+    return '$calories kcal';
   }
+
+  @override
+  String gramValue(int grams) {
+    return '$grams g';
+  }
+
+  @override
+  String get proteinLabel => 'Protein';
+
+  @override
+  String get carbsLabel => 'Carbs';
+
+  @override
+  String get fatLabel => 'Fat';
+
+  @override
+  String get fiberLabel => 'Fiber';
+
+  @override
+  String get confidenceLabel => 'Confidence';
+
+  @override
+  String confidenceValue(int confidence) {
+    return '%$confidence';
+  }
+
+  @override
+  String get analysisDisclaimer =>
+      'This result is an AI-powered estimate and should not replace professional nutritional advice.';
+
+  @override
+  String get analyzeAnotherMeal => 'Analyze Another Meal';
+
+  @override
+  String get saveResult => 'Save Result';
 }

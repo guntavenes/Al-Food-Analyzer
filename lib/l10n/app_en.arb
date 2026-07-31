@@ -64,14 +64,55 @@
   "@analysisFailed": {
     "description": "Error shown when food analysis fails"
   },
-  "analysisSummary": "Calories: {calories}  •  Protein: {protein}g  •  Fat: {fat}g  •  Carbs: {carbs}g",
-  "@analysisSummary": {
-    "description": "Temporary summary of fake food analysis results",
+  "resultTitle": "Food Analysis",
+  "@resultTitle": {
+    "description": "Food analysis result screen title"
+  },
+  "estimatedCalories": "ESTIMATED CALORIES",
+  "@estimatedCalories": {
+    "description": "Label above the prominent calorie value"
+  },
+  "calorieValue": "{calories} kcal",
+  "@calorieValue": {
+    "description": "Formatted calorie result",
     "placeholders": {
-      "calories": {"type": "int"},
-      "protein": {"type": "int"},
-      "fat": {"type": "int"},
-      "carbs": {"type": "int"}
+      "calories": {"type": "int"}
     }
+  },
+  "gramValue": "{grams} g",
+  "@gramValue": {
+    "description": "Formatted nutrient amount in grams",
+    "placeholders": {
+      "grams": {"type": "int"}
+    }
+  },
+  "proteinLabel": "Protein",
+  "@proteinLabel": {"description": "Protein nutrient label"},
+  "carbsLabel": "Carbs",
+  "@carbsLabel": {"description": "Carbohydrate nutrient label"},
+  "fatLabel": "Fat",
+  "@fatLabel": {"description": "Fat nutrient label"},
+  "fiberLabel": "Fiber",
+  "@fiberLabel": {"description": "Fiber nutrient label"},
+  "confidenceLabel": "Confidence",
+  "@confidenceLabel": {"description": "Analysis confidence label"},
+  "confidenceValue": "%{confidence}",
+  "@confidenceValue": {
+    "description": "Formatted confidence percentage",
+    "placeholders": {
+      "confidence": {"type": "int"}
+    }
+  },
+  "analysisDisclaimer": "This result is an AI-powered estimate and should not replace professional nutritional advice.",
+  "@analysisDisclaimer": {
+    "description": "Clarifies that the nutrition result is an estimate"
+  },
+  "analyzeAnotherMeal": "Analyze Another Meal",
+  "@analyzeAnotherMeal": {
+    "description": "Returns to the home screen to analyze another meal"
+  },
+  "saveResult": "Save Result",
+  "@saveResult": {
+    "description": "Placeholder action for saving the analysis result"
   }
 }

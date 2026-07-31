@@ -20,10 +20,17 @@ class FakeFoodAnalysisDataSource implements FoodAnalysisDataSource {
     await Future<void>.delayed(responseDelay);
 
     return const FoodAnalysisModel(
+      foodName: 'Grilled Chicken Bowl',
       calories: 540,
       proteinGrams: 32,
       fatGrams: 18,
       carbsGrams: 56,
+      fiberGrams: 7,
+      confidencePercent: 87,
+      servingDescription: '1 medium serving',
+      description:
+          'A balanced meal with a good amount of protein. Calories may vary '
+          'depending on portion size and ingredients.',
     );
   }
 }

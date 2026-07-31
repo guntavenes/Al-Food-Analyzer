@@ -190,11 +190,83 @@ abstract class AppLocalizations {
   /// **'Analysis could not be completed. Please try again.'**
   String get analysisFailed;
 
-  /// Temporary summary of fake food analysis results
+  /// Food analysis result screen title
   ///
   /// In en, this message translates to:
-  /// **'Calories: {calories}  •  Protein: {protein}g  •  Fat: {fat}g  •  Carbs: {carbs}g'**
-  String analysisSummary(int calories, int protein, int fat, int carbs);
+  /// **'Food Analysis'**
+  String get resultTitle;
+
+  /// Label above the prominent calorie value
+  ///
+  /// In en, this message translates to:
+  /// **'ESTIMATED CALORIES'**
+  String get estimatedCalories;
+
+  /// Formatted calorie result
+  ///
+  /// In en, this message translates to:
+  /// **'{calories} kcal'**
+  String calorieValue(int calories);
+
+  /// Formatted nutrient amount in grams
+  ///
+  /// In en, this message translates to:
+  /// **'{grams} g'**
+  String gramValue(int grams);
+
+  /// Protein nutrient label
+  ///
+  /// In en, this message translates to:
+  /// **'Protein'**
+  String get proteinLabel;
+
+  /// Carbohydrate nutrient label
+  ///
+  /// In en, this message translates to:
+  /// **'Carbs'**
+  String get carbsLabel;
+
+  /// Fat nutrient label
+  ///
+  /// In en, this message translates to:
+  /// **'Fat'**
+  String get fatLabel;
+
+  /// Fiber nutrient label
+  ///
+  /// In en, this message translates to:
+  /// **'Fiber'**
+  String get fiberLabel;
+
+  /// Analysis confidence label
+  ///
+  /// In en, this message translates to:
+  /// **'Confidence'**
+  String get confidenceLabel;
+
+  /// Formatted confidence percentage
+  ///
+  /// In en, this message translates to:
+  /// **'%{confidence}'**
+  String confidenceValue(int confidence);
+
+  /// Clarifies that the nutrition result is an estimate
+  ///
+  /// In en, this message translates to:
+  /// **'This result is an AI-powered estimate and should not replace professional nutritional advice.'**
+  String get analysisDisclaimer;
+
+  /// Returns to the home screen to analyze another meal
+  ///
+  /// In en, this message translates to:
+  /// **'Analyze Another Meal'**
+  String get analyzeAnotherMeal;
+
+  /// Placeholder action for saving the analysis result
+  ///
+  /// In en, this message translates to:
+  /// **'Save Result'**
+  String get saveResult;
 }
 
 class _AppLocalizationsDelegate
