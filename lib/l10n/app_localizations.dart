@@ -172,11 +172,11 @@ abstract class AppLocalizations {
   /// **'Photo ready'**
   String get previewReady;
 
-  /// Returns from preview to photo selection
+  /// Primary action on the meal photo preview
   ///
   /// In en, this message translates to:
-  /// **'Choose another photo'**
-  String get chooseAnother;
+  /// **'Analyze Food'**
+  String get analyzeFood;
 }
 
 class _AppLocalizationsDelegate

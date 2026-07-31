@@ -89,18 +89,33 @@ class PhotoPreviewPage extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 16),
-              OutlinedButton.icon(
-                onPressed: context.pop,
-                style: OutlinedButton.styleFrom(
-                  foregroundColor: Colors.white,
-                  minimumSize: const Size.fromHeight(58),
-                  side: const BorderSide(color: Colors.white24),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(18),
+              DecoratedBox(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(20),
+                  gradient: const LinearGradient(
+                    colors: [Color(0xFF22B879), AppColors.teal],
                   ),
+                  boxShadow: const [
+                    BoxShadow(
+                      color: Color(0x52129B70),
+                      blurRadius: 26,
+                      offset: Offset(0, 12),
+                    ),
+                  ],
                 ),
-                icon: const Icon(Icons.refresh_rounded),
-                label: Text(l10n.chooseAnother),
+                child: FilledButton.icon(
+                  onPressed: () {},
+                  style: FilledButton.styleFrom(
+                    backgroundColor: Colors.transparent,
+                    shadowColor: Colors.transparent,
+                    minimumSize: const Size.fromHeight(64),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                  ),
+                  icon: const Icon(Icons.auto_awesome_rounded, size: 22),
+                  label: Text(l10n.analyzeFood),
+                ),
               ),
             ],
           ),

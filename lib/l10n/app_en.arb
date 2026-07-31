@@ -52,8 +52,8 @@
   "@previewReady": {
     "description": "Confirms that a photo was selected"
   },
-  "chooseAnother": "Choose another photo",
-  "@chooseAnother": {
-    "description": "Returns from preview to photo selection"
+  "analyzeFood": "Analyze Food",
+  "@analyzeFood": {
+    "description": "Primary action on the meal photo preview"
   }
 }

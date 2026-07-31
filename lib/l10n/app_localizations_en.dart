@@ -50,5 +50,5 @@ class AppLocalizationsEn extends AppLocalizations {
   String get previewReady => 'Photo ready';
 
   @override
-  String get chooseAnother => 'Choose another photo';
+  String get analyzeFood => 'Analyze Food';
 }
