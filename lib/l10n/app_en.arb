@@ -1,0 +1,11 @@
+{
+  "@@locale": "en",
+  "appName": "AI Food Analyzer",
+  "@appName": {
+    "description": "Application name"
+  },
+  "projectReady": "Project foundation is ready.",
+  "@projectReady": {
+    "description": "Initial placeholder shown before features are implemented"
+  }
+}
