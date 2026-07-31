@@ -84,3 +84,20 @@ bulundurulmamalıdır. Gerçek AI entegrasyonu yalnızca backend'de yapılacakt�
 Gelecekte gerçek sağlayıcı bağlanmadan önce EXIF metadata'nın upload öncesinde
 silinmesi değerlendirilmelidir. Bu aşamada OpenAI çağrısı, OpenAI paketi veya API
 anahtarı yoktur.
+
+## AI davranış sözleşmesi
+
+Gelecekte bağlanacak AI sağlayıcısı, backend'deki Zod şemasına uyan yapılandırılmış
+JSON üretmelidir. Sistem davranışı [system prompt](backend/prompts/food-analysis-system-prompt.md)
+ve [örnekler](backend/prompts/food-analysis-examples.md) ile tanımlanmıştır.
+
+- Yalnızca görsel tarafından desteklenen yemekleri raporlar; belirsiz bilgiyi uydurmaz.
+- Porsiyon ve gram değerlerini görünür ölçek ipuçlarına göre tahmin eder.
+- Belirsizlik arttıkça confidence değerini düşürür ve warnings alanını kullanır.
+- Birden fazla yemeği `detectedFoods` içinde ayrı ayrı raporlar.
+- Yemek yoksa `isFoodDetected=false` ve besin alanlarında `null` döndürür.
+- Sonuçların tahmin olduğunu ve içerik/porsiyona göre değişebileceğini açıklar.
+- Gerçek sağlayıcı response'u endpoint'e ulaşmadan önce Zod ile doğrulanır.
+
+`OpenAIFoodAnalysisProvider` yalnızca gelecekteki server-side entegrasyon noktalarını
+belgeleyen bir iskelettir; şu anda hiçbir OpenAI isteği yapmaz.

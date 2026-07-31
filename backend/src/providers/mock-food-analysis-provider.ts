@@ -25,10 +25,15 @@ export class MockFoodAnalysisProvider implements FoodAnalysisProvider {
         carbohydrates: null,
         fat: null,
         fiber: null,
+        sugar: null,
+        sodium: null,
         confidence: 0,
         servingDescription: null,
+        servingWeightGrams: null,
+        healthScore: null,
         analysisDescription: 'No food could be detected in this image.',
         warnings: [],
+        detectedFoods: [],
         isFoodDetected: false
       };
     }
@@ -40,10 +45,19 @@ export class MockFoodAnalysisProvider implements FoodAnalysisProvider {
       carbohydrates: 56,
       fat: 18,
       fiber: 7,
+      sugar: 8,
+      sodium: 720,
       confidence: 0.87,
       servingDescription: '1 medium serving',
+      servingWeightGrams: 420,
+      healthScore: 78,
       analysisDescription: 'A balanced meal with a good amount of protein.',
       warnings: [],
+      detectedFoods: [
+        { name: 'Grilled chicken', estimatedWeightGrams: 140, calories: 230, confidence: 0.93 },
+        { name: 'Rice', estimatedWeightGrams: 180, calories: 235, confidence: 0.88 },
+        { name: 'Mixed vegetables', estimatedWeightGrams: 100, calories: 75, confidence: 0.82 }
+      ],
       isFoodDetected: true
     };
   }

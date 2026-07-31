@@ -20,7 +20,16 @@ describe('backend API', () => {
   it('analyzes a valid image', async () => {
     const response = await request(createApp(baseConfig)).post('/v1/food/analyze').attach('image', png, { filename: 'meal.png', contentType: 'image/png' });
     expect(response.status).toBe(200);
-    expect(response.body).toMatchObject({ foodName: 'Grilled Chicken Bowl', isFoodDetected: true, confidence: 0.87 });
+    expect(response.body).toMatchObject({
+      foodName: 'Grilled Chicken Bowl',
+      isFoodDetected: true,
+      confidence: 0.87,
+      sugar: 8,
+      sodium: 720,
+      servingWeightGrams: 420,
+      healthScore: 78
+    });
+    expect(response.body.detectedFoods).toHaveLength(3);
   });
 
   it('rejects a request without an image', async () => {
