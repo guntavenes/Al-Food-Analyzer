@@ -1,14 +1,66 @@
 import 'dart:io';
 
 import 'package:ai_food_analyzer/core/theme/app_colors.dart';
+import 'package:ai_food_analyzer/features/analysis/domain/entities/food_analysis.dart';
+import 'package:ai_food_analyzer/features/analysis/presentation/providers/food_analysis_providers.dart';
 import 'package:ai_food_analyzer/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-class PhotoPreviewPage extends StatelessWidget {
+class PhotoPreviewPage extends ConsumerStatefulWidget {
   const PhotoPreviewPage({required this.imagePath, super.key});
 
   final String imagePath;
+
+  @override
+  ConsumerState<PhotoPreviewPage> createState() => _PhotoPreviewPageState();
+}
+
+class _PhotoPreviewPageState extends ConsumerState<PhotoPreviewPage> {
+  bool _isAnalyzing = false;
+
+  Future<void> _analyzeFood() async {
+    setState(() => _isAnalyzing = true);
+
+    try {
+      final analysis = await ref.read(
+        foodAnalysisProvider(widget.imagePath).future,
+      );
+      if (mounted) {
+        _showAnalysis(analysis);
+      }
+    } on Object {
+      if (mounted) {
+        final l10n = AppLocalizations.of(context);
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(l10n.analysisFailed)));
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isAnalyzing = false);
+      }
+    }
+  }
+
+  void _showAnalysis(FoodAnalysis analysis) {
+    final l10n = AppLocalizations.of(context);
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        behavior: SnackBarBehavior.floating,
+        backgroundColor: AppColors.ink,
+        content: Text(
+          l10n.analysisSummary(
+            analysis.calories,
+            analysis.proteinGrams,
+            analysis.fatGrams,
+            analysis.carbsGrams,
+          ),
+        ),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -52,7 +104,7 @@ class PhotoPreviewPage extends StatelessWidget {
                   child: ColoredBox(
                     color: Colors.black,
                     child: Image.file(
-                      File(imagePath),
+                      File(widget.imagePath),
                       width: double.infinity,
                       fit: BoxFit.contain,
                       errorBuilder: (context, error, stackTrace) {
@@ -104,7 +156,7 @@ class PhotoPreviewPage extends StatelessWidget {
                   ],
                 ),
                 child: FilledButton.icon(
-                  onPressed: () {},
+                  onPressed: _isAnalyzing ? null : _analyzeFood,
                   style: FilledButton.styleFrom(
                     backgroundColor: Colors.transparent,
                     shadowColor: Colors.transparent,
@@ -113,8 +165,18 @@ class PhotoPreviewPage extends StatelessWidget {
                       borderRadius: BorderRadius.circular(20),
                     ),
                   ),
-                  icon: const Icon(Icons.auto_awesome_rounded, size: 22),
-                  label: Text(l10n.analyzeFood),
+                  icon: _isAnalyzing
+                      ? const SizedBox.square(
+                          dimension: 22,
+                          child: CircularProgressIndicator(
+                            color: Colors.white,
+                            strokeWidth: 2.5,
+                          ),
+                        )
+                      : const Icon(Icons.auto_awesome_rounded, size: 22),
+                  label: Text(
+                    _isAnalyzing ? l10n.analyzingFood : l10n.analyzeFood,
+                  ),
                 ),
               ),
             ],

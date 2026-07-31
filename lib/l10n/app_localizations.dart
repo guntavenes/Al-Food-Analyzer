@@ -177,6 +177,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Analyze Food'**
   String get analyzeFood;
+
+  /// Loading label while the meal photo is analyzed
+  ///
+  /// In en, this message translates to:
+  /// **'Analyzing...'**
+  String get analyzingFood;
+
+  /// Error shown when food analysis fails
+  ///
+  /// In en, this message translates to:
+  /// **'Analysis could not be completed. Please try again.'**
+  String get analysisFailed;
+
+  /// Temporary summary of fake food analysis results
+  ///
+  /// In en, this message translates to:
+  /// **'Calories: {calories}  •  Protein: {protein}g  •  Fat: {fat}g  •  Carbs: {carbs}g'**
+  String analysisSummary(int calories, int protein, int fat, int carbs);
 }
 
 class _AppLocalizationsDelegate

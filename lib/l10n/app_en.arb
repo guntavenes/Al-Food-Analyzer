@@ -55,5 +55,23 @@
   "analyzeFood": "Analyze Food",
   "@analyzeFood": {
     "description": "Primary action on the meal photo preview"
+  },
+  "analyzingFood": "Analyzing...",
+  "@analyzingFood": {
+    "description": "Loading label while the meal photo is analyzed"
+  },
+  "analysisFailed": "Analysis could not be completed. Please try again.",
+  "@analysisFailed": {
+    "description": "Error shown when food analysis fails"
+  },
+  "analysisSummary": "Calories: {calories}  •  Protein: {protein}g  •  Fat: {fat}g  •  Carbs: {carbs}g",
+  "@analysisSummary": {
+    "description": "Temporary summary of fake food analysis results",
+    "placeholders": {
+      "calories": {"type": "int"},
+      "protein": {"type": "int"},
+      "fat": {"type": "int"},
+      "carbs": {"type": "int"}
+    }
   }
 }

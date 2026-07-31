@@ -51,4 +51,16 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get analyzeFood => 'Analyze Food';
+
+  @override
+  String get analyzingFood => 'Analyzing...';
+
+  @override
+  String get analysisFailed =>
+      'Analysis could not be completed. Please try again.';
+
+  @override
+  String analysisSummary(int calories, int protein, int fat, int carbs) {
+    return 'Calories: $calories  •  Protein: ${protein}g  •  Fat: ${fat}g  •  Carbs: ${carbs}g';
+  }
 }
