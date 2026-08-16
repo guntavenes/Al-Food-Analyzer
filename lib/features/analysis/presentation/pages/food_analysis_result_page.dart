@@ -3,6 +3,9 @@ import 'dart:io';
 import 'package:ai_food_analyzer/core/router/app_router.dart';
 import 'package:ai_food_analyzer/core/theme/app_colors.dart';
 import 'package:ai_food_analyzer/features/analysis/domain/entities/food_analysis.dart';
+import 'package:ai_food_analyzer/features/analysis/domain/errors/food_analysis_exception.dart';
+import 'package:ai_food_analyzer/features/analysis/domain/repositories/food_analysis_repository.dart';
+import 'package:ai_food_analyzer/features/analysis/presentation/providers/food_analysis_providers.dart';
 import 'package:ai_food_analyzer/features/history/presentation/providers/history_providers.dart';
 import 'package:ai_food_analyzer/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
@@ -34,6 +37,8 @@ class FoodAnalysisResultPage extends ConsumerStatefulWidget {
 class _FoodAnalysisResultPageState
     extends ConsumerState<FoodAnalysisResultPage> {
   late final SaveAnalysisRequest _saveRequest;
+  bool _isReanalyzing = false;
+  Object? _correctionError;
 
   @override
   void initState() {
@@ -56,6 +61,43 @@ class _FoodAnalysisResultPageState
     }
   }
 
+  Future<void> _editAndReanalyze() async {
+    if (_isReanalyzing) return;
+    final correction = await showModalBottomSheet<FoodAnalysisCorrection>(
+      context: context,
+      isScrollControlled: true,
+      useSafeArea: true,
+      builder: (context) => _CorrectionSheet(
+        initialIngredients: widget.arguments.analysis.foodName,
+        initialServing: widget.arguments.analysis.servingDescription,
+      ),
+    );
+    if (correction == null || !mounted) return;
+
+    setState(() {
+      _isReanalyzing = true;
+      _correctionError = null;
+    });
+    try {
+      final analysis = await ref
+          .read(foodAnalysisRepositoryProvider)
+          .analyzeFood(widget.arguments.imagePath, correction: correction);
+      if (mounted) {
+        context.go(
+          AppRoutes.result,
+          extra: FoodAnalysisResultArguments(
+            imagePath: widget.arguments.imagePath,
+            analysis: analysis,
+          ),
+        );
+      }
+    } on Object catch (error) {
+      if (mounted) setState(() => _correctionError = error);
+    } finally {
+      if (mounted) setState(() => _isReanalyzing = false);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
@@ -68,224 +110,303 @@ class _FoodAnalysisResultPageState
     final isSaved = widget.arguments.initiallySaved || saveState.value != null;
     final isSaving = saveState.isLoading;
 
-    return Scaffold(
-      backgroundColor: colors.surface,
-      appBar: AppBar(
-        title: Text(l10n.resultTitle),
-        leading: IconButton(
-          onPressed: context.pop,
-          icon: const Icon(Icons.arrow_back_rounded),
-        ),
-      ),
-      body: LayoutBuilder(
-        builder: (context, constraints) {
-          final horizontalPadding = constraints.maxWidth >= 600 ? 32.0 : 20.0;
-
-          return SingleChildScrollView(
-            padding: EdgeInsets.fromLTRB(
-              horizontalPadding,
-              8,
-              horizontalPadding,
-              32,
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) {
+        if (!didPop) context.go(AppRoutes.home);
+      },
+      child: Scaffold(
+        backgroundColor: colors.surface,
+        appBar: AppBar(
+          backgroundColor: Colors.transparent,
+          surfaceTintColor: Colors.transparent,
+          title: Text(
+            l10n.resultTitle,
+            style: const TextStyle(fontWeight: FontWeight.w700),
+          ),
+          leading: Padding(
+            padding: const EdgeInsets.only(left: 8),
+            child: IconButton.filledTonal(
+              onPressed: () => context.go(AppRoutes.home),
+              icon: const Icon(Icons.arrow_back_rounded),
             ),
-            child: Center(
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 680),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    _MealImage(imagePath: widget.arguments.imagePath),
-                    const SizedBox(height: 24),
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                analysis.foodName,
-                                style: theme.textTheme.headlineSmall?.copyWith(
-                                  fontWeight: FontWeight.w800,
-                                  letterSpacing: -0.5,
-                                ),
-                              ),
-                              const SizedBox(height: 8),
-                              Text(
-                                analysis.servingDescription,
-                                style: theme.textTheme.bodyMedium?.copyWith(
-                                  color: colors.onSurfaceVariant,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(width: 16),
-                        _ConfidenceBadge(
-                          label: l10n.confidenceLabel,
-                          value: l10n.confidenceValue(
-                            analysis.confidencePercent,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 22),
-                    _CaloriesCard(
-                      label: l10n.estimatedCalories,
-                      value: l10n.calorieValue(analysis.calories),
-                    ),
-                    const SizedBox(height: 16),
-                    LayoutBuilder(
-                      builder: (context, cardConstraints) {
-                        const spacing = 12.0;
-                        final cardWidth =
-                            (cardConstraints.maxWidth - spacing) / 2;
+          ),
+        ),
+        body: DecoratedBox(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [
+                colors.primaryContainer.withValues(alpha: 0.12),
+                colors.surface,
+              ],
+            ),
+          ),
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final horizontalPadding = constraints.maxWidth >= 600
+                  ? 32.0
+                  : 20.0;
 
-                        return Wrap(
-                          spacing: spacing,
-                          runSpacing: spacing,
+              return SingleChildScrollView(
+                padding: EdgeInsets.fromLTRB(
+                  horizontalPadding,
+                  8,
+                  horizontalPadding,
+                  32,
+                ),
+                child: Center(
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 680),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        _MealImage(imagePath: widget.arguments.imagePath),
+                        const SizedBox(height: 24),
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            _NutrientCard(
-                              width: cardWidth,
-                              icon: Icons.fitness_center_rounded,
-                              color: const Color(0xFF2F9E76),
-                              label: l10n.proteinLabel,
-                              value: l10n.gramValue(analysis.proteinGrams),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    analysis.foodName,
+                                    style: theme.textTheme.headlineSmall
+                                        ?.copyWith(
+                                          fontWeight: FontWeight.w800,
+                                          letterSpacing: -0.5,
+                                        ),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    analysis.servingDescription,
+                                    style: theme.textTheme.bodyMedium?.copyWith(
+                                      color: colors.onSurfaceVariant,
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
-                            _NutrientCard(
-                              width: cardWidth,
-                              icon: Icons.grain_rounded,
-                              color: const Color(0xFFE49B3F),
-                              label: l10n.carbsLabel,
-                              value: l10n.gramValue(analysis.carbsGrams),
-                            ),
-                            _NutrientCard(
-                              width: cardWidth,
-                              icon: Icons.water_drop_rounded,
-                              color: const Color(0xFFD46A7E),
-                              label: l10n.fatLabel,
-                              value: l10n.gramValue(analysis.fatGrams),
-                            ),
-                            _NutrientCard(
-                              width: cardWidth,
-                              icon: Icons.eco_rounded,
-                              color: const Color(0xFF5B8FD3),
-                              label: l10n.fiberLabel,
-                              value: l10n.gramValue(analysis.fiberGrams),
-                            ),
-                            _NutrientCard(
-                              width: cardWidth,
-                              icon: Icons.cake_outlined,
-                              color: const Color(0xFF9B6BC2),
-                              label: l10n.sugarLabel,
-                              value: l10n.gramValue(analysis.sugarGrams),
-                            ),
-                            _NutrientCard(
-                              width: cardWidth,
-                              icon: Icons.science_outlined,
-                              color: const Color(0xFF4C93A8),
-                              label: l10n.sodiumLabel,
-                              value: l10n.milligramValue(
-                                analysis.sodiumMilligrams,
+                            const SizedBox(width: 16),
+                            _ConfidenceBadge(
+                              label: l10n.confidenceLabel,
+                              value: l10n.confidenceValue(
+                                analysis.confidencePercent,
                               ),
                             ),
                           ],
-                        );
-                      },
-                    ),
-                    const SizedBox(height: 16),
-                    _AnalysisHighlights(
-                      healthLabel: l10n.healthScoreLabel,
-                      healthValue: l10n.healthScoreValue(analysis.healthScore),
-                      weightLabel: l10n.servingWeightLabel,
-                      weightValue: l10n.gramValue(analysis.servingWeightGrams),
-                    ),
-                    if (analysis.detectedFoods.isNotEmpty) ...[
-                      const SizedBox(height: 16),
-                      _DetectedFoodsCard(
-                        title: l10n.detectedFoodsTitle,
-                        foods: analysis.detectedFoods,
-                      ),
-                    ],
-                    if (analysis.warnings.isNotEmpty) ...[
-                      const SizedBox(height: 16),
-                      _WarningsCard(
-                        title: l10n.warningsTitle,
-                        warnings: analysis.warnings,
-                      ),
-                    ],
-                    const SizedBox(height: 20),
-                    _DescriptionCard(description: analysis.description),
-                    const SizedBox(height: 14),
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Icon(
-                          Icons.info_outline_rounded,
-                          size: 17,
-                          color: colors.onSurfaceVariant,
                         ),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: Text(
-                            l10n.analysisDisclaimer,
-                            style: theme.textTheme.bodySmall?.copyWith(
-                              color: colors.onSurfaceVariant,
-                              height: 1.45,
-                            ),
+                        const SizedBox(height: 22),
+                        _CaloriesCard(
+                          label: l10n.estimatedCalories,
+                          value: l10n.calorieRangeValue(
+                            analysis.minimumEstimatedCalories,
+                            analysis.maximumEstimatedCalories,
+                          ),
+                          estimate: l10n.centralCalorieEstimate(
+                            analysis.calories,
                           ),
                         ),
+                        if (analysis.needsIngredientConfirmation &&
+                            !widget.arguments.initiallySaved) ...[
+                          const SizedBox(height: 16),
+                          _IngredientConfirmationCard(
+                            title: l10n.confirmIngredientsTitle,
+                            message: l10n.confirmIngredientsMessage,
+                            actionLabel: l10n.editAndReanalyze,
+                            costNotice: l10n.reanalysisCostNotice,
+                            isLoading: _isReanalyzing,
+                            onPressed: _editAndReanalyze,
+                          ),
+                          if (_correctionError != null) ...[
+                            const SizedBox(height: 12),
+                            _SaveError(
+                              message: _analysisErrorMessage(
+                                l10n,
+                                _correctionError,
+                              ),
+                              retryLabel: l10n.tryAgain,
+                              onRetry: _editAndReanalyze,
+                            ),
+                          ],
+                        ],
+                        const SizedBox(height: 16),
+                        LayoutBuilder(
+                          builder: (context, cardConstraints) {
+                            const spacing = 12.0;
+                            final cardWidth =
+                                (cardConstraints.maxWidth - spacing) / 2;
+
+                            return Wrap(
+                              spacing: spacing,
+                              runSpacing: spacing,
+                              children: [
+                                _NutrientCard(
+                                  width: cardWidth,
+                                  icon: Icons.fitness_center_rounded,
+                                  color: const Color(0xFF2F9E76),
+                                  label: l10n.proteinLabel,
+                                  value: l10n.gramValue(analysis.proteinGrams),
+                                ),
+                                _NutrientCard(
+                                  width: cardWidth,
+                                  icon: Icons.grain_rounded,
+                                  color: const Color(0xFFE49B3F),
+                                  label: l10n.carbsLabel,
+                                  value: l10n.gramValue(analysis.carbsGrams),
+                                ),
+                                _NutrientCard(
+                                  width: cardWidth,
+                                  icon: Icons.water_drop_rounded,
+                                  color: const Color(0xFFD46A7E),
+                                  label: l10n.fatLabel,
+                                  value: l10n.gramValue(analysis.fatGrams),
+                                ),
+                                _NutrientCard(
+                                  width: cardWidth,
+                                  icon: Icons.eco_rounded,
+                                  color: const Color(0xFF5B8FD3),
+                                  label: l10n.fiberLabel,
+                                  value: l10n.gramValue(analysis.fiberGrams),
+                                ),
+                                _NutrientCard(
+                                  width: cardWidth,
+                                  icon: Icons.cake_outlined,
+                                  color: const Color(0xFF9B6BC2),
+                                  label: l10n.sugarLabel,
+                                  value: l10n.gramValue(analysis.sugarGrams),
+                                ),
+                                _NutrientCard(
+                                  width: cardWidth,
+                                  icon: Icons.science_outlined,
+                                  color: const Color(0xFF4C93A8),
+                                  label: l10n.sodiumLabel,
+                                  value: l10n.milligramValue(
+                                    analysis.sodiumMilligrams,
+                                  ),
+                                ),
+                              ],
+                            );
+                          },
+                        ),
+                        const SizedBox(height: 16),
+                        _AnalysisHighlights(
+                          healthLabel: l10n.healthScoreLabel,
+                          healthValue: l10n.healthScoreValue(
+                            analysis.healthScore,
+                          ),
+                          weightLabel: l10n.servingWeightLabel,
+                          weightValue: l10n.gramValue(
+                            analysis.servingWeightGrams,
+                          ),
+                        ),
+                        if (analysis.detectedFoods.isNotEmpty) ...[
+                          const SizedBox(height: 16),
+                          _DetectedFoodsCard(
+                            title: l10n.detectedFoodsTitle,
+                            foods: analysis.detectedFoods,
+                          ),
+                        ],
+                        if (analysis.warnings.isNotEmpty) ...[
+                          const SizedBox(height: 16),
+                          _WarningsCard(
+                            title: l10n.warningsTitle,
+                            warnings: analysis.warnings,
+                          ),
+                        ],
+                        const SizedBox(height: 20),
+                        _DescriptionCard(description: analysis.description),
+                        const SizedBox(height: 14),
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Icon(
+                              Icons.info_outline_rounded,
+                              size: 17,
+                              color: colors.onSurfaceVariant,
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                l10n.analysisDisclaimer,
+                                style: theme.textTheme.bodySmall?.copyWith(
+                                  color: colors.onSurfaceVariant,
+                                  height: 1.45,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 24),
+                        FilledButton.icon(
+                          onPressed: () => context.go(AppRoutes.home),
+                          icon: const Icon(Icons.add_a_photo_outlined),
+                          label: Text(l10n.analyzeAnotherMeal),
+                        ),
+                        const SizedBox(height: 12),
+                        OutlinedButton.icon(
+                          onPressed: isSaved || isSaving ? null : _saveResult,
+                          style: OutlinedButton.styleFrom(
+                            minimumSize: const Size.fromHeight(58),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                          ),
+                          icon: isSaving
+                              ? const SizedBox.square(
+                                  dimension: 20,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                  ),
+                                )
+                              : Icon(
+                                  isSaved
+                                      ? Icons.bookmark_added_rounded
+                                      : Icons.bookmark_border_rounded,
+                                ),
+                          label: Text(
+                            isSaving
+                                ? l10n.savingResult
+                                : isSaved
+                                ? l10n.saved
+                                : l10n.saveResult,
+                          ),
+                        ),
+                        if (saveState.hasError && !isSaved) ...[
+                          const SizedBox(height: 12),
+                          _SaveError(
+                            message: l10n.saveAnalysisFailed,
+                            retryLabel: l10n.tryAgain,
+                            onRetry: _saveResult,
+                          ),
+                        ],
                       ],
                     ),
-                    const SizedBox(height: 24),
-                    FilledButton.icon(
-                      onPressed: () => context.go(AppRoutes.home),
-                      icon: const Icon(Icons.add_a_photo_outlined),
-                      label: Text(l10n.analyzeAnotherMeal),
-                    ),
-                    const SizedBox(height: 12),
-                    OutlinedButton.icon(
-                      onPressed: isSaved || isSaving ? null : _saveResult,
-                      style: OutlinedButton.styleFrom(
-                        minimumSize: const Size.fromHeight(58),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                      ),
-                      icon: isSaving
-                          ? const SizedBox.square(
-                              dimension: 20,
-                              child: CircularProgressIndicator(strokeWidth: 2),
-                            )
-                          : Icon(
-                              isSaved
-                                  ? Icons.bookmark_added_rounded
-                                  : Icons.bookmark_border_rounded,
-                            ),
-                      label: Text(
-                        isSaving
-                            ? l10n.savingResult
-                            : isSaved
-                            ? l10n.saved
-                            : l10n.saveResult,
-                      ),
-                    ),
-                    if (saveState.hasError && !isSaved) ...[
-                      const SizedBox(height: 12),
-                      _SaveError(
-                        message: l10n.saveAnalysisFailed,
-                        retryLabel: l10n.tryAgain,
-                        onRetry: _saveResult,
-                      ),
-                    ],
-                  ],
+                  ),
                 ),
-              ),
-            ),
-          );
-        },
+              );
+            },
+          ),
+        ),
       ),
     );
+  }
+
+  String _analysisErrorMessage(AppLocalizations l10n, Object? error) {
+    if (error is! FoodAnalysisException) return l10n.analysisFailed;
+    return switch (error.type) {
+      FoodAnalysisErrorType.noFoodDetected => l10n.noFoodDetected,
+      FoodAnalysisErrorType.invalidImage => l10n.invalidImage,
+      FoodAnalysisErrorType.imageTooLarge => l10n.imageTooLarge,
+      FoodAnalysisErrorType.unauthorized => l10n.authenticationRequired,
+      FoodAnalysisErrorType.rateLimited => l10n.rateLimited,
+      FoodAnalysisErrorType.timeout => l10n.analysisTimeout,
+      FoodAnalysisErrorType.network => l10n.networkError,
+      FoodAnalysisErrorType.serviceUnavailable => l10n.serviceUnavailable,
+      FoodAnalysisErrorType.unknown => l10n.analysisFailed,
+    };
   }
 }
 
@@ -370,10 +491,11 @@ class _ConfidenceBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final colors = theme.colorScheme;
 
     return Material(
-      color: colors.primaryContainer,
+      color: Theme.of(context).brightness == Brightness.light
+          ? AppColors.paleChampagne
+          : const Color(0xFF463B22),
       borderRadius: BorderRadius.circular(16),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
@@ -382,14 +504,18 @@ class _ConfidenceBadge extends StatelessWidget {
             Text(
               value,
               style: theme.textTheme.titleMedium?.copyWith(
-                color: colors.onPrimaryContainer,
+                color: Theme.of(context).brightness == Brightness.light
+                    ? const Color(0xFF4A3815)
+                    : const Color(0xFFF8E7B8),
                 fontWeight: FontWeight.w800,
               ),
             ),
             Text(
               label,
               style: theme.textTheme.labelSmall?.copyWith(
-                color: colors.onPrimaryContainer,
+                color: Theme.of(context).brightness == Brightness.light
+                    ? const Color(0xFF6D5728)
+                    : const Color(0xFFEAD59D),
               ),
             ),
           ],
@@ -400,10 +526,15 @@ class _ConfidenceBadge extends StatelessWidget {
 }
 
 class _CaloriesCard extends StatelessWidget {
-  const _CaloriesCard({required this.label, required this.value});
+  const _CaloriesCard({
+    required this.label,
+    required this.value,
+    required this.estimate,
+  });
 
   final String label;
   final String value;
+  final String estimate;
 
   @override
   Widget build(BuildContext context) {
@@ -414,11 +545,11 @@ class _CaloriesCard extends StatelessWidget {
         gradient: const LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [AppColors.mint, AppColors.teal],
+          colors: [AppColors.emeraldBright, AppColors.teal],
         ),
         boxShadow: const [
           BoxShadow(
-            color: Color(0x33128B67),
+            color: Color(0x3D08745B),
             blurRadius: 28,
             offset: Offset(0, 12),
           ),
@@ -447,6 +578,194 @@ class _CaloriesCard extends StatelessWidget {
                 letterSpacing: -1.8,
               ),
             ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            estimate,
+            style: const TextStyle(
+              color: Color(0xE6FFFFFF),
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _IngredientConfirmationCard extends StatelessWidget {
+  const _IngredientConfirmationCard({
+    required this.title,
+    required this.message,
+    required this.actionLabel,
+    required this.costNotice,
+    required this.isLoading,
+    required this.onPressed,
+  });
+
+  final String title;
+  final String message;
+  final String actionLabel;
+  final String costNotice;
+  final bool isLoading;
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+
+    return Material(
+      color: colors.tertiaryContainer.withValues(alpha: 0.55),
+      borderRadius: BorderRadius.circular(20),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Icon(Icons.help_outline_rounded, color: colors.onTertiaryContainer),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: theme.textTheme.titleSmall?.copyWith(
+                      color: colors.onTertiaryContainer,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    message,
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color: colors.onTertiaryContainer,
+                      height: 1.4,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    costNotice,
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: colors.onTertiaryContainer,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  FilledButton.icon(
+                    onPressed: isLoading ? null : onPressed,
+                    icon: isLoading
+                        ? const SizedBox.square(
+                            dimension: 18,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : const Icon(Icons.edit_rounded),
+                    label: Text(actionLabel),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _CorrectionSheet extends StatefulWidget {
+  const _CorrectionSheet({
+    required this.initialIngredients,
+    required this.initialServing,
+  });
+
+  final String initialIngredients;
+  final String initialServing;
+
+  @override
+  State<_CorrectionSheet> createState() => _CorrectionSheetState();
+}
+
+class _CorrectionSheetState extends State<_CorrectionSheet> {
+  late final TextEditingController _ingredientsController;
+  late final TextEditingController _servingController;
+
+  @override
+  void initState() {
+    super.initState();
+    _ingredientsController = TextEditingController(
+      text: widget.initialIngredients,
+    );
+    _servingController = TextEditingController(text: widget.initialServing);
+  }
+
+  @override
+  void dispose() {
+    _ingredientsController.dispose();
+    _servingController.dispose();
+    super.dispose();
+  }
+
+  void _submit() {
+    final ingredients = _ingredientsController.text.trim();
+    final serving = _servingController.text.trim();
+    if (ingredients.isEmpty || serving.isEmpty) return;
+    Navigator.of(context).pop(
+      FoodAnalysisCorrection(
+        ingredients: ingredients,
+        servingDescription: serving,
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final bottomInset = MediaQuery.viewInsetsOf(context).bottom;
+    return SingleChildScrollView(
+      padding: EdgeInsets.fromLTRB(24, 16, 24, 24 + bottomInset),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            l10n.correctionSheetTitle,
+            style: Theme.of(
+              context,
+            ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w800),
+          ),
+          const SizedBox(height: 8),
+          Text(l10n.correctionSheetDescription),
+          const SizedBox(height: 20),
+          TextField(
+            controller: _ingredientsController,
+            maxLength: 300,
+            textInputAction: TextInputAction.next,
+            decoration: InputDecoration(
+              labelText: l10n.mainIngredientsLabel,
+              hintText: l10n.mainIngredientsHint,
+            ),
+          ),
+          const SizedBox(height: 12),
+          TextField(
+            controller: _servingController,
+            maxLength: 200,
+            decoration: InputDecoration(
+              labelText: l10n.servingCorrectionLabel,
+              hintText: l10n.servingCorrectionHint,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            l10n.reanalysisCostNotice,
+            style: Theme.of(context).textTheme.bodySmall,
+          ),
+          const SizedBox(height: 20),
+          FilledButton.icon(
+            onPressed: _submit,
+            icon: const Icon(Icons.auto_awesome_rounded),
+            label: Text(l10n.recalculateAnalysis),
           ),
         ],
       ),

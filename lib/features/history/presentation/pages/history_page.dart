@@ -283,7 +283,7 @@ class _CompactValue extends StatelessWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(icon, color: AppColors.teal, size: 15),
+        Icon(icon, color: AppColors.champagne, size: 15),
         const SizedBox(width: 4),
         Text(value, style: Theme.of(context).textTheme.labelMedium),
       ],

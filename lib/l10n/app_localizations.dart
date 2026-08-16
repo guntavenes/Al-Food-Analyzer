@@ -278,6 +278,84 @@ abstract class AppLocalizations {
   /// **'{calories} kcal'**
   String calorieValue(int calories);
 
+  /// Estimated calorie range
+  ///
+  /// In en, this message translates to:
+  /// **'{minimum}–{maximum} kcal'**
+  String calorieRangeValue(int minimum, int maximum);
+
+  /// Single central calorie estimate shown below the range
+  ///
+  /// In en, this message translates to:
+  /// **'Central estimate: {calories} kcal'**
+  String centralCalorieEstimate(int calories);
+
+  /// Heading for uncertain ingredient reminder
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm the ingredients'**
+  String get confirmIngredientsTitle;
+
+  /// Reminder that visually ambiguous ingredients should be confirmed
+  ///
+  /// In en, this message translates to:
+  /// **'Some ingredients can look alike in a photo. Are the main ingredients and portion correct?'**
+  String get confirmIngredientsMessage;
+
+  /// Opens the correction form
+  ///
+  /// In en, this message translates to:
+  /// **'Edit and analyze again'**
+  String get editAndReanalyze;
+
+  /// Warns that correction starts a new AI request
+  ///
+  /// In en, this message translates to:
+  /// **'Analyzing again uses another analysis credit.'**
+  String get reanalysisCostNotice;
+
+  /// Correction form title
+  ///
+  /// In en, this message translates to:
+  /// **'Correct meal details'**
+  String get correctionSheetTitle;
+
+  /// Correction form instructions
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the ingredients you know and the total visible serving. AI will evaluate them with the photo again.'**
+  String get correctionSheetDescription;
+
+  /// Ingredients correction field label
+  ///
+  /// In en, this message translates to:
+  /// **'Main ingredients'**
+  String get mainIngredientsLabel;
+
+  /// Ingredients correction field hint
+  ///
+  /// In en, this message translates to:
+  /// **'For example: ground beef, bread, tomato salsa'**
+  String get mainIngredientsHint;
+
+  /// Serving correction field label
+  ///
+  /// In en, this message translates to:
+  /// **'Total serving'**
+  String get servingCorrectionLabel;
+
+  /// Serving correction field hint
+  ///
+  /// In en, this message translates to:
+  /// **'For example: 6 pieces and 1 small bowl of sauce'**
+  String get servingCorrectionHint;
+
+  /// Submits corrections for a new analysis
+  ///
+  /// In en, this message translates to:
+  /// **'Recalculate'**
+  String get recalculateAnalysis;
+
   /// Formatted nutrient amount in grams
   ///
   /// In en, this message translates to:

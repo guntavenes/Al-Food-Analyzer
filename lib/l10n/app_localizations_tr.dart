@@ -111,6 +111,52 @@ class AppLocalizationsTr extends AppLocalizations {
   }
 
   @override
+  String calorieRangeValue(int minimum, int maximum) {
+    return '$minimum–$maximum kcal';
+  }
+
+  @override
+  String centralCalorieEstimate(int calories) {
+    return 'Orta tahmin: $calories kcal';
+  }
+
+  @override
+  String get confirmIngredientsTitle => 'İçeriği doğrula';
+
+  @override
+  String get confirmIngredientsMessage =>
+      'Görselde benzer görünen malzemeler olabilir. Ana malzemeler ve porsiyon doğru mu?';
+
+  @override
+  String get editAndReanalyze => 'Düzenle ve tekrar analiz et';
+
+  @override
+  String get reanalysisCostNotice =>
+      'Tekrar analiz yeni bir kullanım hakkı harcar.';
+
+  @override
+  String get correctionSheetTitle => 'Yemek bilgisini düzelt';
+
+  @override
+  String get correctionSheetDescription =>
+      'Bildiğin malzemeleri ve görünen toplam porsiyonu yaz. AI bu bilgileri fotoğrafla birlikte yeniden değerlendirecek.';
+
+  @override
+  String get mainIngredientsLabel => 'Ana malzemeler';
+
+  @override
+  String get mainIngredientsHint => 'Örn. dana kıyma, ekmek, domates salsa';
+
+  @override
+  String get servingCorrectionLabel => 'Toplam porsiyon';
+
+  @override
+  String get servingCorrectionHint => 'Örn. 6 adet ve 1 küçük kase sos';
+
+  @override
+  String get recalculateAnalysis => 'Tekrar Hesapla';
+
+  @override
   String gramValue(int grams) {
     return '$grams g';
   }

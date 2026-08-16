@@ -8,7 +8,10 @@ class FoodAnalysisRepositoryImpl implements FoodAnalysisRepository {
   final FoodAnalysisDataSource _dataSource;
 
   @override
-  Future<FoodAnalysis> analyzeFood(String imagePath) {
+  Future<FoodAnalysis> analyzeFood(
+    String imagePath, {
+    FoodAnalysisCorrection? correction,
+  }) {
     return _dataSource.analyzeFood(imagePath);
   }
 }

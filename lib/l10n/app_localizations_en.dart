@@ -112,6 +112,54 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String calorieRangeValue(int minimum, int maximum) {
+    return '$minimum–$maximum kcal';
+  }
+
+  @override
+  String centralCalorieEstimate(int calories) {
+    return 'Central estimate: $calories kcal';
+  }
+
+  @override
+  String get confirmIngredientsTitle => 'Confirm the ingredients';
+
+  @override
+  String get confirmIngredientsMessage =>
+      'Some ingredients can look alike in a photo. Are the main ingredients and portion correct?';
+
+  @override
+  String get editAndReanalyze => 'Edit and analyze again';
+
+  @override
+  String get reanalysisCostNotice =>
+      'Analyzing again uses another analysis credit.';
+
+  @override
+  String get correctionSheetTitle => 'Correct meal details';
+
+  @override
+  String get correctionSheetDescription =>
+      'Enter the ingredients you know and the total visible serving. AI will evaluate them with the photo again.';
+
+  @override
+  String get mainIngredientsLabel => 'Main ingredients';
+
+  @override
+  String get mainIngredientsHint =>
+      'For example: ground beef, bread, tomato salsa';
+
+  @override
+  String get servingCorrectionLabel => 'Total serving';
+
+  @override
+  String get servingCorrectionHint =>
+      'For example: 6 pieces and 1 small bowl of sauce';
+
+  @override
+  String get recalculateAnalysis => 'Recalculate';
+
+  @override
   String gramValue(int grams) {
     return '$grams g';
   }

@@ -6,6 +6,8 @@ import type { AppConfig } from '../src/config.js';
 import type { AuthTokenVerifier } from '../src/auth/auth-token-verifier.js';
 import type { AnalysisUsageRepository } from '../src/usage/analysis-usage-repository.js';
 import type { FoodAnalysisProvider } from '../src/providers/food-analysis-provider.js';
+import type { AnalyzeInput } from '../src/contracts.js';
+import { MockFoodAnalysisProvider } from '../src/providers/mock-food-analysis-provider.js';
 
 const png = Buffer.from([137, 80, 78, 71, 13, 10, 26, 10, 1, 2, 3]);
 const baseConfig: AppConfig = {
@@ -37,6 +39,21 @@ describe('backend API', () => {
       healthScore: 78
     });
     expect(response.body.detectedFoods).toHaveLength(3);
+  });
+
+  it('passes user corrections to the analysis provider', async () => {
+    const provider = new CorrectionCapturingProvider();
+    const response = await request(createApp(baseConfig, { provider }))
+      .post('/v1/food/analyze')
+      .field('ingredients', 'ground beef, bread, tomato salsa')
+      .field('servingDescription', '6 pieces and 1 small bowl')
+      .attach('image', png, { filename: 'meal.png', contentType: 'image/png' });
+
+    expect(response.status).toBe(200);
+    expect(provider.input?.correction).toEqual({
+      ingredients: 'ground beef, bread, tomato salsa',
+      servingDescription: '6 pieces and 1 small bowl'
+    });
   });
 
   it('rejects a request without an image', async () => {
@@ -141,5 +158,16 @@ class CountingFoodAnalysisProvider implements FoodAnalysisProvider {
   async analyze(): Promise<never> {
     this.callCount += 1;
     throw new Error('Provider must not be called.');
+  }
+}
+
+class CorrectionCapturingProvider implements FoodAnalysisProvider {
+  readonly name = 'capture';
+  input?: AnalyzeInput;
+  private readonly mock = new MockFoodAnalysisProvider(0, false, false);
+
+  async analyze(input: AnalyzeInput, requestId: string) {
+    this.input = input;
+    return this.mock.analyze(input, requestId);
   }
 }

@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:ai_food_analyzer/core/router/app_router.dart';
 import 'package:ai_food_analyzer/core/theme/app_colors.dart';
+import 'package:ai_food_analyzer/core/widgets/premium_action_button.dart';
 import 'package:ai_food_analyzer/features/analysis/domain/errors/food_analysis_exception.dart';
 import 'package:ai_food_analyzer/features/analysis/presentation/pages/food_analysis_result_page.dart';
 import 'package:ai_food_analyzer/features/analysis/presentation/providers/food_analysis_providers.dart';
@@ -37,7 +38,7 @@ class _PhotoPreviewPageState extends ConsumerState<PhotoPreviewPage> {
     try {
       final analysis = await ref.read(provider.future);
       if (mounted) {
-        await context.push(
+        context.go(
           AppRoutes.result,
           extra: FoodAnalysisResultArguments(
             imagePath: widget.imagePath,
@@ -67,128 +68,150 @@ class _PhotoPreviewPageState extends ConsumerState<PhotoPreviewPage> {
         _isRequestInFlight || (analysisState?.isLoading ?? false);
     final hasError = analysisState?.hasError ?? false;
 
-    return Scaffold(
-      backgroundColor: const Color(0xFF0D1714),
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
-          child: Column(
-            children: [
-              Row(
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) {
+        if (!didPop) context.go(AppRoutes.home);
+      },
+      child: Scaffold(
+        backgroundColor: AppColors.forest,
+        body: DecoratedBox(
+          decoration: const BoxDecoration(
+            gradient: RadialGradient(
+              center: Alignment.topRight,
+              radius: 1.25,
+              colors: [Color(0xFF174B39), AppColors.forest],
+            ),
+          ),
+          child: SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
+              child: Column(
                 children: [
-                  IconButton.filled(
-                    onPressed: context.pop,
-                    style: IconButton.styleFrom(
-                      backgroundColor: Colors.white.withValues(alpha: 0.12),
-                      foregroundColor: Colors.white,
-                    ),
-                    icon: const Icon(Icons.arrow_back_rounded),
+                  Row(
+                    children: [
+                      IconButton.filled(
+                        onPressed: () => context.go(AppRoutes.home),
+                        style: IconButton.styleFrom(
+                          backgroundColor: Colors.white.withValues(alpha: 0.14),
+                          foregroundColor: Colors.white,
+                          minimumSize: const Size.square(52),
+                        ),
+                        icon: const Icon(Icons.arrow_back_rounded),
+                      ),
+                      Expanded(
+                        child: Text(
+                          l10n.previewTitle,
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 18,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 48),
+                    ],
                   ),
+                  const SizedBox(height: 22),
                   Expanded(
-                    child: Text(
-                      l10n.previewTitle,
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 18,
-                        fontWeight: FontWeight.w700,
+                    child: Center(
+                      child: AspectRatio(
+                        aspectRatio: 4 / 3,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(30),
+                            border: Border.all(
+                              color: Colors.white.withValues(alpha: 0.13),
+                            ),
+                            boxShadow: const [
+                              BoxShadow(
+                                color: Color(0x66000000),
+                                blurRadius: 36,
+                                offset: Offset(0, 18),
+                              ),
+                            ],
+                          ),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(29),
+                            child: ColoredBox(
+                              color: Colors.black,
+                              child: Image.file(
+                                File(widget.imagePath),
+                                width: double.infinity,
+                                fit: BoxFit.cover,
+                                errorBuilder: (context, error, stackTrace) {
+                                  return const Center(
+                                    child: Icon(
+                                      Icons.broken_image_outlined,
+                                      color: Colors.white54,
+                                      size: 64,
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
+                          ),
+                        ),
                       ),
                     ),
                   ),
-                  const SizedBox(width: 48),
-                ],
-              ),
-              const SizedBox(height: 22),
-              Expanded(
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(28),
-                  child: ColoredBox(
-                    color: Colors.black,
-                    child: Image.file(
-                      File(widget.imagePath),
-                      width: double.infinity,
-                      fit: BoxFit.contain,
-                      errorBuilder: (context, error, stackTrace) {
-                        return const Center(
-                          child: Icon(
-                            Icons.broken_image_outlined,
-                            color: Colors.white54,
-                            size: 64,
+                  const SizedBox(height: 20),
+                  Center(
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 10,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.08),
+                        borderRadius: BorderRadius.circular(999),
+                        border: Border.all(
+                          color: Colors.white.withValues(alpha: 0.1),
+                        ),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(
+                            Icons.check_circle_rounded,
+                            color: AppColors.mint,
+                            size: 20,
                           ),
-                        );
-                      },
+                          const SizedBox(width: 8),
+                          Text(
+                            l10n.previewReady,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 15,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
-                ),
-              ),
-              const SizedBox(height: 20),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(
-                    Icons.check_circle_rounded,
-                    color: AppColors.mint,
-                    size: 20,
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
-                    l10n.previewReady,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 15,
-                      fontWeight: FontWeight.w700,
+                  const SizedBox(height: 16),
+                  if (hasError) ...[
+                    _AnalysisError(
+                      message: _analysisErrorMessage(
+                        l10n,
+                        analysisState?.error,
+                      ),
+                      retryLabel: l10n.tryAgain,
+                      onRetry: () => _analyzeFood(retry: true),
                     ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
-              if (hasError) ...[
-                _AnalysisError(
-                  message: _analysisErrorMessage(l10n, analysisState?.error),
-                  retryLabel: l10n.tryAgain,
-                  onRetry: () => _analyzeFood(retry: true),
-                ),
-                const SizedBox(height: 14),
-              ],
-              DecoratedBox(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(20),
-                  gradient: const LinearGradient(
-                    colors: [Color(0xFF22B879), AppColors.teal],
-                  ),
-                  boxShadow: const [
-                    BoxShadow(
-                      color: Color(0x52129B70),
-                      blurRadius: 26,
-                      offset: Offset(0, 12),
-                    ),
+                    const SizedBox(height: 14),
                   ],
-                ),
-                child: FilledButton.icon(
-                  onPressed: isAnalyzing ? null : _analyzeFood,
-                  style: FilledButton.styleFrom(
-                    backgroundColor: Colors.transparent,
-                    shadowColor: Colors.transparent,
-                    minimumSize: const Size.fromHeight(64),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
-                    ),
+                  PremiumActionButton(
+                    label: isAnalyzing ? l10n.analyzingFood : l10n.analyzeFood,
+                    icon: Icons.auto_awesome_rounded,
+                    onPressed: isAnalyzing ? null : _analyzeFood,
+                    loading: isAnalyzing,
                   ),
-                  icon: isAnalyzing
-                      ? const SizedBox.square(
-                          dimension: 22,
-                          child: CircularProgressIndicator(
-                            color: Colors.white,
-                            strokeWidth: 2.5,
-                          ),
-                        )
-                      : const Icon(Icons.auto_awesome_rounded, size: 22),
-                  label: Text(
-                    isAnalyzing ? l10n.analyzingFood : l10n.analyzeFood,
-                  ),
-                ),
+                ],
               ),
-            ],
+            ),
           ),
         ),
       ),

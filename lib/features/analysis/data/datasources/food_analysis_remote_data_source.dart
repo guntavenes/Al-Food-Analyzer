@@ -18,6 +18,9 @@ class FoodAnalysisRemoteDataSource {
       final formData = FormData.fromMap({
         'image': await MultipartFile.fromFile(request.imagePath),
         if (request.locale != null) 'locale': request.locale,
+        if (request.ingredients != null) 'ingredients': request.ingredients,
+        if (request.servingDescription != null)
+          'servingDescription': request.servingDescription,
       });
       final response = await _dio.post<Map<String, Object?>>(
         '/v1/food/analyze',

@@ -2,6 +2,11 @@ import { z } from 'zod';
 
 export const localeSchema = z.enum(['en', 'tr']).optional();
 
+export const analysisCorrectionSchema = z.object({
+  ingredients: z.string().trim().min(1).max(300),
+  servingDescription: z.string().trim().min(1).max(200)
+}).strict();
+
 export const detectedFoodSchema = z.object({
   name: z.string().trim().min(1).max(160),
   estimatedWeightGrams: z.number().positive().finite(),
@@ -69,4 +74,9 @@ export const foodAnalysisResponseSchema = z.discriminatedUnion('isFoodDetected',
 export type DetectedFood = z.infer<typeof detectedFoodSchema>;
 export type FoodAnalysisResponse = z.infer<typeof foodAnalysisResponseSchema>;
 export type FoodAnalysisModelOutput = z.infer<typeof foodAnalysisModelOutputSchema>;
-export type AnalyzeInput = { image: Buffer; mimeType: string; locale?: 'en' | 'tr' };
+export type AnalyzeInput = {
+  image: Buffer;
+  mimeType: string;
+  locale?: 'en' | 'tr';
+  correction?: z.infer<typeof analysisCorrectionSchema>;
+};

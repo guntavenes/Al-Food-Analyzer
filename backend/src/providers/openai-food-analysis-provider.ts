@@ -25,7 +25,8 @@ export class OpenAIFoodAnalysisProvider implements FoodAnalysisProvider {
         prompt: this.options.prompt,
         imageDataUrl: `data:${input.mimeType};base64,${input.image.toString('base64')}`,
         imageDetail: this.options.imageDetail,
-        locale: input.locale
+        locale: input.locale,
+        correction: input.correction
       });
       if (result.refused || result.parsed === null) {
         throw new AppError('ANALYSIS_FAILED', 'The image could not be analyzed.', 502);

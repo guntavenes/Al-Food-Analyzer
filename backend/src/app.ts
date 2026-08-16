@@ -7,7 +7,7 @@ import multer from 'multer';
 import { requireAuth } from './auth/require-auth.js';
 import { SupabaseAuthTokenVerifier } from './auth/supabase-auth-token-verifier.js';
 import type { AuthTokenVerifier } from './auth/auth-token-verifier.js';
-import { localeSchema, foodAnalysisResponseSchema } from './contracts.js';
+import { analysisCorrectionSchema, localeSchema, foodAnalysisResponseSchema } from './contracts.js';
 import type { AppConfig } from './config.js';
 import { AppError, errorHandler } from './errors.js';
 import { validateImage } from './image-validation.js';
@@ -71,9 +71,22 @@ export function createApp(config: AppConfig, dependencies: AppDependencies = {})
       const image = validateImage(request.file);
       const localeResult = localeSchema.safeParse(request.body.locale || undefined);
       if (!localeResult.success) throw new AppError('INVALID_IMAGE', 'The locale value is invalid.', 400);
+      const hasCorrection = request.body.ingredients || request.body.servingDescription;
+      const correctionResult = hasCorrection ? analysisCorrectionSchema.safeParse({
+        ingredients: request.body.ingredients,
+        servingDescription: request.body.servingDescription
+      }) : undefined;
+      if (correctionResult && !correctionResult.success) {
+        throw new AppError('INVALID_IMAGE', 'The correction details are invalid.', 400);
+      }
       await usageRepository.recordAnalysis(request.auth?.userId ?? 'development', request.id);
       const result = await provider.analyze(
-        { image: image.buffer, mimeType: image.mimetype, locale: localeResult.data },
+        {
+          image: image.buffer,
+          mimeType: image.mimetype,
+          locale: localeResult.data,
+          correction: correctionResult?.data
+        },
         request.id
       );
       response.json(foodAnalysisResponseSchema.parse(result));
