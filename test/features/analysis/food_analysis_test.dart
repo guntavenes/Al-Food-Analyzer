@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:ai_food_analyzer/features/analysis/data/datasources/food_analysis_data_source.dart';
 import 'package:ai_food_analyzer/features/analysis/data/mappers/backend_error_mapper.dart';
 import 'package:ai_food_analyzer/features/analysis/data/models/food_analysis_model.dart';
@@ -101,6 +103,30 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
+  testWidgets('rapid Analyze taps send only one request', (tester) async {
+    final repository = _BlockingFoodAnalysisRepository();
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          foodAnalysisRepositoryProvider.overrideWithValue(repository),
+        ],
+        child: const _LocalizedTestApp(
+          home: PhotoPreviewPage(imagePath: '/missing/meal.jpg'),
+        ),
+      ),
+    );
+
+    final analyzeButton = find.text('Analyze Food');
+    await tester.tap(analyzeButton);
+    await tester.tap(analyzeButton);
+    await tester.pump();
+
+    expect(repository.callCount, 1);
+    repository.complete();
+    await tester.pumpAndSettle();
+    expect(tester.takeException(), isNull);
+  });
+
   test('HTTP response DTO maps backend fields to the domain model', () {
     final response = FoodAnalysisResponse.fromJson({
       'requestId': 'request-id',
@@ -110,16 +136,34 @@ void main() {
       'carbohydrates': 56,
       'fat': 18,
       'fiber': 7,
+      'sugar': 8,
+      'sodium': 720,
       'confidence': 0.87,
       'servingDescription': '1 medium serving',
+      'servingWeightGrams': 420,
+      'healthScore': 78,
       'analysisDescription': 'Balanced meal.',
-      'warnings': <Object?>[],
+      'warnings': <Object?>['Sauce amount is estimated.'],
+      'detectedFoods': <Object?>[
+        <String, Object?>{
+          'name': 'Chicken',
+          'estimatedWeightGrams': 160,
+          'calories': 260,
+          'confidence': 0.92,
+        },
+      ],
       'isFoodDetected': true,
     });
 
     final model = response.toModel();
     expect(model.confidencePercent, 87);
     expect(model.carbsGrams, 56);
+    expect(model.sugarGrams, 8);
+    expect(model.sodiumMilligrams, 720);
+    expect(model.servingWeightGrams, 420);
+    expect(model.healthScore, 78);
+    expect(model.warnings, ['Sauce amount is estimated.']);
+    expect(model.detectedFoods.single.name, 'Chicken');
   });
 
   test('no-food HTTP response maps to a controlled domain error', () {
@@ -251,6 +295,33 @@ class _CountingFoodAnalysisRepository implements FoodAnalysisRepository {
       confidencePercent: 100,
       servingDescription: '1 serving',
       description: 'Description',
+    );
+  }
+}
+
+class _BlockingFoodAnalysisRepository implements FoodAnalysisRepository {
+  final Completer<FoodAnalysis> _completer = Completer<FoodAnalysis>();
+  int callCount = 0;
+
+  @override
+  Future<FoodAnalysis> analyzeFood(String imagePath) {
+    callCount += 1;
+    return _completer.future;
+  }
+
+  void complete() {
+    _completer.complete(
+      const FoodAnalysis(
+        foodName: 'Meal',
+        calories: 1,
+        proteinGrams: 1,
+        fatGrams: 1,
+        carbsGrams: 1,
+        fiberGrams: 1,
+        confidencePercent: 100,
+        servingDescription: '1 serving',
+        description: 'Description',
+      ),
     );
   }
 }

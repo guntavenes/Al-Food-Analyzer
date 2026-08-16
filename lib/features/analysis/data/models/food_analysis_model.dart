@@ -11,6 +11,12 @@ class FoodAnalysisModel extends FoodAnalysis {
     required super.confidencePercent,
     required super.servingDescription,
     required super.description,
+    super.sugarGrams,
+    super.sodiumMilligrams,
+    super.servingWeightGrams,
+    super.healthScore,
+    super.warnings,
+    super.detectedFoods,
   });
 
   factory FoodAnalysisModel.fromJson(Map<String, Object?> json) {
@@ -24,6 +30,23 @@ class FoodAnalysisModel extends FoodAnalysis {
       confidencePercent: json['confidencePercent']! as int,
       servingDescription: json['servingDescription']! as String,
       description: json['description']! as String,
+      sugarGrams: (json['sugarGrams'] as int?) ?? 0,
+      sodiumMilligrams: (json['sodiumMilligrams'] as int?) ?? 0,
+      servingWeightGrams: (json['servingWeightGrams'] as int?) ?? 0,
+      healthScore: (json['healthScore'] as int?) ?? 0,
+      warnings: ((json['warnings'] as List<Object?>?) ?? const [])
+          .cast<String>(),
+      detectedFoods: ((json['detectedFoods'] as List<Object?>?) ?? const [])
+          .map((item) {
+            final value = item! as Map<String, Object?>;
+            return DetectedFood(
+              name: value['name']! as String,
+              estimatedWeightGrams: value['estimatedWeightGrams']! as int,
+              calories: value['calories']! as int,
+              confidencePercent: value['confidencePercent']! as int,
+            );
+          })
+          .toList(growable: false),
     );
   }
 
@@ -38,6 +61,21 @@ class FoodAnalysisModel extends FoodAnalysis {
       'confidencePercent': confidencePercent,
       'servingDescription': servingDescription,
       'description': description,
+      'sugarGrams': sugarGrams,
+      'sodiumMilligrams': sodiumMilligrams,
+      'servingWeightGrams': servingWeightGrams,
+      'healthScore': healthScore,
+      'warnings': warnings,
+      'detectedFoods': detectedFoods
+          .map(
+            (food) => <String, Object>{
+              'name': food.name,
+              'estimatedWeightGrams': food.estimatedWeightGrams,
+              'calories': food.calories,
+              'confidencePercent': food.confidencePercent,
+            },
+          )
+          .toList(growable: false),
     };
   }
 }

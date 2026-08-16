@@ -4,6 +4,12 @@
   "@appName": {
     "description": "Application name"
   },
+  "languageTitle": "Language",
+  "@languageTitle": {"description": "Tooltip for choosing app language"},
+  "englishLanguage": "English",
+  "@englishLanguage": {"description": "English language option"},
+  "turkishLanguage": "Türkçe",
+  "@turkishLanguage": {"description": "Turkish language option"},
   "homeTitle": "Take a photo of\nyour meal",
   "@homeTitle": {
     "description": "Main call to action on the home screen"
@@ -108,6 +114,37 @@
   "@fatLabel": {"description": "Fat nutrient label"},
   "fiberLabel": "Fiber",
   "@fiberLabel": {"description": "Fiber nutrient label"},
+  "sugarLabel": "Sugar",
+  "@sugarLabel": {"description": "Sugar nutrient label"},
+  "sodiumLabel": "Sodium",
+  "@sodiumLabel": {"description": "Sodium nutrient label"},
+  "milligramValue": "{milligrams} mg",
+  "@milligramValue": {
+    "description": "Formatted nutrient amount in milligrams",
+    "placeholders": {"milligrams": {"type": "int"}}
+  },
+  "healthScoreLabel": "Health score",
+  "@healthScoreLabel": {"description": "Estimated meal health score label"},
+  "healthScoreValue": "{score}/100",
+  "@healthScoreValue": {
+    "description": "Formatted health score",
+    "placeholders": {"score": {"type": "int"}}
+  },
+  "servingWeightLabel": "Estimated serving weight",
+  "@servingWeightLabel": {"description": "Estimated serving weight label"},
+  "detectedFoodsTitle": "Detected foods",
+  "@detectedFoodsTitle": {"description": "Detected food components section title"},
+  "foodComponentSummary": "{weight} g · {calories} kcal · %{confidence}",
+  "@foodComponentSummary": {
+    "description": "Detected food component nutrition summary",
+    "placeholders": {
+      "weight": {"type": "int"},
+      "calories": {"type": "int"},
+      "confidence": {"type": "int"}
+    }
+  },
+  "warningsTitle": "Things to consider",
+  "@warningsTitle": {"description": "Analysis warnings section title"},
   "confidenceLabel": "Confidence",
   "@confidenceLabel": {"description": "Analysis confidence label"},
   "confidenceValue": "%{confidence}",

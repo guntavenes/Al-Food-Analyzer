@@ -1,4 +1,7 @@
+import 'dart:convert';
+
 import 'package:ai_food_analyzer/core/database/app_database.dart';
+import 'package:ai_food_analyzer/features/analysis/domain/entities/food_analysis.dart';
 import 'package:ai_food_analyzer/features/history/data/models/saved_food_analysis_model.dart';
 import 'package:drift/drift.dart';
 
@@ -18,6 +21,25 @@ class AnalysisHistoryLocalDataSource {
             carbohydrates: analysis.carbsGrams,
             fat: analysis.fatGrams,
             fiber: analysis.fiberGrams,
+            sugar: Value(analysis.sugarGrams),
+            sodium: Value(analysis.sodiumMilligrams),
+            servingWeightGrams: Value(analysis.servingWeightGrams),
+            healthScore: Value(analysis.healthScore),
+            warningsJson: Value(jsonEncode(analysis.warnings)),
+            detectedFoodsJson: Value(
+              jsonEncode(
+                analysis.detectedFoods
+                    .map(
+                      (food) => <String, Object>{
+                        'name': food.name,
+                        'estimatedWeightGrams': food.estimatedWeightGrams,
+                        'calories': food.calories,
+                        'confidencePercent': food.confidencePercent,
+                      },
+                    )
+                    .toList(growable: false),
+              ),
+            ),
             confidence: analysis.confidencePercent,
             servingDescription: analysis.servingDescription,
             analysisDescription: analysis.description,
@@ -71,6 +93,23 @@ class AnalysisHistoryLocalDataSource {
       confidencePercent: record.confidence,
       servingDescription: record.servingDescription,
       description: record.analysisDescription,
+      sugarGrams: record.sugar,
+      sodiumMilligrams: record.sodium,
+      servingWeightGrams: record.servingWeightGrams,
+      healthScore: record.healthScore,
+      warnings: (jsonDecode(record.warningsJson) as List<Object?>)
+          .cast<String>(),
+      detectedFoods: (jsonDecode(record.detectedFoodsJson) as List<Object?>)
+          .map((item) {
+            final value = item! as Map<String, Object?>;
+            return DetectedFood(
+              name: value['name']! as String,
+              estimatedWeightGrams: value['estimatedWeightGrams']! as int,
+              calories: value['calories']! as int,
+              confidencePercent: value['confidencePercent']! as int,
+            );
+          })
+          .toList(growable: false),
       imagePath: record.imagePath,
       createdAt: record.createdAt,
     );

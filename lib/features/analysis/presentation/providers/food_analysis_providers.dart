@@ -1,4 +1,5 @@
 import 'package:ai_food_analyzer/core/config/app_config.dart';
+import 'package:ai_food_analyzer/core/localization/locale_providers.dart';
 import 'package:ai_food_analyzer/features/analysis/data/datasources/food_analysis_data_source.dart';
 import 'package:ai_food_analyzer/features/analysis/data/datasources/food_analysis_remote_data_source.dart';
 import 'package:ai_food_analyzer/features/analysis/data/repositories/http_food_analysis_repository.dart';
@@ -32,6 +33,7 @@ final foodAnalysisRemoteDataSourceProvider = Provider((ref) {
 final foodAnalysisRepositoryProvider = Provider<FoodAnalysisRepository>((ref) {
   return HttpFoodAnalysisRepository(
     ref.watch(foodAnalysisRemoteDataSourceProvider),
+    locale: ref.watch(appLocaleProvider).value?.languageCode ?? 'en',
   );
 });
 

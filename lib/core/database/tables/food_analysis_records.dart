@@ -15,6 +15,20 @@ class FoodAnalysisRecords extends Table {
 
   IntColumn get fiber => integer()();
 
+  IntColumn get sugar => integer().withDefault(const Constant(0))();
+
+  IntColumn get sodium => integer().withDefault(const Constant(0))();
+
+  IntColumn get servingWeightGrams =>
+      integer().withDefault(const Constant(0))();
+
+  IntColumn get healthScore => integer().withDefault(const Constant(0))();
+
+  TextColumn get warningsJson => text().withDefault(const Constant('[]'))();
+
+  TextColumn get detectedFoodsJson =>
+      text().withDefault(const Constant('[]'))();
+
   IntColumn get confidence => integer()();
 
   TextColumn get servingDescription => text()();

@@ -14,6 +14,12 @@ class SavedFoodAnalysis extends FoodAnalysis {
     required super.confidencePercent,
     required super.servingDescription,
     required super.description,
+    super.sugarGrams,
+    super.sodiumMilligrams,
+    super.servingWeightGrams,
+    super.healthScore,
+    super.warnings,
+    super.detectedFoods,
   });
 
   final int id;

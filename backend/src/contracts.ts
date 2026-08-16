@@ -55,6 +55,12 @@ export const foodAnalysisModelOutputSchema = z.discriminatedUnion('isFoodDetecte
   noFoodModelSchema
 ]);
 
+// Structured Outputs requires an object at the JSON Schema root. The wrapper is
+// transport-only; the public endpoint continues to return FoodAnalysisResponse.
+export const foodAnalysisStructuredOutputSchema = z.object({
+  analysis: foodAnalysisModelOutputSchema
+}).strict();
+
 export const foodAnalysisResponseSchema = z.discriminatedUnion('isFoodDetected', [
   detectedFoodModelSchema.extend({ requestId: z.uuid() }).strict(),
   noFoodModelSchema.extend({ requestId: z.uuid() }).strict()
