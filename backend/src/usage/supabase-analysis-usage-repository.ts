@@ -9,17 +9,26 @@ export class SupabaseAnalysisUsageRepository implements AnalysisUsageRepository 
   }
 
   async recordAnalysis(userId: string, requestId: string): Promise<void> {
-    const response = await fetch(this.endpoint, {
-      method: 'POST',
-      headers: {
-        apikey: this.secretKey,
-        'content-type': 'application/json',
-        prefer: 'return=minimal'
-      },
-      body: JSON.stringify({ user_id: userId, request_id: requestId })
-    });
-    if (!response.ok) {
-      throw new AppError('SERVICE_UNAVAILABLE', 'Usage tracking is temporarily unavailable.', 503);
+    try {
+      const response = await fetch(this.endpoint, {
+        method: 'POST',
+        headers: {
+          apikey: this.secretKey,
+          'content-type': 'application/json',
+          prefer: 'return=minimal'
+        },
+        body: JSON.stringify({ user_id: userId, request_id: requestId })
+      });
+      if (response.ok) return;
+      console.error(JSON.stringify({ component: 'usage_tracking', category: 'http_error', status: response.status }));
+    } catch (error) {
+      console.error(JSON.stringify({
+        component: 'usage_tracking',
+        category: 'network_error',
+        errorType: error instanceof Error ? error.name : 'UnknownError'
+      }));
     }
+
+    throw new AppError('SERVICE_UNAVAILABLE', 'Usage tracking is temporarily unavailable.', 503);
   }
 }
