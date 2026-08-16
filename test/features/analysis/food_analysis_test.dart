@@ -260,6 +260,22 @@ void main() {
     },
   );
 
+  test('failed analysis is not retried automatically', () async {
+    final repository = _FailingFoodAnalysisRepository();
+    final container = ProviderContainer(
+      overrides: [foodAnalysisRepositoryProvider.overrideWithValue(repository)],
+    );
+    addTearDown(container.dispose);
+    final provider = foodAnalysisProvider('/tmp/meal.jpg');
+    final subscription = container.listen(provider, (previous, next) {});
+    addTearDown(subscription.close);
+
+    await expectLater(container.read(provider.future), throwsException);
+    await Future<void>.delayed(const Duration(seconds: 1));
+
+    expect(repository.callCount, 1);
+  });
+
   testWidgets('result content fits a small phone using scrolling', (
     tester,
   ) async {
@@ -318,6 +334,16 @@ class _CountingFoodAnalysisRepository implements FoodAnalysisRepository {
       servingDescription: '1 serving',
       description: 'Description',
     );
+  }
+}
+
+class _FailingFoodAnalysisRepository implements FoodAnalysisRepository {
+  int callCount = 0;
+
+  @override
+  Future<FoodAnalysis> analyzeFood(String imagePath) {
+    callCount += 1;
+    return Future<FoodAnalysis>.error(Exception('Analysis failed.'));
   }
 }
 

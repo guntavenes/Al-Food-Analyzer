@@ -50,4 +50,4 @@ final foodAnalysisRepositoryProvider = Provider<FoodAnalysisRepository>((ref) {
 final foodAnalysisProvider = FutureProvider.autoDispose
     .family<FoodAnalysis, String>((ref, imagePath) {
       return ref.watch(foodAnalysisRepositoryProvider).analyzeFood(imagePath);
-    });
+    }, retry: (retryCount, error) => null);
