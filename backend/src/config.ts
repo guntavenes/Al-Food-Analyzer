@@ -16,7 +16,7 @@ const environmentSchema = z.object({
   ANALYSIS_RATE_LIMIT_MAX_REQUESTS: z.coerce.number().int().positive().default(10),
   AUTH_REQUIRED: z.stringbool().default(false),
   SUPABASE_URL: z.url().optional(),
-  SUPABASE_SECRET_KEY: z.string().trim().min(1).optional(),
+  SUPABASE_SERVER_KEY_V2: z.string().trim().min(1).optional(),
   OPENAI_API_KEY: z.string().trim().min(1).optional(),
   OPENAI_MODEL: z.string().trim().min(1).optional(),
   OPENAI_TIMEOUT_MS: z.coerce.number().int().min(1000).max(120000).default(30000),
@@ -28,7 +28,7 @@ const environmentSchema = z.object({
     if (!value.OPENAI_MODEL) context.addIssue({ code: 'custom', path: ['OPENAI_MODEL'], message: 'OPENAI_MODEL is required when the OpenAI provider is selected.' });
   }
   if (value.AUTH_REQUIRED && !value.SUPABASE_URL) context.addIssue({ code: 'custom', path: ['SUPABASE_URL'], message: 'SUPABASE_URL is required when authentication is enabled.' });
-  if (value.AUTH_REQUIRED && !value.SUPABASE_SECRET_KEY) context.addIssue({ code: 'custom', path: ['SUPABASE_SECRET_KEY'], message: 'SUPABASE_SECRET_KEY is required when authentication is enabled.' });
+  if (value.AUTH_REQUIRED && !value.SUPABASE_SERVER_KEY_V2) context.addIssue({ code: 'custom', path: ['SUPABASE_SERVER_KEY_V2'], message: 'SUPABASE_SERVER_KEY_V2 is required when authentication is enabled.' });
 });
 
 export type AppConfig = {
@@ -71,7 +71,7 @@ export function loadConfig(environment: NodeJS.ProcessEnv = process.env): AppCon
     analysisRateLimitMaxRequests: value.ANALYSIS_RATE_LIMIT_MAX_REQUESTS,
     authRequired: value.AUTH_REQUIRED,
     supabaseUrl: value.SUPABASE_URL,
-    supabaseSecretKey: value.SUPABASE_SECRET_KEY,
+    supabaseSecretKey: value.SUPABASE_SERVER_KEY_V2,
     openaiApiKey: value.OPENAI_API_KEY,
     openaiModel: value.OPENAI_MODEL,
     openaiTimeoutMs: value.OPENAI_TIMEOUT_MS,

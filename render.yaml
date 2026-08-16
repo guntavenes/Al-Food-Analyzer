@@ -32,7 +32,7 @@ services:
         value: "true"
       - key: SUPABASE_URL
         value: https://jwdqoyxxuvumpeuzliwp.supabase.co
-      - key: SUPABASE_SECRET_KEY
+      - key: SUPABASE_SERVER_KEY_V2
         sync: false
       - key: ANALYSIS_RATE_LIMIT_WINDOW_MS
         value: "3600000"
