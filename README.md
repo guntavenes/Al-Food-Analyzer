@@ -68,12 +68,12 @@ Backend `.env` değerleri:
 ```dotenv
 AUTH_REQUIRED=true
 SUPABASE_URL=https://YOUR_PROJECT_REF.supabase.co
-SUPABASE_SECRET_KEY=your_server_only_secret_key
+SUPABASE_SERVER_KEY_V2=your_server_only_secret_key
 ANALYSIS_RATE_LIMIT_WINDOW_MS=3600000
 ANALYSIS_RATE_LIMIT_MAX_REQUESTS=10
 ```
 
-`SUPABASE_SECRET_KEY` yalnızca backend/Render ortamında tutulmalıdır; Flutter'a,
+`SUPABASE_SERVER_KEY_V2` yalnızca backend/Render ortamında tutulmalıdır; Flutter'a,
 Git'e veya istemci tarafı yapılandırmaya eklenmemelidir. Veritabanı şeması
 [`supabase/migrations`](supabase/migrations) altındaki migration ile kurulur.
 
