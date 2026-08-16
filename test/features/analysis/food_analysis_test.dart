@@ -215,6 +215,28 @@ void main() {
     );
   });
 
+  test('backend unauthorized errors map to a secure-session error', () {
+    final requestOptions = RequestOptions(path: '/v1/food/analyze');
+    final error = DioException(
+      requestOptions: requestOptions,
+      response: Response<Map<String, Object?>>(
+        requestOptions: requestOptions,
+        statusCode: 401,
+        data: {
+          'error': <String, Object?>{
+            'code': 'UNAUTHORIZED',
+            'message': 'A valid user session is required.',
+          },
+        },
+      ),
+    );
+
+    expect(
+      BackendErrorMapper.fromDioException(error).type,
+      FoodAnalysisErrorType.unauthorized,
+    );
+  });
+
   test(
     'same analysis provider prevents duplicate concurrent requests',
     () async {

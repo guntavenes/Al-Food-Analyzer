@@ -2,6 +2,7 @@ enum FoodAnalysisErrorType {
   noFoodDetected,
   invalidImage,
   imageTooLarge,
+  unauthorized,
   rateLimited,
   timeout,
   network,

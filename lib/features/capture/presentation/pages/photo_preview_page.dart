@@ -201,6 +201,7 @@ class _PhotoPreviewPageState extends ConsumerState<PhotoPreviewPage> {
       FoodAnalysisErrorType.noFoodDetected => l10n.noFoodDetected,
       FoodAnalysisErrorType.invalidImage => l10n.invalidImage,
       FoodAnalysisErrorType.imageTooLarge => l10n.imageTooLarge,
+      FoodAnalysisErrorType.unauthorized => l10n.authenticationRequired,
       FoodAnalysisErrorType.rateLimited => l10n.rateLimited,
       FoodAnalysisErrorType.timeout => l10n.analysisTimeout,
       FoodAnalysisErrorType.network => l10n.networkError,
