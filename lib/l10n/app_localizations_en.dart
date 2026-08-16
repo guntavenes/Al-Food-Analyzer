@@ -85,6 +85,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'Too many analyses were requested. Please wait and try again.';
 
   @override
+  String get authenticationRequired =>
+      'Your secure session could not be verified. Please try again.';
+
+  @override
   String get analysisTimeout =>
       'The analysis took too long. Check your connection and try again.';
 

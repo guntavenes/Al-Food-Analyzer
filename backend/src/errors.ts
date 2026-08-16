@@ -2,6 +2,7 @@ import type { NextFunction, Request, Response } from 'express';
 import multer from 'multer';
 
 export type ErrorCode =
+  | 'UNAUTHORIZED'
   | 'INVALID_IMAGE'
   | 'IMAGE_TOO_LARGE'
   | 'UNSUPPORTED_IMAGE_TYPE'

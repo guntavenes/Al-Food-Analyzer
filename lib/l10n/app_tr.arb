@@ -23,6 +23,7 @@
   "invalidImage": "Bu görsel desteklenmiyor. JPG, PNG veya WebP fotoğraf seç.",
   "imageTooLarge": "Bu görsel çok büyük. 8 MB'tan küçük bir fotoğraf seç.",
   "rateLimited": "Çok fazla analiz istendi. Biraz bekleyip tekrar dene.",
+  "authenticationRequired": "Güvenli oturumun doğrulanamadı. Lütfen tekrar dene.",
   "analysisTimeout": "Analiz çok uzun sürdü. Bağlantını kontrol edip tekrar dene.",
   "networkError": "Analiz servisine ulaşılamadı. Bağlantını kontrol edip tekrar dene.",
   "serviceUnavailable": "Analiz servisi geçici olarak kullanılamıyor. Lütfen tekrar dene.",

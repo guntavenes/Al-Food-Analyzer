@@ -84,6 +84,10 @@ class AppLocalizationsTr extends AppLocalizations {
       'Çok fazla analiz istendi. Biraz bekleyip tekrar dene.';
 
   @override
+  String get authenticationRequired =>
+      'Güvenli oturumun doğrulanamadı. Lütfen tekrar dene.';
+
+  @override
   String get analysisTimeout =>
       'Analiz çok uzun sürdü. Bağlantını kontrol edip tekrar dene.';
 

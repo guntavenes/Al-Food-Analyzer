@@ -236,6 +236,12 @@ abstract class AppLocalizations {
   /// **'Too many analyses were requested. Please wait and try again.'**
   String get rateLimited;
 
+  /// Shown when anonymous authentication fails
+  ///
+  /// In en, this message translates to:
+  /// **'Your secure session could not be verified. Please try again.'**
+  String get authenticationRequired;
+
   /// Shown when an analysis request times out
   ///
   /// In en, this message translates to:

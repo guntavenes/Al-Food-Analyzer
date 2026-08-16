@@ -78,6 +78,8 @@
   "@imageTooLarge": {"description": "Shown when an image exceeds the upload limit"},
   "rateLimited": "Too many analyses were requested. Please wait and try again.",
   "@rateLimited": {"description": "Shown when the backend rate limits requests"},
+  "authenticationRequired": "Your secure session could not be verified. Please try again.",
+  "@authenticationRequired": {"description": "Shown when anonymous authentication fails"},
   "analysisTimeout": "The analysis took too long. Check your connection and try again.",
   "@analysisTimeout": {"description": "Shown when an analysis request times out"},
   "networkError": "The analysis service could not be reached. Check your connection and try again.",

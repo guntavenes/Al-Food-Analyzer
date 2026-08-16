@@ -22,6 +22,7 @@ abstract final class BackendErrorMapper {
       'INVALID_IMAGE' ||
       'UNSUPPORTED_IMAGE_TYPE' => FoodAnalysisErrorType.invalidImage,
       'IMAGE_TOO_LARGE' => FoodAnalysisErrorType.imageTooLarge,
+      'UNAUTHORIZED' => FoodAnalysisErrorType.unauthorized,
       'RATE_LIMITED' => FoodAnalysisErrorType.rateLimited,
       'SERVICE_UNAVAILABLE' => FoodAnalysisErrorType.serviceUnavailable,
       'ANALYSIS_FAILED' => FoodAnalysisErrorType.serviceUnavailable,

@@ -1,3 +1,4 @@
+import 'package:ai_food_analyzer/core/auth/access_token_provider.dart';
 import 'package:ai_food_analyzer/core/config/app_config.dart';
 import 'package:ai_food_analyzer/core/localization/locale_providers.dart';
 import 'package:ai_food_analyzer/features/analysis/data/datasources/food_analysis_data_source.dart';
@@ -7,6 +8,7 @@ import 'package:ai_food_analyzer/features/analysis/domain/entities/food_analysis
 import 'package:ai_food_analyzer/features/analysis/domain/repositories/food_analysis_repository.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 final fakeFoodAnalysisDataSourceProvider = Provider<FoodAnalysisDataSource>((
   ref,
@@ -26,8 +28,16 @@ final foodAnalysisDioProvider = Provider<Dio>((ref) {
   );
 });
 
+final accessTokenProvider = Provider<AccessTokenProvider>((ref) {
+  if (!AppConfig.isSupabaseConfigured) return const NoopAccessTokenProvider();
+  return SupabaseAccessTokenProvider(Supabase.instance.client);
+});
+
 final foodAnalysisRemoteDataSourceProvider = Provider((ref) {
-  return FoodAnalysisRemoteDataSource(ref.watch(foodAnalysisDioProvider));
+  return FoodAnalysisRemoteDataSource(
+    ref.watch(foodAnalysisDioProvider),
+    ref.watch(accessTokenProvider),
+  );
 });
 
 final foodAnalysisRepositoryProvider = Provider<FoodAnalysisRepository>((ref) {

@@ -7,7 +7,8 @@ backend'inden oluşan geliştirme projesi. Backend mock veya OpenAI sağlayıcı
 
 - Flutter: feature-first clean architecture, Riverpod, GoRouter, Dio ve Drift
 - Backend: Express, TypeScript, Zod, Multer ve değiştirilebilir `FoodAnalysisProvider`
-- Mobil uygulamada API anahtarı veya başka bir gizli bilgi bulunmaz
+- Supabase anonim oturumlarıyla her cihaz için doğrulanmış kullanıcı kimliği
+- Mobil uygulamada OpenAI veya Supabase sunucu anahtarı bulunmaz
 
 ## Backend'i çalıştırma
 
@@ -56,12 +57,35 @@ Anahtar veya model eksikse OpenAI modu başlamaz. `mock` modu API anahtarı olma
 ve porsiyon ipuçlarının doğruluğunu azaltabilir; `high` daha fazla token ve maliyet
 oluşturabilir. Kullanım ve fiyatlandırmayı seçilen model için ayrıca izleyin.
 
+### Supabase kimlik doğrulaması
+
+Production backend, mobil uygulamanın oluşturduğu Supabase anonim oturum JWT'sini
+doğrular. Başarılı analiz kullanımı `analysis_usage` tablosuna kullanıcı ve istek
+kimliğiyle kaydedilir. Mobil istemcinin tabloya doğrudan erişimi yoktur.
+
+Backend `.env` değerleri:
+
+```dotenv
+AUTH_REQUIRED=true
+SUPABASE_URL=https://YOUR_PROJECT_REF.supabase.co
+SUPABASE_SECRET_KEY=your_server_only_secret_key
+ANALYSIS_RATE_LIMIT_WINDOW_MS=3600000
+ANALYSIS_RATE_LIMIT_MAX_REQUESTS=10
+```
+
+`SUPABASE_SECRET_KEY` yalnızca backend/Render ortamında tutulmalıdır; Flutter'a,
+Git'e veya istemci tarafı yapılandırmaya eklenmemelidir. Veritabanı şeması
+[`supabase/migrations`](supabase/migrations) altındaki migration ile kurulur.
+
 ## Flutter uygulamasını çalıştırma
 
 ```bash
 flutter pub get
 flutter gen-l10n
-flutter run --dart-define=API_BASE_URL=http://localhost:8080
+flutter run \
+  --dart-define=API_BASE_URL=http://localhost:8080 \
+  --dart-define=SUPABASE_URL=https://YOUR_PROJECT_REF.supabase.co \
+  --dart-define=SUPABASE_PUBLISHABLE_KEY=your_publishable_key
 ```
 
 Platforma göre API adresleri:
@@ -90,6 +114,7 @@ değerini reddeder.
   - `multipart/form-data`
   - zorunlu `image`
   - opsiyonel `locale` (`en` veya `tr`)
+  - `Authorization: Bearer <Supabase access token>` (production'da zorunlu)
   - JPG, PNG ve WebP; en fazla 8 MB
 
 ## Gizlilik ve güvenlik
@@ -102,6 +127,11 @@ uygulamada gerçek servis anahtarı kesinlikle bulundurulmamalıdır.
 
 Production öncesinde EXIF metadata'nın upload öncesinde silinmesi, kullanıcı
 onayı, veri bölgesi ve saklama politikaları değerlendirilmelidir.
+
+Anonim oturum bir kullanıcı hesabı ekranı gerektirmez ancak uygulama silinirse
+cihazdaki oturum kaybolabilir. Production yayını öncesinde anonim kayıt suistimalini
+azaltmak için Supabase Auth CAPTCHA/Turnstile ve mağaza tarafında App Attest / Play
+Integrity değerlendirilmelidir.
 
 ## AI davranış sözleşmesi
 
