@@ -12,6 +12,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get appName => 'AI Food Analyzer';
 
   @override
+  String get languageTitle => 'Language';
+
+  @override
+  String get englishLanguage => 'English';
+
+  @override
+  String get turkishLanguage => 'Türkçe';
+
+  @override
   String get homeTitle => 'Take a photo of\nyour meal';
 
   @override

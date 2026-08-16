@@ -4,6 +4,12 @@
   "@appName": {
     "description": "Application name"
   },
+  "languageTitle": "Language",
+  "@languageTitle": {"description": "Tooltip for choosing app language"},
+  "englishLanguage": "English",
+  "@englishLanguage": {"description": "English language option"},
+  "turkishLanguage": "Türkçe",
+  "@turkishLanguage": {"description": "Turkish language option"},
   "homeTitle": "Take a photo of\nyour meal",
   "@homeTitle": {
     "description": "Main call to action on the home screen"

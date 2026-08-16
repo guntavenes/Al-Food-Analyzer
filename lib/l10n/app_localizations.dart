@@ -6,6 +6,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:intl/intl.dart' as intl;
 
 import 'app_localizations_en.dart';
+import 'app_localizations_tr.dart';
 
 // ignore_for_file: type=lint
 
@@ -92,13 +93,34 @@ abstract class AppLocalizations {
       ];
 
   /// A list of this localizations delegate's supported locales.
-  static const List<Locale> supportedLocales = <Locale>[Locale('en')];
+  static const List<Locale> supportedLocales = <Locale>[
+    Locale('en'),
+    Locale('tr'),
+  ];
 
   /// Application name
   ///
   /// In en, this message translates to:
   /// **'AI Food Analyzer'**
   String get appName;
+
+  /// Tooltip for choosing app language
+  ///
+  /// In en, this message translates to:
+  /// **'Language'**
+  String get languageTitle;
+
+  /// English language option
+  ///
+  /// In en, this message translates to:
+  /// **'English'**
+  String get englishLanguage;
+
+  /// Turkish language option
+  ///
+  /// In en, this message translates to:
+  /// **'Türkçe'**
+  String get turkishLanguage;
 
   /// Main call to action on the home screen
   ///
@@ -490,7 +512,7 @@ class _AppLocalizationsDelegate
 
   @override
   bool isSupported(Locale locale) =>
-      <String>['en'].contains(locale.languageCode);
+      <String>['en', 'tr'].contains(locale.languageCode);
 
   @override
   bool shouldReload(_AppLocalizationsDelegate old) => false;
@@ -501,6 +523,8 @@ AppLocalizations lookupAppLocalizations(Locale locale) {
   switch (locale.languageCode) {
     case 'en':
       return AppLocalizationsEn();
+    case 'tr':
+      return AppLocalizationsTr();
   }
 
   throw FlutterError(

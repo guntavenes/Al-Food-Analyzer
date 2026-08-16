@@ -1,18 +1,20 @@
+import 'package:ai_food_analyzer/core/localization/locale_providers.dart';
 import 'package:ai_food_analyzer/core/router/app_router.dart';
 import 'package:ai_food_analyzer/core/theme/app_colors.dart';
 import 'package:ai_food_analyzer/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 
-class HomePage extends StatefulWidget {
+class HomePage extends ConsumerStatefulWidget {
   const HomePage({super.key});
 
   @override
-  State<HomePage> createState() => _HomePageState();
+  ConsumerState<HomePage> createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _HomePageState extends ConsumerState<HomePage> {
   bool _isOpeningHistory = false;
 
   Future<void> _openHistory() async {
@@ -134,19 +136,66 @@ class _HomePageState extends State<HomePage> {
               top: 10,
               right: 18,
               child: SafeArea(
-                child: IconButton.filledTonal(
-                  tooltip: l10n.historyTitle,
-                  onPressed: _isOpeningHistory ? null : _openHistory,
-                  style: IconButton.styleFrom(
-                    backgroundColor: Colors.white.withValues(alpha: 0.78),
-                    foregroundColor: AppColors.ink,
-                  ),
-                  icon: const Icon(Icons.history_rounded),
+                child: Row(
+                  children: [
+                    PopupMenuButton<String>(
+                      tooltip: l10n.languageTitle,
+                      onSelected: (languageCode) {
+                        ref
+                            .read(appLocaleProvider.notifier)
+                            .setLocale(Locale(languageCode));
+                      },
+                      itemBuilder: (context) {
+                        final selected = Localizations.localeOf(
+                          context,
+                        ).languageCode;
+                        return [
+                          _languageItem(
+                            code: 'en',
+                            label: l10n.englishLanguage,
+                            selected: selected == 'en',
+                          ),
+                          _languageItem(
+                            code: 'tr',
+                            label: l10n.turkishLanguage,
+                            selected: selected == 'tr',
+                          ),
+                        ];
+                      },
+                      icon: const Icon(Icons.language_rounded),
+                    ),
+                    IconButton.filledTonal(
+                      tooltip: l10n.historyTitle,
+                      onPressed: _isOpeningHistory ? null : _openHistory,
+                      style: IconButton.styleFrom(
+                        backgroundColor: Colors.white.withValues(alpha: 0.78),
+                        foregroundColor: AppColors.ink,
+                      ),
+                      icon: const Icon(Icons.history_rounded),
+                    ),
+                  ],
                 ),
               ),
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  PopupMenuItem<String> _languageItem({
+    required String code,
+    required String label,
+    required bool selected,
+  }) {
+    return PopupMenuItem(
+      value: code,
+      child: Row(
+        children: [
+          Icon(selected ? Icons.check_rounded : Icons.language_rounded),
+          const SizedBox(width: 10),
+          Text(label),
+        ],
       ),
     );
   }

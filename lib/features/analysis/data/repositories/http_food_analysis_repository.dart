@@ -4,14 +4,18 @@ import 'package:ai_food_analyzer/features/analysis/domain/entities/food_analysis
 import 'package:ai_food_analyzer/features/analysis/domain/repositories/food_analysis_repository.dart';
 
 class HttpFoodAnalysisRepository implements FoodAnalysisRepository {
-  const HttpFoodAnalysisRepository(this._remoteDataSource);
+  const HttpFoodAnalysisRepository(
+    this._remoteDataSource, {
+    required this.locale,
+  });
 
   final FoodAnalysisRemoteDataSource _remoteDataSource;
+  final String locale;
 
   @override
   Future<FoodAnalysis> analyzeFood(String imagePath) async {
     final response = await _remoteDataSource.analyzeFood(
-      AnalyzeFoodRequest(imagePath: imagePath),
+      AnalyzeFoodRequest(imagePath: imagePath, locale: locale),
     );
     return response.toModel();
   }
