@@ -84,6 +84,74 @@ class $FoodAnalysisRecordsTable extends FoodAnalysisRecords
     type: DriftSqlType.int,
     requiredDuringInsert: true,
   );
+  static const VerificationMeta _sugarMeta = const VerificationMeta('sugar');
+  @override
+  late final GeneratedColumn<int> sugar = GeneratedColumn<int>(
+    'sugar',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _sodiumMeta = const VerificationMeta('sodium');
+  @override
+  late final GeneratedColumn<int> sodium = GeneratedColumn<int>(
+    'sodium',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _servingWeightGramsMeta =
+      const VerificationMeta('servingWeightGrams');
+  @override
+  late final GeneratedColumn<int> servingWeightGrams = GeneratedColumn<int>(
+    'serving_weight_grams',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _healthScoreMeta = const VerificationMeta(
+    'healthScore',
+  );
+  @override
+  late final GeneratedColumn<int> healthScore = GeneratedColumn<int>(
+    'health_score',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _warningsJsonMeta = const VerificationMeta(
+    'warningsJson',
+  );
+  @override
+  late final GeneratedColumn<String> warningsJson = GeneratedColumn<String>(
+    'warnings_json',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('[]'),
+  );
+  static const VerificationMeta _detectedFoodsJsonMeta = const VerificationMeta(
+    'detectedFoodsJson',
+  );
+  @override
+  late final GeneratedColumn<String> detectedFoodsJson =
+      GeneratedColumn<String>(
+        'detected_foods_json',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+        defaultValue: const Constant('[]'),
+      );
   static const VerificationMeta _confidenceMeta = const VerificationMeta(
     'confidence',
   );
@@ -148,6 +216,12 @@ class $FoodAnalysisRecordsTable extends FoodAnalysisRecords
     carbohydrates,
     fat,
     fiber,
+    sugar,
+    sodium,
+    servingWeightGrams,
+    healthScore,
+    warningsJson,
+    detectedFoodsJson,
     confidence,
     servingDescription,
     analysisDescription,
@@ -219,6 +293,54 @@ class $FoodAnalysisRecordsTable extends FoodAnalysisRecords
       );
     } else if (isInserting) {
       context.missing(_fiberMeta);
+    }
+    if (data.containsKey('sugar')) {
+      context.handle(
+        _sugarMeta,
+        sugar.isAcceptableOrUnknown(data['sugar']!, _sugarMeta),
+      );
+    }
+    if (data.containsKey('sodium')) {
+      context.handle(
+        _sodiumMeta,
+        sodium.isAcceptableOrUnknown(data['sodium']!, _sodiumMeta),
+      );
+    }
+    if (data.containsKey('serving_weight_grams')) {
+      context.handle(
+        _servingWeightGramsMeta,
+        servingWeightGrams.isAcceptableOrUnknown(
+          data['serving_weight_grams']!,
+          _servingWeightGramsMeta,
+        ),
+      );
+    }
+    if (data.containsKey('health_score')) {
+      context.handle(
+        _healthScoreMeta,
+        healthScore.isAcceptableOrUnknown(
+          data['health_score']!,
+          _healthScoreMeta,
+        ),
+      );
+    }
+    if (data.containsKey('warnings_json')) {
+      context.handle(
+        _warningsJsonMeta,
+        warningsJson.isAcceptableOrUnknown(
+          data['warnings_json']!,
+          _warningsJsonMeta,
+        ),
+      );
+    }
+    if (data.containsKey('detected_foods_json')) {
+      context.handle(
+        _detectedFoodsJsonMeta,
+        detectedFoodsJson.isAcceptableOrUnknown(
+          data['detected_foods_json']!,
+          _detectedFoodsJsonMeta,
+        ),
+      );
     }
     if (data.containsKey('confidence')) {
       context.handle(
@@ -303,6 +425,30 @@ class $FoodAnalysisRecordsTable extends FoodAnalysisRecords
         DriftSqlType.int,
         data['${effectivePrefix}fiber'],
       )!,
+      sugar: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}sugar'],
+      )!,
+      sodium: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}sodium'],
+      )!,
+      servingWeightGrams: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}serving_weight_grams'],
+      )!,
+      healthScore: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}health_score'],
+      )!,
+      warningsJson: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}warnings_json'],
+      )!,
+      detectedFoodsJson: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}detected_foods_json'],
+      )!,
       confidence: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
         data['${effectivePrefix}confidence'],
@@ -341,6 +487,12 @@ class FoodAnalysisRecord extends DataClass
   final int carbohydrates;
   final int fat;
   final int fiber;
+  final int sugar;
+  final int sodium;
+  final int servingWeightGrams;
+  final int healthScore;
+  final String warningsJson;
+  final String detectedFoodsJson;
   final int confidence;
   final String servingDescription;
   final String analysisDescription;
@@ -354,6 +506,12 @@ class FoodAnalysisRecord extends DataClass
     required this.carbohydrates,
     required this.fat,
     required this.fiber,
+    required this.sugar,
+    required this.sodium,
+    required this.servingWeightGrams,
+    required this.healthScore,
+    required this.warningsJson,
+    required this.detectedFoodsJson,
     required this.confidence,
     required this.servingDescription,
     required this.analysisDescription,
@@ -370,6 +528,12 @@ class FoodAnalysisRecord extends DataClass
     map['carbohydrates'] = Variable<int>(carbohydrates);
     map['fat'] = Variable<int>(fat);
     map['fiber'] = Variable<int>(fiber);
+    map['sugar'] = Variable<int>(sugar);
+    map['sodium'] = Variable<int>(sodium);
+    map['serving_weight_grams'] = Variable<int>(servingWeightGrams);
+    map['health_score'] = Variable<int>(healthScore);
+    map['warnings_json'] = Variable<String>(warningsJson);
+    map['detected_foods_json'] = Variable<String>(detectedFoodsJson);
     map['confidence'] = Variable<int>(confidence);
     map['serving_description'] = Variable<String>(servingDescription);
     map['analysis_description'] = Variable<String>(analysisDescription);
@@ -387,6 +551,12 @@ class FoodAnalysisRecord extends DataClass
       carbohydrates: Value(carbohydrates),
       fat: Value(fat),
       fiber: Value(fiber),
+      sugar: Value(sugar),
+      sodium: Value(sodium),
+      servingWeightGrams: Value(servingWeightGrams),
+      healthScore: Value(healthScore),
+      warningsJson: Value(warningsJson),
+      detectedFoodsJson: Value(detectedFoodsJson),
       confidence: Value(confidence),
       servingDescription: Value(servingDescription),
       analysisDescription: Value(analysisDescription),
@@ -408,6 +578,12 @@ class FoodAnalysisRecord extends DataClass
       carbohydrates: serializer.fromJson<int>(json['carbohydrates']),
       fat: serializer.fromJson<int>(json['fat']),
       fiber: serializer.fromJson<int>(json['fiber']),
+      sugar: serializer.fromJson<int>(json['sugar']),
+      sodium: serializer.fromJson<int>(json['sodium']),
+      servingWeightGrams: serializer.fromJson<int>(json['servingWeightGrams']),
+      healthScore: serializer.fromJson<int>(json['healthScore']),
+      warningsJson: serializer.fromJson<String>(json['warningsJson']),
+      detectedFoodsJson: serializer.fromJson<String>(json['detectedFoodsJson']),
       confidence: serializer.fromJson<int>(json['confidence']),
       servingDescription: serializer.fromJson<String>(
         json['servingDescription'],
@@ -430,6 +606,12 @@ class FoodAnalysisRecord extends DataClass
       'carbohydrates': serializer.toJson<int>(carbohydrates),
       'fat': serializer.toJson<int>(fat),
       'fiber': serializer.toJson<int>(fiber),
+      'sugar': serializer.toJson<int>(sugar),
+      'sodium': serializer.toJson<int>(sodium),
+      'servingWeightGrams': serializer.toJson<int>(servingWeightGrams),
+      'healthScore': serializer.toJson<int>(healthScore),
+      'warningsJson': serializer.toJson<String>(warningsJson),
+      'detectedFoodsJson': serializer.toJson<String>(detectedFoodsJson),
       'confidence': serializer.toJson<int>(confidence),
       'servingDescription': serializer.toJson<String>(servingDescription),
       'analysisDescription': serializer.toJson<String>(analysisDescription),
@@ -446,6 +628,12 @@ class FoodAnalysisRecord extends DataClass
     int? carbohydrates,
     int? fat,
     int? fiber,
+    int? sugar,
+    int? sodium,
+    int? servingWeightGrams,
+    int? healthScore,
+    String? warningsJson,
+    String? detectedFoodsJson,
     int? confidence,
     String? servingDescription,
     String? analysisDescription,
@@ -459,6 +647,12 @@ class FoodAnalysisRecord extends DataClass
     carbohydrates: carbohydrates ?? this.carbohydrates,
     fat: fat ?? this.fat,
     fiber: fiber ?? this.fiber,
+    sugar: sugar ?? this.sugar,
+    sodium: sodium ?? this.sodium,
+    servingWeightGrams: servingWeightGrams ?? this.servingWeightGrams,
+    healthScore: healthScore ?? this.healthScore,
+    warningsJson: warningsJson ?? this.warningsJson,
+    detectedFoodsJson: detectedFoodsJson ?? this.detectedFoodsJson,
     confidence: confidence ?? this.confidence,
     servingDescription: servingDescription ?? this.servingDescription,
     analysisDescription: analysisDescription ?? this.analysisDescription,
@@ -476,6 +670,20 @@ class FoodAnalysisRecord extends DataClass
           : this.carbohydrates,
       fat: data.fat.present ? data.fat.value : this.fat,
       fiber: data.fiber.present ? data.fiber.value : this.fiber,
+      sugar: data.sugar.present ? data.sugar.value : this.sugar,
+      sodium: data.sodium.present ? data.sodium.value : this.sodium,
+      servingWeightGrams: data.servingWeightGrams.present
+          ? data.servingWeightGrams.value
+          : this.servingWeightGrams,
+      healthScore: data.healthScore.present
+          ? data.healthScore.value
+          : this.healthScore,
+      warningsJson: data.warningsJson.present
+          ? data.warningsJson.value
+          : this.warningsJson,
+      detectedFoodsJson: data.detectedFoodsJson.present
+          ? data.detectedFoodsJson.value
+          : this.detectedFoodsJson,
       confidence: data.confidence.present
           ? data.confidence.value
           : this.confidence,
@@ -500,6 +708,12 @@ class FoodAnalysisRecord extends DataClass
           ..write('carbohydrates: $carbohydrates, ')
           ..write('fat: $fat, ')
           ..write('fiber: $fiber, ')
+          ..write('sugar: $sugar, ')
+          ..write('sodium: $sodium, ')
+          ..write('servingWeightGrams: $servingWeightGrams, ')
+          ..write('healthScore: $healthScore, ')
+          ..write('warningsJson: $warningsJson, ')
+          ..write('detectedFoodsJson: $detectedFoodsJson, ')
           ..write('confidence: $confidence, ')
           ..write('servingDescription: $servingDescription, ')
           ..write('analysisDescription: $analysisDescription, ')
@@ -518,6 +732,12 @@ class FoodAnalysisRecord extends DataClass
     carbohydrates,
     fat,
     fiber,
+    sugar,
+    sodium,
+    servingWeightGrams,
+    healthScore,
+    warningsJson,
+    detectedFoodsJson,
     confidence,
     servingDescription,
     analysisDescription,
@@ -535,6 +755,12 @@ class FoodAnalysisRecord extends DataClass
           other.carbohydrates == this.carbohydrates &&
           other.fat == this.fat &&
           other.fiber == this.fiber &&
+          other.sugar == this.sugar &&
+          other.sodium == this.sodium &&
+          other.servingWeightGrams == this.servingWeightGrams &&
+          other.healthScore == this.healthScore &&
+          other.warningsJson == this.warningsJson &&
+          other.detectedFoodsJson == this.detectedFoodsJson &&
           other.confidence == this.confidence &&
           other.servingDescription == this.servingDescription &&
           other.analysisDescription == this.analysisDescription &&
@@ -550,6 +776,12 @@ class FoodAnalysisRecordsCompanion extends UpdateCompanion<FoodAnalysisRecord> {
   final Value<int> carbohydrates;
   final Value<int> fat;
   final Value<int> fiber;
+  final Value<int> sugar;
+  final Value<int> sodium;
+  final Value<int> servingWeightGrams;
+  final Value<int> healthScore;
+  final Value<String> warningsJson;
+  final Value<String> detectedFoodsJson;
   final Value<int> confidence;
   final Value<String> servingDescription;
   final Value<String> analysisDescription;
@@ -563,6 +795,12 @@ class FoodAnalysisRecordsCompanion extends UpdateCompanion<FoodAnalysisRecord> {
     this.carbohydrates = const Value.absent(),
     this.fat = const Value.absent(),
     this.fiber = const Value.absent(),
+    this.sugar = const Value.absent(),
+    this.sodium = const Value.absent(),
+    this.servingWeightGrams = const Value.absent(),
+    this.healthScore = const Value.absent(),
+    this.warningsJson = const Value.absent(),
+    this.detectedFoodsJson = const Value.absent(),
     this.confidence = const Value.absent(),
     this.servingDescription = const Value.absent(),
     this.analysisDescription = const Value.absent(),
@@ -577,6 +815,12 @@ class FoodAnalysisRecordsCompanion extends UpdateCompanion<FoodAnalysisRecord> {
     required int carbohydrates,
     required int fat,
     required int fiber,
+    this.sugar = const Value.absent(),
+    this.sodium = const Value.absent(),
+    this.servingWeightGrams = const Value.absent(),
+    this.healthScore = const Value.absent(),
+    this.warningsJson = const Value.absent(),
+    this.detectedFoodsJson = const Value.absent(),
     required int confidence,
     required String servingDescription,
     required String analysisDescription,
@@ -601,6 +845,12 @@ class FoodAnalysisRecordsCompanion extends UpdateCompanion<FoodAnalysisRecord> {
     Expression<int>? carbohydrates,
     Expression<int>? fat,
     Expression<int>? fiber,
+    Expression<int>? sugar,
+    Expression<int>? sodium,
+    Expression<int>? servingWeightGrams,
+    Expression<int>? healthScore,
+    Expression<String>? warningsJson,
+    Expression<String>? detectedFoodsJson,
     Expression<int>? confidence,
     Expression<String>? servingDescription,
     Expression<String>? analysisDescription,
@@ -615,6 +865,13 @@ class FoodAnalysisRecordsCompanion extends UpdateCompanion<FoodAnalysisRecord> {
       if (carbohydrates != null) 'carbohydrates': carbohydrates,
       if (fat != null) 'fat': fat,
       if (fiber != null) 'fiber': fiber,
+      if (sugar != null) 'sugar': sugar,
+      if (sodium != null) 'sodium': sodium,
+      if (servingWeightGrams != null)
+        'serving_weight_grams': servingWeightGrams,
+      if (healthScore != null) 'health_score': healthScore,
+      if (warningsJson != null) 'warnings_json': warningsJson,
+      if (detectedFoodsJson != null) 'detected_foods_json': detectedFoodsJson,
       if (confidence != null) 'confidence': confidence,
       if (servingDescription != null) 'serving_description': servingDescription,
       if (analysisDescription != null)
@@ -632,6 +889,12 @@ class FoodAnalysisRecordsCompanion extends UpdateCompanion<FoodAnalysisRecord> {
     Value<int>? carbohydrates,
     Value<int>? fat,
     Value<int>? fiber,
+    Value<int>? sugar,
+    Value<int>? sodium,
+    Value<int>? servingWeightGrams,
+    Value<int>? healthScore,
+    Value<String>? warningsJson,
+    Value<String>? detectedFoodsJson,
     Value<int>? confidence,
     Value<String>? servingDescription,
     Value<String>? analysisDescription,
@@ -646,6 +909,12 @@ class FoodAnalysisRecordsCompanion extends UpdateCompanion<FoodAnalysisRecord> {
       carbohydrates: carbohydrates ?? this.carbohydrates,
       fat: fat ?? this.fat,
       fiber: fiber ?? this.fiber,
+      sugar: sugar ?? this.sugar,
+      sodium: sodium ?? this.sodium,
+      servingWeightGrams: servingWeightGrams ?? this.servingWeightGrams,
+      healthScore: healthScore ?? this.healthScore,
+      warningsJson: warningsJson ?? this.warningsJson,
+      detectedFoodsJson: detectedFoodsJson ?? this.detectedFoodsJson,
       confidence: confidence ?? this.confidence,
       servingDescription: servingDescription ?? this.servingDescription,
       analysisDescription: analysisDescription ?? this.analysisDescription,
@@ -678,6 +947,24 @@ class FoodAnalysisRecordsCompanion extends UpdateCompanion<FoodAnalysisRecord> {
     if (fiber.present) {
       map['fiber'] = Variable<int>(fiber.value);
     }
+    if (sugar.present) {
+      map['sugar'] = Variable<int>(sugar.value);
+    }
+    if (sodium.present) {
+      map['sodium'] = Variable<int>(sodium.value);
+    }
+    if (servingWeightGrams.present) {
+      map['serving_weight_grams'] = Variable<int>(servingWeightGrams.value);
+    }
+    if (healthScore.present) {
+      map['health_score'] = Variable<int>(healthScore.value);
+    }
+    if (warningsJson.present) {
+      map['warnings_json'] = Variable<String>(warningsJson.value);
+    }
+    if (detectedFoodsJson.present) {
+      map['detected_foods_json'] = Variable<String>(detectedFoodsJson.value);
+    }
     if (confidence.present) {
       map['confidence'] = Variable<int>(confidence.value);
     }
@@ -706,6 +993,12 @@ class FoodAnalysisRecordsCompanion extends UpdateCompanion<FoodAnalysisRecord> {
           ..write('carbohydrates: $carbohydrates, ')
           ..write('fat: $fat, ')
           ..write('fiber: $fiber, ')
+          ..write('sugar: $sugar, ')
+          ..write('sodium: $sodium, ')
+          ..write('servingWeightGrams: $servingWeightGrams, ')
+          ..write('healthScore: $healthScore, ')
+          ..write('warningsJson: $warningsJson, ')
+          ..write('detectedFoodsJson: $detectedFoodsJson, ')
           ..write('confidence: $confidence, ')
           ..write('servingDescription: $servingDescription, ')
           ..write('analysisDescription: $analysisDescription, ')
@@ -737,6 +1030,12 @@ typedef $$FoodAnalysisRecordsTableCreateCompanionBuilder =
       required int carbohydrates,
       required int fat,
       required int fiber,
+      Value<int> sugar,
+      Value<int> sodium,
+      Value<int> servingWeightGrams,
+      Value<int> healthScore,
+      Value<String> warningsJson,
+      Value<String> detectedFoodsJson,
       required int confidence,
       required String servingDescription,
       required String analysisDescription,
@@ -752,6 +1051,12 @@ typedef $$FoodAnalysisRecordsTableUpdateCompanionBuilder =
       Value<int> carbohydrates,
       Value<int> fat,
       Value<int> fiber,
+      Value<int> sugar,
+      Value<int> sodium,
+      Value<int> servingWeightGrams,
+      Value<int> healthScore,
+      Value<String> warningsJson,
+      Value<String> detectedFoodsJson,
       Value<int> confidence,
       Value<String> servingDescription,
       Value<String> analysisDescription,
@@ -800,6 +1105,36 @@ class $$FoodAnalysisRecordsTableFilterComposer
 
   ColumnFilters<int> get fiber => $composableBuilder(
     column: $table.fiber,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get sugar => $composableBuilder(
+    column: $table.sugar,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get sodium => $composableBuilder(
+    column: $table.sodium,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get servingWeightGrams => $composableBuilder(
+    column: $table.servingWeightGrams,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get healthScore => $composableBuilder(
+    column: $table.healthScore,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get warningsJson => $composableBuilder(
+    column: $table.warningsJson,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get detectedFoodsJson => $composableBuilder(
+    column: $table.detectedFoodsJson,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -873,6 +1208,36 @@ class $$FoodAnalysisRecordsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<int> get sugar => $composableBuilder(
+    column: $table.sugar,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get sodium => $composableBuilder(
+    column: $table.sodium,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get servingWeightGrams => $composableBuilder(
+    column: $table.servingWeightGrams,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get healthScore => $composableBuilder(
+    column: $table.healthScore,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get warningsJson => $composableBuilder(
+    column: $table.warningsJson,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get detectedFoodsJson => $composableBuilder(
+    column: $table.detectedFoodsJson,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<int> get confidence => $composableBuilder(
     column: $table.confidence,
     builder: (column) => ColumnOrderings(column),
@@ -930,6 +1295,32 @@ class $$FoodAnalysisRecordsTableAnnotationComposer
 
   GeneratedColumn<int> get fiber =>
       $composableBuilder(column: $table.fiber, builder: (column) => column);
+
+  GeneratedColumn<int> get sugar =>
+      $composableBuilder(column: $table.sugar, builder: (column) => column);
+
+  GeneratedColumn<int> get sodium =>
+      $composableBuilder(column: $table.sodium, builder: (column) => column);
+
+  GeneratedColumn<int> get servingWeightGrams => $composableBuilder(
+    column: $table.servingWeightGrams,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get healthScore => $composableBuilder(
+    column: $table.healthScore,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get warningsJson => $composableBuilder(
+    column: $table.warningsJson,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get detectedFoodsJson => $composableBuilder(
+    column: $table.detectedFoodsJson,
+    builder: (column) => column,
+  );
 
   GeneratedColumn<int> get confidence => $composableBuilder(
     column: $table.confidence,
@@ -1003,6 +1394,12 @@ class $$FoodAnalysisRecordsTableTableManager
                 Value<int> carbohydrates = const Value.absent(),
                 Value<int> fat = const Value.absent(),
                 Value<int> fiber = const Value.absent(),
+                Value<int> sugar = const Value.absent(),
+                Value<int> sodium = const Value.absent(),
+                Value<int> servingWeightGrams = const Value.absent(),
+                Value<int> healthScore = const Value.absent(),
+                Value<String> warningsJson = const Value.absent(),
+                Value<String> detectedFoodsJson = const Value.absent(),
                 Value<int> confidence = const Value.absent(),
                 Value<String> servingDescription = const Value.absent(),
                 Value<String> analysisDescription = const Value.absent(),
@@ -1016,6 +1413,12 @@ class $$FoodAnalysisRecordsTableTableManager
                 carbohydrates: carbohydrates,
                 fat: fat,
                 fiber: fiber,
+                sugar: sugar,
+                sodium: sodium,
+                servingWeightGrams: servingWeightGrams,
+                healthScore: healthScore,
+                warningsJson: warningsJson,
+                detectedFoodsJson: detectedFoodsJson,
                 confidence: confidence,
                 servingDescription: servingDescription,
                 analysisDescription: analysisDescription,
@@ -1031,6 +1434,12 @@ class $$FoodAnalysisRecordsTableTableManager
                 required int carbohydrates,
                 required int fat,
                 required int fiber,
+                Value<int> sugar = const Value.absent(),
+                Value<int> sodium = const Value.absent(),
+                Value<int> servingWeightGrams = const Value.absent(),
+                Value<int> healthScore = const Value.absent(),
+                Value<String> warningsJson = const Value.absent(),
+                Value<String> detectedFoodsJson = const Value.absent(),
                 required int confidence,
                 required String servingDescription,
                 required String analysisDescription,
@@ -1044,6 +1453,12 @@ class $$FoodAnalysisRecordsTableTableManager
                 carbohydrates: carbohydrates,
                 fat: fat,
                 fiber: fiber,
+                sugar: sugar,
+                sodium: sodium,
+                servingWeightGrams: servingWeightGrams,
+                healthScore: healthScore,
+                warningsJson: warningsJson,
+                detectedFoodsJson: detectedFoodsJson,
                 confidence: confidence,
                 servingDescription: servingDescription,
                 analysisDescription: analysisDescription,

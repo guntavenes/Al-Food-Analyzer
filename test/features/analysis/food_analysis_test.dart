@@ -136,16 +136,34 @@ void main() {
       'carbohydrates': 56,
       'fat': 18,
       'fiber': 7,
+      'sugar': 8,
+      'sodium': 720,
       'confidence': 0.87,
       'servingDescription': '1 medium serving',
+      'servingWeightGrams': 420,
+      'healthScore': 78,
       'analysisDescription': 'Balanced meal.',
-      'warnings': <Object?>[],
+      'warnings': <Object?>['Sauce amount is estimated.'],
+      'detectedFoods': <Object?>[
+        <String, Object?>{
+          'name': 'Chicken',
+          'estimatedWeightGrams': 160,
+          'calories': 260,
+          'confidence': 0.92,
+        },
+      ],
       'isFoodDetected': true,
     });
 
     final model = response.toModel();
     expect(model.confidencePercent, 87);
     expect(model.carbsGrams, 56);
+    expect(model.sugarGrams, 8);
+    expect(model.sodiumMilligrams, 720);
+    expect(model.servingWeightGrams, 420);
+    expect(model.healthScore, 78);
+    expect(model.warnings, ['Sauce amount is estimated.']);
+    expect(model.detectedFoods.single.name, 'Chicken');
   });
 
   test('no-food HTTP response maps to a controlled domain error', () {

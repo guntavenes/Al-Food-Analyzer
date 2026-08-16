@@ -173,10 +173,47 @@ class _FoodAnalysisResultPageState
                               label: l10n.fiberLabel,
                               value: l10n.gramValue(analysis.fiberGrams),
                             ),
+                            _NutrientCard(
+                              width: cardWidth,
+                              icon: Icons.cake_outlined,
+                              color: const Color(0xFF9B6BC2),
+                              label: l10n.sugarLabel,
+                              value: l10n.gramValue(analysis.sugarGrams),
+                            ),
+                            _NutrientCard(
+                              width: cardWidth,
+                              icon: Icons.science_outlined,
+                              color: const Color(0xFF4C93A8),
+                              label: l10n.sodiumLabel,
+                              value: l10n.milligramValue(
+                                analysis.sodiumMilligrams,
+                              ),
+                            ),
                           ],
                         );
                       },
                     ),
+                    const SizedBox(height: 16),
+                    _AnalysisHighlights(
+                      healthLabel: l10n.healthScoreLabel,
+                      healthValue: l10n.healthScoreValue(analysis.healthScore),
+                      weightLabel: l10n.servingWeightLabel,
+                      weightValue: l10n.gramValue(analysis.servingWeightGrams),
+                    ),
+                    if (analysis.detectedFoods.isNotEmpty) ...[
+                      const SizedBox(height: 16),
+                      _DetectedFoodsCard(
+                        title: l10n.detectedFoodsTitle,
+                        foods: analysis.detectedFoods,
+                      ),
+                    ],
+                    if (analysis.warnings.isNotEmpty) ...[
+                      const SizedBox(height: 16),
+                      _WarningsCard(
+                        title: l10n.warningsTitle,
+                        warnings: analysis.warnings,
+                      ),
+                    ],
                     const SizedBox(height: 20),
                     _DescriptionCard(description: analysis.description),
                     const SizedBox(height: 14),
@@ -481,6 +518,182 @@ class _NutrientCard extends StatelessWidget {
               ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+}
+
+class _AnalysisHighlights extends StatelessWidget {
+  const _AnalysisHighlights({
+    required this.healthLabel,
+    required this.healthValue,
+    required this.weightLabel,
+    required this.weightValue,
+  });
+
+  final String healthLabel;
+  final String healthValue;
+  final String weightLabel;
+  final String weightValue;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    return Material(
+      color: colors.primaryContainer.withValues(alpha: 0.45),
+      borderRadius: BorderRadius.circular(22),
+      child: Padding(
+        padding: const EdgeInsets.all(18),
+        child: Row(
+          children: [
+            Expanded(
+              child: _HighlightItem(label: healthLabel, value: healthValue),
+            ),
+            SizedBox(
+              height: 42,
+              child: VerticalDivider(color: colors.outlineVariant),
+            ),
+            Expanded(
+              child: _HighlightItem(label: weightLabel, value: weightValue),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _HighlightItem extends StatelessWidget {
+  const _HighlightItem({required this.label, required this.value});
+
+  final String label;
+  final String value;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Column(
+      children: [
+        Text(
+          value,
+          style: theme.textTheme.titleLarge?.copyWith(
+            fontWeight: FontWeight.w800,
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          label,
+          textAlign: TextAlign.center,
+          style: theme.textTheme.bodySmall?.copyWith(
+            color: theme.colorScheme.onSurfaceVariant,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _DetectedFoodsCard extends StatelessWidget {
+  const _DetectedFoodsCard({required this.title, required this.foods});
+
+  final String title;
+  final List<DetectedFood> foods;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+    return Material(
+      color: colors.surfaceContainerLow,
+      borderRadius: BorderRadius.circular(22),
+      child: Padding(
+        padding: const EdgeInsets.all(18),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              title,
+              style: theme.textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+            const SizedBox(height: 10),
+            for (var index = 0; index < foods.length; index++) ...[
+              if (index > 0) const Divider(height: 20),
+              Text(
+                foods[index].name,
+                style: theme.textTheme.bodyLarge?.copyWith(
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                l10n.foodComponentSummary(
+                  foods[index].estimatedWeightGrams,
+                  foods[index].calories,
+                  foods[index].confidencePercent,
+                ),
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: colors.onSurfaceVariant,
+                ),
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _WarningsCard extends StatelessWidget {
+  const _WarningsCard({required this.title, required this.warnings});
+
+  final String title;
+  final List<String> warnings;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+    return Material(
+      color: colors.tertiaryContainer.withValues(alpha: 0.55),
+      borderRadius: BorderRadius.circular(22),
+      child: Padding(
+        padding: const EdgeInsets.all(18),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              title,
+              style: theme.textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+            const SizedBox(height: 8),
+            for (final warning in warnings)
+              Padding(
+                padding: const EdgeInsets.only(top: 6),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Icon(
+                      Icons.info_outline_rounded,
+                      size: 18,
+                      color: colors.onTertiaryContainer,
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        warning,
+                        style: TextStyle(color: colors.onTertiaryContainer),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+          ],
         ),
       ),
     );

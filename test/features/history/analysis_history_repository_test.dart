@@ -39,6 +39,10 @@ void main() {
     expect(secondId, firstId);
     expect(records, hasLength(1));
     expect(records.single.foodName, 'Grilled Chicken Bowl');
+    expect(records.single.sodiumMilligrams, 720);
+    expect(records.single.healthScore, 78);
+    expect(records.single.warnings, ['Sauce amount is estimated.']);
+    expect(records.single.detectedFoods.single.name, 'Chicken');
   });
 
   test('delete removes both database record and persisted image', () async {
@@ -92,6 +96,19 @@ const _analysis = FoodAnalysis(
   confidencePercent: 87,
   servingDescription: '1 medium serving',
   description: 'Balanced meal.',
+  sugarGrams: 8,
+  sodiumMilligrams: 720,
+  servingWeightGrams: 420,
+  healthScore: 78,
+  warnings: ['Sauce amount is estimated.'],
+  detectedFoods: [
+    DetectedFood(
+      name: 'Chicken',
+      estimatedWeightGrams: 160,
+      calories: 260,
+      confidencePercent: 92,
+    ),
+  ],
 );
 
 class _HistoryTestHarness {

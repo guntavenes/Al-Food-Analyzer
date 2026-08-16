@@ -116,6 +116,39 @@ class AppLocalizationsEn extends AppLocalizations {
   String get fiberLabel => 'Fiber';
 
   @override
+  String get sugarLabel => 'Sugar';
+
+  @override
+  String get sodiumLabel => 'Sodium';
+
+  @override
+  String milligramValue(int milligrams) {
+    return '$milligrams mg';
+  }
+
+  @override
+  String get healthScoreLabel => 'Health score';
+
+  @override
+  String healthScoreValue(int score) {
+    return '$score/100';
+  }
+
+  @override
+  String get servingWeightLabel => 'Estimated serving weight';
+
+  @override
+  String get detectedFoodsTitle => 'Detected foods';
+
+  @override
+  String foodComponentSummary(int weight, int calories, int confidence) {
+    return '$weight g · $calories kcal · %$confidence';
+  }
+
+  @override
+  String get warningsTitle => 'Things to consider';
+
+  @override
   String get confidenceLabel => 'Confidence';
 
   @override

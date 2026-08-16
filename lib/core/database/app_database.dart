@@ -20,6 +20,32 @@ class AppDatabase extends _$AppDatabase {
         if (from < 1) {
           await migrator.createAll();
         }
+        if (from >= 1 && from < 2) {
+          await migrator.addColumn(
+            foodAnalysisRecords,
+            foodAnalysisRecords.sugar,
+          );
+          await migrator.addColumn(
+            foodAnalysisRecords,
+            foodAnalysisRecords.sodium,
+          );
+          await migrator.addColumn(
+            foodAnalysisRecords,
+            foodAnalysisRecords.servingWeightGrams,
+          );
+          await migrator.addColumn(
+            foodAnalysisRecords,
+            foodAnalysisRecords.healthScore,
+          );
+          await migrator.addColumn(
+            foodAnalysisRecords,
+            foodAnalysisRecords.warningsJson,
+          );
+          await migrator.addColumn(
+            foodAnalysisRecords,
+            foodAnalysisRecords.detectedFoodsJson,
+          );
+        }
       },
       beforeOpen: (details) async {
         await customStatement('PRAGMA foreign_keys = ON');
@@ -28,7 +54,7 @@ class AppDatabase extends _$AppDatabase {
   }
 
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 2;
 }
 
 LazyDatabase _openConnection() {

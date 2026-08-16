@@ -280,6 +280,60 @@ abstract class AppLocalizations {
   /// **'Fiber'**
   String get fiberLabel;
 
+  /// Sugar nutrient label
+  ///
+  /// In en, this message translates to:
+  /// **'Sugar'**
+  String get sugarLabel;
+
+  /// Sodium nutrient label
+  ///
+  /// In en, this message translates to:
+  /// **'Sodium'**
+  String get sodiumLabel;
+
+  /// Formatted nutrient amount in milligrams
+  ///
+  /// In en, this message translates to:
+  /// **'{milligrams} mg'**
+  String milligramValue(int milligrams);
+
+  /// Estimated meal health score label
+  ///
+  /// In en, this message translates to:
+  /// **'Health score'**
+  String get healthScoreLabel;
+
+  /// Formatted health score
+  ///
+  /// In en, this message translates to:
+  /// **'{score}/100'**
+  String healthScoreValue(int score);
+
+  /// Estimated serving weight label
+  ///
+  /// In en, this message translates to:
+  /// **'Estimated serving weight'**
+  String get servingWeightLabel;
+
+  /// Detected food components section title
+  ///
+  /// In en, this message translates to:
+  /// **'Detected foods'**
+  String get detectedFoodsTitle;
+
+  /// Detected food component nutrition summary
+  ///
+  /// In en, this message translates to:
+  /// **'{weight} g · {calories} kcal · %{confidence}'**
+  String foodComponentSummary(int weight, int calories, int confidence);
+
+  /// Analysis warnings section title
+  ///
+  /// In en, this message translates to:
+  /// **'Things to consider'**
+  String get warningsTitle;
+
   /// Analysis confidence label
   ///
   /// In en, this message translates to:
