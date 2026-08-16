@@ -21,12 +21,17 @@ class PhotoPreviewPage extends ConsumerStatefulWidget {
 
 class _PhotoPreviewPageState extends ConsumerState<PhotoPreviewPage> {
   bool _hasStartedAnalysis = false;
+  bool _isRequestInFlight = false;
 
   Future<void> _analyzeFood({bool retry = false}) async {
+    if (_isRequestInFlight) return;
+    _isRequestInFlight = true;
+
     final provider = foodAnalysisProvider(widget.imagePath);
     if (retry) {
       ref.invalidate(provider);
     }
+    final subscription = ref.listenManual(provider, (previous, next) {});
     setState(() => _hasStartedAnalysis = true);
 
     try {
@@ -42,6 +47,13 @@ class _PhotoPreviewPageState extends ConsumerState<PhotoPreviewPage> {
       }
     } on Object {
       // The provider exposes the error state in the UI below.
+    } finally {
+      subscription.close();
+      if (mounted) {
+        setState(() => _isRequestInFlight = false);
+      } else {
+        _isRequestInFlight = false;
+      }
     }
   }
 
@@ -51,7 +63,8 @@ class _PhotoPreviewPageState extends ConsumerState<PhotoPreviewPage> {
     final analysisState = _hasStartedAnalysis
         ? ref.watch(foodAnalysisProvider(widget.imagePath))
         : null;
-    final isAnalyzing = analysisState?.isLoading ?? false;
+    final isAnalyzing =
+        _isRequestInFlight || (analysisState?.isLoading ?? false);
     final hasError = analysisState?.hasError ?? false;
 
     return Scaffold(

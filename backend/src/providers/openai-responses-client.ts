@@ -1,6 +1,6 @@
 import OpenAI from 'openai';
 import { zodTextFormat } from 'openai/helpers/zod';
-import { foodAnalysisModelOutputSchema, type FoodAnalysisModelOutput } from '../contracts.js';
+import { foodAnalysisStructuredOutputSchema, type FoodAnalysisModelOutput } from '../contracts.js';
 
 export type OpenAIResponseResult = {
   parsed: FoodAnalysisModelOutput | null;
@@ -38,13 +38,13 @@ export function createOpenAIAnalyzeCall(options: {
           { type: 'input_image', image_url: input.imageDataUrl, detail: input.imageDetail }
         ]
       }],
-      text: { format: zodTextFormat(foodAnalysisModelOutputSchema, 'food_analysis') },
+      text: { format: zodTextFormat(foodAnalysisStructuredOutputSchema, 'food_analysis') },
       max_output_tokens: 1600
     });
     const refused = response.output.some((item) => item.type === 'message' &&
       item.content.some((content) => content.type === 'refusal'));
     return {
-      parsed: response.output_parsed,
+      parsed: response.output_parsed?.analysis ?? null,
       refused,
       usage: response.usage ? {
         inputTokens: response.usage.input_tokens,

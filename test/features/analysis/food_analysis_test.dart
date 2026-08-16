@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:ai_food_analyzer/features/analysis/data/datasources/food_analysis_data_source.dart';
 import 'package:ai_food_analyzer/features/analysis/data/mappers/backend_error_mapper.dart';
 import 'package:ai_food_analyzer/features/analysis/data/models/food_analysis_model.dart';
@@ -98,6 +100,30 @@ void main() {
       findsOneWidget,
     );
     expect(find.text('Try again'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('rapid Analyze taps send only one request', (tester) async {
+    final repository = _BlockingFoodAnalysisRepository();
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          foodAnalysisRepositoryProvider.overrideWithValue(repository),
+        ],
+        child: const _LocalizedTestApp(
+          home: PhotoPreviewPage(imagePath: '/missing/meal.jpg'),
+        ),
+      ),
+    );
+
+    final analyzeButton = find.text('Analyze Food');
+    await tester.tap(analyzeButton);
+    await tester.tap(analyzeButton);
+    await tester.pump();
+
+    expect(repository.callCount, 1);
+    repository.complete();
+    await tester.pumpAndSettle();
     expect(tester.takeException(), isNull);
   });
 
@@ -251,6 +277,33 @@ class _CountingFoodAnalysisRepository implements FoodAnalysisRepository {
       confidencePercent: 100,
       servingDescription: '1 serving',
       description: 'Description',
+    );
+  }
+}
+
+class _BlockingFoodAnalysisRepository implements FoodAnalysisRepository {
+  final Completer<FoodAnalysis> _completer = Completer<FoodAnalysis>();
+  int callCount = 0;
+
+  @override
+  Future<FoodAnalysis> analyzeFood(String imagePath) {
+    callCount += 1;
+    return _completer.future;
+  }
+
+  void complete() {
+    _completer.complete(
+      const FoodAnalysis(
+        foodName: 'Meal',
+        calories: 1,
+        proteinGrams: 1,
+        fatGrams: 1,
+        carbsGrams: 1,
+        fiberGrams: 1,
+        confidencePercent: 100,
+        servingDescription: '1 serving',
+        description: 'Description',
+      ),
     );
   }
 }
