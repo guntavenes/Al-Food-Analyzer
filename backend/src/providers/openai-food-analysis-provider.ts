@@ -1,4 +1,5 @@
 import { foodAnalysisModelOutputSchema, foodAnalysisResponseSchema, type AnalyzeInput, type FoodAnalysisResponse } from '../contracts.js';
+import { validateFoodAnalysisConsistency } from '../analysis/food-analysis-consistency.js';
 import { AppError } from '../errors.js';
 import type { FoodAnalysisProvider } from './food-analysis-provider.js';
 import type { OpenAIAnalyzeCall } from './openai-responses-client.js';
@@ -31,9 +32,10 @@ export class OpenAIFoodAnalysisProvider implements FoodAnalysisProvider {
       }
       const parsed = foodAnalysisModelOutputSchema.safeParse(result.parsed);
       if (!parsed.success) throw new AppError('ANALYSIS_FAILED', 'The analysis response was invalid.', 502);
+      const validated = validateFoodAnalysisConsistency(parsed.data);
       this.log({ requestId, durationMs: Date.now() - startedAt, category: 'success',
         inputTokens: result.usage?.inputTokens ?? 0, outputTokens: result.usage?.outputTokens ?? 0 });
-      return foodAnalysisResponseSchema.parse({ ...parsed.data, requestId });
+      return foodAnalysisResponseSchema.parse({ ...validated, requestId });
     } catch (error) {
       const mapped = mapOpenAIError(error);
       this.log({ requestId, durationMs: Date.now() - startedAt, category: mapped.code });

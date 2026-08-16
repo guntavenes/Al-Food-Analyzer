@@ -4,7 +4,7 @@ export const localeSchema = z.enum(['en', 'tr']).optional();
 
 export const detectedFoodSchema = z.object({
   name: z.string().trim().min(1).max(160),
-  estimatedWeightGrams: z.number().nonnegative().finite(),
+  estimatedWeightGrams: z.number().positive().finite(),
   calories: z.number().nonnegative().finite(),
   confidence: z.number().min(0).max(1).finite()
 }).strict();
@@ -30,7 +30,7 @@ const detectedFoodModelSchema = z.object({
   servingWeightGrams: z.number().positive().finite(),
   healthScore: z.number().min(0).max(100).finite(),
   isFoodDetected: z.literal(true)
-}).strict();
+}).extend({ detectedFoods: z.array(detectedFoodSchema).min(1).max(30) }).strict();
 
 const noFoodModelSchema = z.object({
   ...commonModelFields,
