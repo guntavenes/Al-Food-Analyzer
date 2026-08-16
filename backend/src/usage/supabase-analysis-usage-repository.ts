@@ -22,10 +22,18 @@ export class SupabaseAnalysisUsageRepository implements AnalysisUsageRepository 
       if (response.ok) return;
       console.error(JSON.stringify({ component: 'usage_tracking', category: 'http_error', status: response.status }));
     } catch (error) {
+      const cause = error instanceof Error
+        ? (error as Error & { cause?: { code?: unknown; name?: unknown } }).cause
+        : undefined;
       console.error(JSON.stringify({
         component: 'usage_tracking',
         category: 'network_error',
-        errorType: error instanceof Error ? error.name : 'UnknownError'
+        errorType: error instanceof Error ? error.name : 'UnknownError',
+        causeCode: typeof cause?.code === 'string' ? cause.code : null,
+        causeType: typeof cause?.name === 'string' ? cause.name : null,
+        secretLength: this.secretKey.length,
+        secretIsAscii: [...this.secretKey].every((character) => character.charCodeAt(0) <= 127),
+        secretContainsMask: this.secretKey.includes('•')
       }));
     }
 
