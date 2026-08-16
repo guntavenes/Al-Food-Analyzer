@@ -5,6 +5,7 @@ import { AppError } from '../src/errors.js';
 import type { AppConfig } from '../src/config.js';
 import type { AuthTokenVerifier } from '../src/auth/auth-token-verifier.js';
 import type { AnalysisUsageRepository } from '../src/usage/analysis-usage-repository.js';
+import type { FoodAnalysisProvider } from '../src/providers/food-analysis-provider.js';
 
 const png = Buffer.from([137, 80, 78, 71, 13, 10, 26, 10, 1, 2, 3]);
 const baseConfig: AppConfig = {
@@ -96,6 +97,19 @@ describe('backend API', () => {
     expect(response.status).toBe(200);
     expect(usageRepository.userIds).toEqual(['3d13ab9e-2bb0-4949-b352-02fb91e1761e']);
   });
+
+  it('does not call the analysis provider when usage cannot be recorded', async () => {
+    const provider = new CountingFoodAnalysisProvider();
+    const response = await request(createApp({ ...baseConfig, authRequired: true }, {
+      provider,
+      authTokenVerifier: new TestAuthTokenVerifier(),
+      usageRepository: new FailingUsageRepository()
+    })).post('/v1/food/analyze')
+      .set('Authorization', 'Bearer valid-token')
+      .attach('image', png, { filename: 'meal.png', contentType: 'image/png' });
+    expect(response.status).toBe(503);
+    expect(provider.callCount).toBe(0);
+  });
 });
 
 class TestAuthTokenVerifier implements AuthTokenVerifier {
@@ -111,5 +125,21 @@ class TestUsageRepository implements AnalysisUsageRepository {
   async recordAnalysis(userId: string, requestId: string): Promise<void> {
     void requestId;
     this.userIds.push(userId);
+  }
+}
+
+class FailingUsageRepository implements AnalysisUsageRepository {
+  async recordAnalysis(): Promise<void> {
+    throw new AppError('SERVICE_UNAVAILABLE', 'Usage unavailable.', 503);
+  }
+}
+
+class CountingFoodAnalysisProvider implements FoodAnalysisProvider {
+  readonly name = 'counting';
+  callCount = 0;
+
+  async analyze(): Promise<never> {
+    this.callCount += 1;
+    throw new Error('Provider must not be called.');
   }
 }

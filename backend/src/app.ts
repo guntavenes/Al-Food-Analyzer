@@ -71,11 +71,11 @@ export function createApp(config: AppConfig, dependencies: AppDependencies = {})
       const image = validateImage(request.file);
       const localeResult = localeSchema.safeParse(request.body.locale || undefined);
       if (!localeResult.success) throw new AppError('INVALID_IMAGE', 'The locale value is invalid.', 400);
+      await usageRepository.recordAnalysis(request.auth?.userId ?? 'development', request.id);
       const result = await provider.analyze(
         { image: image.buffer, mimeType: image.mimetype, locale: localeResult.data },
         request.id
       );
-      await usageRepository.recordAnalysis(request.auth?.userId ?? 'development', request.id);
       response.json(foodAnalysisResponseSchema.parse(result));
     } catch (error) {
       next(error);
