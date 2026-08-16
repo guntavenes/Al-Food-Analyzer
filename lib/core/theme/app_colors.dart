@@ -1,9 +1,16 @@
 import 'package:flutter/material.dart';
 
 abstract final class AppColors {
-  static const seed = Color(0xFF16A06A);
-  static const mint = Color(0xFF55D89B);
-  static const teal = Color(0xFF0D8E76);
-  static const ink = Color(0xFF13251F);
-  static const cream = Color(0xFFF8FAF5);
+  static const seed = Color(0xFF0F8F6A);
+  static const emerald = Color(0xFF0F8F6A);
+  static const emeraldBright = Color(0xFF2FC996);
+  static const mint = Color(0xFF53D6A0);
+  static const teal = Color(0xFF08745B);
+  static const forest = Color(0xFF071B15);
+  static const ink = Color(0xFF10231C);
+  static const champagne = Color(0xFFD6B875);
+  static const paleChampagne = Color(0xFFF3E8CE);
+  static const ivory = Color(0xFFFBF9F3);
+  static const cream = Color(0xFFF6F3EA);
+  static const softBorder = Color(0xFFEAE5D8);
 }

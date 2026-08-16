@@ -76,6 +76,38 @@ void main() {
     expect(decoded.description, model.description);
   });
 
+  test('calorie range widens conservatively when confidence is lower', () {
+    const higherConfidence = FoodAnalysis(
+      foodName: 'Meal',
+      calories: 800,
+      proteinGrams: 20,
+      fatGrams: 30,
+      carbsGrams: 100,
+      fiberGrams: 5,
+      confidencePercent: 90,
+      servingDescription: 'Entire plate',
+      description: 'Estimate',
+    );
+    const lowerConfidence = FoodAnalysis(
+      foodName: 'Meal',
+      calories: 800,
+      proteinGrams: 20,
+      fatGrams: 30,
+      carbsGrams: 100,
+      fiberGrams: 5,
+      confidencePercent: 65,
+      servingDescription: 'Entire plate',
+      description: 'Estimate',
+    );
+
+    expect(higherConfidence.minimumEstimatedCalories, 720);
+    expect(higherConfidence.maximumEstimatedCalories, 880);
+    expect(higherConfidence.needsIngredientConfirmation, isFalse);
+    expect(lowerConfidence.minimumEstimatedCalories, 670);
+    expect(lowerConfidence.maximumEstimatedCalories, 930);
+    expect(lowerConfidence.needsIngredientConfirmation, isTrue);
+  });
+
   testWidgets('preview shows a retry action when analysis fails', (
     tester,
   ) async {
@@ -307,12 +339,66 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Grilled Chicken Bowl'), findsOneWidget);
-    expect(find.text('540 kcal'), findsOneWidget);
+    expect(find.text('480–600 kcal'), findsOneWidget);
+    expect(find.text('Central estimate: 540 kcal'), findsOneWidget);
+    expect(find.text('Confirm the ingredients'), findsOneWidget);
     expect(find.text('32 g'), findsOneWidget);
     expect(find.text('%87'), findsOneWidget);
     expect(find.text('Analyze Another Meal'), findsOneWidget);
     expect(find.text('Save Result'), findsOneWidget);
     expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('user can submit corrected ingredients for reanalysis', (
+    tester,
+  ) async {
+    final repository = _CorrectionCapturingRepository();
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          foodAnalysisRepositoryProvider.overrideWithValue(repository),
+        ],
+        child: const _LocalizedTestApp(
+          home: FoodAnalysisResultPage(
+            arguments: FoodAnalysisResultArguments(
+              imagePath: '/missing/meal.jpg',
+              analysis: FoodAnalysis(
+                foodName: 'Ambiguous meal',
+                calories: 700,
+                proteinGrams: 20,
+                fatGrams: 30,
+                carbsGrams: 90,
+                fiberGrams: 5,
+                confidencePercent: 65,
+                servingDescription: '6 pieces',
+                description: 'Estimate.',
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tester.ensureVisible(find.text('Edit and analyze again'));
+    await tester.tap(find.text('Edit and analyze again'));
+    await tester.pumpAndSettle();
+
+    await tester.enterText(
+      find.widgetWithText(TextField, 'Main ingredients'),
+      'ground beef and bread',
+    );
+    await tester.enterText(
+      find.widgetWithText(TextField, 'Total serving'),
+      '6 pieces and one bowl of salsa',
+    );
+    await tester.tap(find.text('Recalculate'));
+    await tester.pumpAndSettle();
+
+    expect(repository.correction?.ingredients, 'ground beef and bread');
+    expect(
+      repository.correction?.servingDescription,
+      '6 pieces and one bowl of salsa',
+    );
   });
 }
 
@@ -320,7 +406,10 @@ class _CountingFoodAnalysisRepository implements FoodAnalysisRepository {
   int callCount = 0;
 
   @override
-  Future<FoodAnalysis> analyzeFood(String imagePath) async {
+  Future<FoodAnalysis> analyzeFood(
+    String imagePath, {
+    FoodAnalysisCorrection? correction,
+  }) async {
     callCount += 1;
     await Future<void>.delayed(const Duration(milliseconds: 10));
     return const FoodAnalysis(
@@ -341,7 +430,10 @@ class _FailingFoodAnalysisRepository implements FoodAnalysisRepository {
   int callCount = 0;
 
   @override
-  Future<FoodAnalysis> analyzeFood(String imagePath) {
+  Future<FoodAnalysis> analyzeFood(
+    String imagePath, {
+    FoodAnalysisCorrection? correction,
+  }) {
     callCount += 1;
     return Future<FoodAnalysis>.error(Exception('Analysis failed.'));
   }
@@ -352,7 +444,10 @@ class _BlockingFoodAnalysisRepository implements FoodAnalysisRepository {
   int callCount = 0;
 
   @override
-  Future<FoodAnalysis> analyzeFood(String imagePath) {
+  Future<FoodAnalysis> analyzeFood(
+    String imagePath, {
+    FoodAnalysisCorrection? correction,
+  }) {
     callCount += 1;
     return _completer.future;
   }
@@ -380,6 +475,19 @@ class _FailingFoodAnalysisDataSource implements FoodAnalysisDataSource {
   @override
   Future<FoodAnalysisModel> analyzeFood(String imagePath) {
     return Future<FoodAnalysisModel>.error(Exception('Analysis failed.'));
+  }
+}
+
+class _CorrectionCapturingRepository implements FoodAnalysisRepository {
+  FoodAnalysisCorrection? correction;
+
+  @override
+  Future<FoodAnalysis> analyzeFood(
+    String imagePath, {
+    FoodAnalysisCorrection? correction,
+  }) {
+    this.correction = correction;
+    return Future<FoodAnalysis>.error(Exception('Stop after capture'));
   }
 }
 

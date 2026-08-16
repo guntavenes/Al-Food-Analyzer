@@ -46,4 +46,27 @@ class FoodAnalysis {
   final int healthScore;
   final List<String> warnings;
   final List<DetectedFood> detectedFoods;
+
+  /// A conservative display range derived from the model's confidence.
+  ///
+  /// Image-only nutrition analysis cannot know hidden ingredients or exact
+  /// portion weights. Keeping the range derived from persisted fields means
+  /// saved analyses continue to show the same uncertainty without a database
+  /// migration.
+  int get minimumEstimatedCalories => _roundedCalorieBound(isLower: true);
+
+  int get maximumEstimatedCalories => _roundedCalorieBound(isLower: false);
+
+  bool get needsIngredientConfirmation => confidencePercent < 90;
+
+  int _roundedCalorieBound({required bool isLower}) {
+    final boundedConfidence = confidencePercent.clamp(0, 100);
+    final uncertainty = (0.08 + ((100 - boundedConfidence) * 0.0025)).clamp(
+      0.08,
+      0.25,
+    );
+    final multiplier = isLower ? 1 - uncertainty : 1 + uncertainty;
+    final estimate = calories * multiplier;
+    return ((estimate / 10).round() * 10).clamp(0, 1000000);
+  }
 }

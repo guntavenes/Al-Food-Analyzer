@@ -1,6 +1,7 @@
 import 'package:ai_food_analyzer/core/localization/locale_providers.dart';
 import 'package:ai_food_analyzer/core/router/app_router.dart';
 import 'package:ai_food_analyzer/core/theme/app_colors.dart';
+import 'package:ai_food_analyzer/core/widgets/premium_action_button.dart';
 import 'package:ai_food_analyzer/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -29,27 +30,46 @@ class _HomePageState extends ConsumerState<HomePage> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+    final isDark = theme.brightness == Brightness.dark;
 
     return Scaffold(
       body: DecoratedBox(
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [Color(0xFFFCFDF9), AppColors.cream, Color(0xFFEAF8F0)],
+            colors: isDark
+                ? const [
+                    Color(0xFF071B15),
+                    Color(0xFF0A211A),
+                    Color(0xFF102B22),
+                  ]
+                : const [AppColors.ivory, AppColors.cream, Color(0xFFEAF5EE)],
           ),
         ),
         child: Stack(
           children: [
-            const Positioned(
+            Positioned(
               top: -110,
               right: -90,
-              child: _AmbientGlow(size: 300, color: Color(0x3355D89B)),
+              child: _AmbientGlow(
+                size: 300,
+                color: isDark
+                    ? const Color(0x263BCB94)
+                    : const Color(0x2ED6B875),
+              ),
             ),
-            const Positioned(
+            Positioned(
               bottom: -140,
               left: -120,
-              child: _AmbientGlow(size: 340, color: Color(0x2619B88A)),
+              child: _AmbientGlow(
+                size: 340,
+                color: isDark
+                    ? const Color(0x1FD6B875)
+                    : const Color(0x241FAD82),
+              ),
             ),
             SafeArea(
               child: LayoutBuilder(
@@ -69,8 +89,10 @@ class _HomePageState extends ConsumerState<HomePage> {
                               const SizedBox(height: 24),
                               Text(
                                 l10n.aiPowered,
-                                style: const TextStyle(
-                                  color: AppColors.teal,
+                                style: TextStyle(
+                                  color: isDark
+                                      ? AppColors.champagne
+                                      : AppColors.emerald,
                                   fontSize: 11,
                                   fontWeight: FontWeight.w800,
                                   letterSpacing: 2.2,
@@ -85,8 +107,8 @@ class _HomePageState extends ConsumerState<HomePage> {
                                 Text(
                                   l10n.homeTitle,
                                   textAlign: TextAlign.center,
-                                  style: const TextStyle(
-                                    color: AppColors.ink,
+                                  style: TextStyle(
+                                    color: colors.onSurface,
                                     fontSize: 40,
                                     height: 1.08,
                                     fontWeight: FontWeight.w800,
@@ -101,8 +123,8 @@ class _HomePageState extends ConsumerState<HomePage> {
                                   child: Text(
                                     l10n.homeDescription,
                                     textAlign: TextAlign.center,
-                                    style: const TextStyle(
-                                      color: Color(0xFF65756F),
+                                    style: TextStyle(
+                                      color: colors.onSurfaceVariant,
                                       fontSize: 16,
                                       height: 1.55,
                                       fontWeight: FontWeight.w400,
@@ -168,8 +190,8 @@ class _HomePageState extends ConsumerState<HomePage> {
                       tooltip: l10n.historyTitle,
                       onPressed: _isOpeningHistory ? null : _openHistory,
                       style: IconButton.styleFrom(
-                        backgroundColor: Colors.white.withValues(alpha: 0.78),
-                        foregroundColor: AppColors.ink,
+                        backgroundColor: colors.surface.withValues(alpha: 0.78),
+                        foregroundColor: colors.onSurface,
                       ),
                       icon: const Icon(Icons.history_rounded),
                     ),
@@ -233,17 +255,24 @@ class _BrandMark extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       width: 104,
       height: 104,
       padding: const EdgeInsets.all(7),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.82),
+        color: isDark
+            ? Colors.white.withValues(alpha: 0.08)
+            : Colors.white.withValues(alpha: 0.82),
         shape: BoxShape.circle,
-        border: Border.all(color: Colors.white),
+        border: Border.all(
+          color: isDark
+              ? AppColors.champagne.withValues(alpha: 0.5)
+              : Colors.white,
+        ),
         boxShadow: const [
           BoxShadow(
-            color: Color(0x24128B67),
+            color: Color(0x2ED6B875),
             blurRadius: 32,
             offset: Offset(0, 14),
           ),
@@ -255,7 +284,7 @@ class _BrandMark extends StatelessWidget {
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [AppColors.mint, AppColors.teal],
+            colors: [AppColors.emeraldBright, AppColors.teal],
           ),
         ),
         child: const Icon(Icons.eco_rounded, color: Colors.white, size: 45),
@@ -272,33 +301,11 @@ class _CameraButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(22),
-        gradient: const LinearGradient(
-          colors: [Color(0xFF22B879), AppColors.teal],
-        ),
-        boxShadow: const [
-          BoxShadow(
-            color: Color(0x4D129B70),
-            blurRadius: 28,
-            offset: Offset(0, 14),
-          ),
-        ],
-      ),
-      child: FilledButton.icon(
-        onPressed: onPressed,
-        style: FilledButton.styleFrom(
-          backgroundColor: Colors.transparent,
-          shadowColor: Colors.transparent,
-          minimumSize: const Size.fromHeight(68),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(22),
-          ),
-        ),
-        icon: const Icon(Icons.photo_camera_rounded, size: 25),
-        label: Text(label),
-      ),
+    return PremiumActionButton(
+      label: label,
+      icon: Icons.photo_camera_rounded,
+      onPressed: onPressed,
+      height: 68,
     );
   }
 }
@@ -311,18 +318,12 @@ class _GalleryButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return OutlinedButton.icon(
+    return PremiumActionButton(
+      label: label,
+      icon: Icons.photo_library_outlined,
       onPressed: onPressed,
-      style: OutlinedButton.styleFrom(
-        foregroundColor: AppColors.ink,
-        backgroundColor: Colors.white.withValues(alpha: 0.72),
-        minimumSize: const Size.fromHeight(60),
-        side: const BorderSide(color: Color(0xFFDCE8E1)),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
-      ),
-      icon: const Icon(Icons.photo_library_outlined, size: 22),
-      label: Text(label),
+      secondary: true,
+      height: 62,
     );
   }
 }

@@ -4,57 +4,85 @@ import 'package:ai_food_analyzer/features/capture/presentation/pages/photo_previ
 import 'package:ai_food_analyzer/features/history/presentation/pages/history_page.dart';
 import 'package:ai_food_analyzer/features/history/presentation/pages/saved_analysis_detail_page.dart';
 import 'package:ai_food_analyzer/features/home/presentation/pages/home_page.dart';
+import 'package:ai_food_analyzer/features/splash/presentation/pages/splash_page.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 final appRouterProvider = Provider<GoRouter>((ref) {
   final router = GoRouter(
-    initialLocation: AppRoutes.home,
+    initialLocation: AppRoutes.splash,
     routes: [
       GoRoute(
+        path: AppRoutes.splash,
+        pageBuilder: (context, state) => _premiumPage(
+          state: state,
+          child: const SplashPage(),
+          transition: _AppTransition.fade,
+        ),
+      ),
+      GoRoute(
         path: AppRoutes.home,
-        builder: (context, state) => const HomePage(),
+        pageBuilder: (context, state) => _premiumPage(
+          state: state,
+          child: const HomePage(),
+          transition: _AppTransition.fade,
+        ),
       ),
       GoRoute(
         path: AppRoutes.camera,
-        builder: (context, state) => const CameraPage(),
+        pageBuilder: (context, state) => _premiumPage(
+          state: state,
+          child: const CameraPage(),
+          transition: _AppTransition.scale,
+        ),
       ),
       GoRoute(
         path: AppRoutes.preview,
-        builder: (context, state) {
+        pageBuilder: (context, state) {
           final imagePath = state.extra;
 
           if (imagePath is! String || imagePath.isEmpty) {
-            return const HomePage();
+            return _premiumPage(state: state, child: const HomePage());
           }
 
-          return PhotoPreviewPage(imagePath: imagePath);
+          return _premiumPage(
+            state: state,
+            child: PhotoPreviewPage(imagePath: imagePath),
+          );
         },
       ),
       GoRoute(
         path: AppRoutes.result,
-        builder: (context, state) {
+        pageBuilder: (context, state) {
           final arguments = state.extra;
 
           if (arguments is! FoodAnalysisResultArguments) {
-            return const HomePage();
+            return _premiumPage(state: state, child: const HomePage());
           }
 
-          return FoodAnalysisResultPage(arguments: arguments);
+          return _premiumPage(
+            state: state,
+            child: FoodAnalysisResultPage(arguments: arguments),
+          );
         },
       ),
       GoRoute(
         path: AppRoutes.history,
-        builder: (context, state) => const HistoryPage(),
+        pageBuilder: (context, state) =>
+            _premiumPage(state: state, child: const HistoryPage()),
         routes: [
           GoRoute(
             path: ':id',
-            builder: (context, state) {
+            pageBuilder: (context, state) {
               final id = int.tryParse(state.pathParameters['id'] ?? '');
               if (id == null) {
-                return const HistoryPage();
+                return _premiumPage(state: state, child: const HistoryPage());
               }
-              return SavedAnalysisDetailPage(analysisId: id);
+              return _premiumPage(
+                state: state,
+                child: SavedAnalysisDetailPage(analysisId: id),
+              );
             },
           ),
         ],
@@ -67,6 +95,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
 });
 
 abstract final class AppRoutes {
+  static const splash = '/splash';
   static const home = '/';
   static const camera = '/camera';
   static const preview = '/preview';
@@ -74,4 +103,41 @@ abstract final class AppRoutes {
   static const history = '/history';
 
   static String historyDetail(int id) => '$history/$id';
+}
+
+enum _AppTransition { slide, fade, scale }
+
+CustomTransitionPage<void> _premiumPage({
+  required GoRouterState state,
+  required Widget child,
+  _AppTransition transition = _AppTransition.slide,
+}) {
+  return CustomTransitionPage<void>(
+    key: state.pageKey,
+    child: child,
+    transitionDuration: const Duration(milliseconds: 420),
+    reverseTransitionDuration: const Duration(milliseconds: 300),
+    transitionsBuilder: (context, animation, secondaryAnimation, child) {
+      final curved = CurvedAnimation(
+        parent: animation,
+        curve: Curves.easeOutCubic,
+        reverseCurve: Curves.easeInCubic,
+      );
+      final fade = FadeTransition(opacity: curved, child: child);
+      return switch (transition) {
+        _AppTransition.fade => fade,
+        _AppTransition.scale => ScaleTransition(
+          scale: Tween<double>(begin: 0.965, end: 1).animate(curved),
+          child: fade,
+        ),
+        _AppTransition.slide => SlideTransition(
+          position: Tween<Offset>(
+            begin: const Offset(0.045, 0.018),
+            end: Offset.zero,
+          ).animate(curved),
+          child: fade,
+        ),
+      };
+    },
+  );
 }

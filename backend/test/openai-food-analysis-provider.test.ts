@@ -33,8 +33,17 @@ describe('OpenAIFoodAnalysisProvider', () => {
   it('returns a validated successful result with the runtime requestId', async () => {
     const result = await provider(async (input) => {
       expect(input.imageDataUrl).toBe('data:image/png;base64,iVBORw==');
+      expect(input.correction).toEqual({
+        ingredients: 'ground beef and bread',
+        servingDescription: '6 pieces'
+      });
       return { parsed: validOutput, refused: false };
-    }).analyze({ image, mimeType: 'image/png', locale: 'tr' }, requestId);
+    }).analyze({
+      image,
+      mimeType: 'image/png',
+      locale: 'tr',
+      correction: { ingredients: 'ground beef and bread', servingDescription: '6 pieces' }
+    }, requestId);
     expect(result).toMatchObject({ requestId, foodName: 'Pizza', isFoodDetected: true });
   });
 

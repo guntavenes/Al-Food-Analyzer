@@ -101,6 +101,45 @@
       "calories": {"type": "int"}
     }
   },
+  "calorieRangeValue": "{minimum}–{maximum} kcal",
+  "@calorieRangeValue": {
+    "description": "Estimated calorie range",
+    "placeholders": {
+      "minimum": {"type": "int"},
+      "maximum": {"type": "int"}
+    }
+  },
+  "centralCalorieEstimate": "Central estimate: {calories} kcal",
+  "@centralCalorieEstimate": {
+    "description": "Single central calorie estimate shown below the range",
+    "placeholders": {"calories": {"type": "int"}}
+  },
+  "confirmIngredientsTitle": "Confirm the ingredients",
+  "@confirmIngredientsTitle": {
+    "description": "Heading for uncertain ingredient reminder"
+  },
+  "confirmIngredientsMessage": "Some ingredients can look alike in a photo. Are the main ingredients and portion correct?",
+  "@confirmIngredientsMessage": {
+    "description": "Reminder that visually ambiguous ingredients should be confirmed"
+  },
+  "editAndReanalyze": "Edit and analyze again",
+  "@editAndReanalyze": {"description": "Opens the correction form"},
+  "reanalysisCostNotice": "Analyzing again uses another analysis credit.",
+  "@reanalysisCostNotice": {"description": "Warns that correction starts a new AI request"},
+  "correctionSheetTitle": "Correct meal details",
+  "@correctionSheetTitle": {"description": "Correction form title"},
+  "correctionSheetDescription": "Enter the ingredients you know and the total visible serving. AI will evaluate them with the photo again.",
+  "@correctionSheetDescription": {"description": "Correction form instructions"},
+  "mainIngredientsLabel": "Main ingredients",
+  "@mainIngredientsLabel": {"description": "Ingredients correction field label"},
+  "mainIngredientsHint": "For example: ground beef, bread, tomato salsa",
+  "@mainIngredientsHint": {"description": "Ingredients correction field hint"},
+  "servingCorrectionLabel": "Total serving",
+  "@servingCorrectionLabel": {"description": "Serving correction field label"},
+  "servingCorrectionHint": "For example: 6 pieces and 1 small bowl of sauce",
+  "@servingCorrectionHint": {"description": "Serving correction field hint"},
+  "recalculateAnalysis": "Recalculate",
+  "@recalculateAnalysis": {"description": "Submits corrections for a new analysis"},
   "gramValue": "{grams} g",
   "@gramValue": {
     "description": "Formatted nutrient amount in grams",

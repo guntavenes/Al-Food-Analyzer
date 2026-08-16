@@ -13,9 +13,17 @@ class HttpFoodAnalysisRepository implements FoodAnalysisRepository {
   final String locale;
 
   @override
-  Future<FoodAnalysis> analyzeFood(String imagePath) async {
+  Future<FoodAnalysis> analyzeFood(
+    String imagePath, {
+    FoodAnalysisCorrection? correction,
+  }) async {
     final response = await _remoteDataSource.analyzeFood(
-      AnalyzeFoodRequest(imagePath: imagePath, locale: locale),
+      AnalyzeFoodRequest(
+        imagePath: imagePath,
+        locale: locale,
+        ingredients: correction?.ingredients,
+        servingDescription: correction?.servingDescription,
+      ),
     );
     return response.toModel();
   }
