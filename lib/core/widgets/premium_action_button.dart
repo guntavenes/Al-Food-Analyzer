@@ -54,11 +54,11 @@ class _PremiumActionButtonState extends State<PremiumActionButton> {
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                     colors: [
-                      AppColors.mint,
                       AppColors.emeraldBright,
+                      AppColors.emerald,
                       AppColors.teal,
                     ],
-                    stops: [0, 0.52, 1],
+                    stops: [0, 0.5, 1],
                   ),
             border: Border.all(
               color: widget.secondary
@@ -69,10 +69,16 @@ class _PremiumActionButtonState extends State<PremiumActionButton> {
               BoxShadow(
                 color: widget.secondary
                     ? colors.shadow.withValues(alpha: 0.08)
-                    : const Color(0x4A08745B),
-                blurRadius: widget.secondary ? 18 : 30,
-                offset: const Offset(0, 13),
+                    : const Color(0x52064E3B),
+                blurRadius: widget.secondary ? 18 : 32,
+                offset: const Offset(0, 14),
               ),
+              if (!widget.secondary)
+                const BoxShadow(
+                  color: Color(0x22F2DCA8),
+                  blurRadius: 2,
+                  offset: Offset(0, -1),
+                ),
             ],
           ),
           child: Material(
@@ -95,8 +101,15 @@ class _PremiumActionButtonState extends State<PremiumActionButton> {
                         width: 38,
                         height: 38,
                         decoration: BoxDecoration(
-                          color: foreground.withValues(alpha: 0.12),
+                          color: foreground.withValues(alpha: 0.14),
                           borderRadius: BorderRadius.circular(13),
+                          border: Border.all(
+                            color: widget.secondary
+                                ? colors.outlineVariant.withValues(alpha: 0.5)
+                                : AppColors.champagneLight.withValues(
+                                    alpha: 0.32,
+                                  ),
+                          ),
                         ),
                         child: widget.loading
                             ? Padding(

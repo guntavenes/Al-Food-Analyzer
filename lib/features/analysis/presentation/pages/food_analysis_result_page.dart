@@ -2,6 +2,8 @@ import 'dart:io';
 
 import 'package:ai_food_analyzer/core/router/app_router.dart';
 import 'package:ai_food_analyzer/core/theme/app_colors.dart';
+import 'package:ai_food_analyzer/core/widgets/premium_action_button.dart';
+import 'package:ai_food_analyzer/core/widgets/premium_screen_background.dart';
 import 'package:ai_food_analyzer/features/analysis/domain/entities/food_analysis.dart';
 import 'package:ai_food_analyzer/features/analysis/domain/errors/food_analysis_exception.dart';
 import 'package:ai_food_analyzer/features/analysis/domain/repositories/food_analysis_repository.dart';
@@ -132,17 +134,7 @@ class _FoodAnalysisResultPageState
             ),
           ),
         ),
-        body: DecoratedBox(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [
-                colors.primaryContainer.withValues(alpha: 0.12),
-                colors.surface,
-              ],
-            ),
-          ),
+        body: PremiumScreenBackground(
           child: LayoutBuilder(
             builder: (context, constraints) {
               final horizontalPadding = constraints.maxWidth >= 600
@@ -340,39 +332,25 @@ class _FoodAnalysisResultPageState
                           ],
                         ),
                         const SizedBox(height: 24),
-                        FilledButton.icon(
+                        PremiumActionButton(
                           onPressed: () => context.go(AppRoutes.home),
-                          icon: const Icon(Icons.add_a_photo_outlined),
-                          label: Text(l10n.analyzeAnotherMeal),
+                          icon: Icons.add_a_photo_rounded,
+                          label: l10n.analyzeAnotherMeal,
                         ),
                         const SizedBox(height: 12),
-                        OutlinedButton.icon(
+                        PremiumActionButton(
                           onPressed: isSaved || isSaving ? null : _saveResult,
-                          style: OutlinedButton.styleFrom(
-                            minimumSize: const Size.fromHeight(58),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                          ),
-                          icon: isSaving
-                              ? const SizedBox.square(
-                                  dimension: 20,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                  ),
-                                )
-                              : Icon(
-                                  isSaved
-                                      ? Icons.bookmark_added_rounded
-                                      : Icons.bookmark_border_rounded,
-                                ),
-                          label: Text(
-                            isSaving
-                                ? l10n.savingResult
-                                : isSaved
-                                ? l10n.saved
-                                : l10n.saveResult,
-                          ),
+                          secondary: true,
+                          loading: isSaving,
+                          icon: isSaved
+                              ? Icons.bookmark_added_rounded
+                              : Icons.bookmark_border_rounded,
+                          label: isSaving
+                              ? l10n.savingResult
+                              : isSaved
+                              ? l10n.saved
+                              : l10n.saveResult,
+                          height: 62,
                         ),
                         if (saveState.hasError && !isSaved) ...[
                           const SizedBox(height: 12),
@@ -457,24 +435,37 @@ class _MealImage extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
 
-    return AspectRatio(
-      aspectRatio: 4 / 3,
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(28),
-        child: ColoredBox(
-          color: colors.surfaceContainerHighest,
-          child: Image.file(
-            File(imagePath),
-            fit: BoxFit.cover,
-            errorBuilder: (context, error, stackTrace) {
-              return Center(
-                child: Icon(
-                  Icons.broken_image_outlined,
-                  color: colors.onSurfaceVariant,
-                  size: 56,
-                ),
-              );
-            },
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(30),
+        border: Border.all(color: AppColors.champagne.withValues(alpha: 0.34)),
+        boxShadow: [
+          BoxShadow(
+            color: colors.shadow.withValues(alpha: 0.18),
+            blurRadius: 32,
+            offset: const Offset(0, 16),
+          ),
+        ],
+      ),
+      child: AspectRatio(
+        aspectRatio: 4 / 3,
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(29),
+          child: ColoredBox(
+            color: colors.surfaceContainerHighest,
+            child: Image.file(
+              File(imagePath),
+              fit: BoxFit.cover,
+              errorBuilder: (context, error, stackTrace) {
+                return Center(
+                  child: Icon(
+                    Icons.broken_image_outlined,
+                    color: colors.onSurfaceVariant,
+                    size: 56,
+                  ),
+                );
+              },
+            ),
           ),
         ),
       ),
@@ -545,13 +536,20 @@ class _CaloriesCard extends StatelessWidget {
         gradient: const LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [AppColors.emeraldBright, AppColors.teal],
+          colors: [AppColors.emeraldBright, AppColors.emerald, AppColors.teal],
+          stops: [0, 0.52, 1],
         ),
+        border: Border.all(color: const Color(0x55F2DCA8)),
         boxShadow: const [
           BoxShadow(
             color: Color(0x3D08745B),
             blurRadius: 28,
             offset: Offset(0, 12),
+          ),
+          BoxShadow(
+            color: Color(0x22F2DCA8),
+            blurRadius: 2,
+            offset: Offset(0, -1),
           ),
         ],
       ),
@@ -797,7 +795,10 @@ class _NutrientCard extends StatelessWidget {
       width: width,
       child: Material(
         color: colors.surfaceContainerLow,
-        borderRadius: BorderRadius.circular(22),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(22),
+          side: BorderSide(color: colors.outlineVariant.withValues(alpha: 0.5)),
+        ),
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Row(

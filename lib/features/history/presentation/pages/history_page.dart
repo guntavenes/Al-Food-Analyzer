@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:ai_food_analyzer/core/router/app_router.dart';
 import 'package:ai_food_analyzer/core/theme/app_colors.dart';
+import 'package:ai_food_analyzer/core/widgets/premium_screen_background.dart';
 import 'package:ai_food_analyzer/features/history/domain/entities/saved_food_analysis.dart';
 import 'package:ai_food_analyzer/features/history/presentation/formatters/history_formatters.dart';
 import 'package:ai_food_analyzer/features/history/presentation/providers/history_providers.dart';
@@ -28,8 +29,32 @@ class HistoryPage extends ConsumerWidget {
     });
 
     return Scaffold(
+      extendBodyBehindAppBar: true,
+      backgroundColor: Colors.transparent,
       appBar: AppBar(
-        title: Text(l10n.historyTitle),
+        backgroundColor: Colors.transparent,
+        title: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 31,
+              height: 31,
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  colors: [AppColors.emeraldBright, AppColors.teal],
+                ),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: const Icon(
+                Icons.auto_awesome_rounded,
+                color: Colors.white,
+                size: 17,
+              ),
+            ),
+            const SizedBox(width: 10),
+            Text(l10n.historyTitle),
+          ],
+        ),
         actions: [
           if (history.value?.isNotEmpty ?? false)
             IconButton(
@@ -41,61 +66,71 @@ class HistoryPage extends ConsumerWidget {
             ),
         ],
       ),
-      body: Column(
-        children: [
-          if (actionState.isLoading) const LinearProgressIndicator(),
-          Expanded(
-            child: history.when(
-              loading: () => const Center(child: CircularProgressIndicator()),
-              error: (error, stackTrace) => _HistoryError(
-                message: l10n.historyLoadFailed,
-                retryLabel: l10n.tryAgain,
-                onRetry: () => ref.invalidate(analysisHistoryProvider),
-              ),
-              data: (analyses) {
-                if (analyses.isEmpty) {
-                  return const _EmptyHistory();
-                }
+      body: PremiumScreenBackground(
+        child: Padding(
+          padding: EdgeInsets.only(
+            top: MediaQuery.paddingOf(context).top + kToolbarHeight,
+          ),
+          child: Column(
+            children: [
+              if (actionState.isLoading) const LinearProgressIndicator(),
+              Expanded(
+                child: history.when(
+                  loading: () =>
+                      const Center(child: CircularProgressIndicator()),
+                  error: (error, stackTrace) => _HistoryError(
+                    message: l10n.historyLoadFailed,
+                    retryLabel: l10n.tryAgain,
+                    onRetry: () => ref.invalidate(analysisHistoryProvider),
+                  ),
+                  data: (analyses) {
+                    if (analyses.isEmpty) {
+                      return const _EmptyHistory();
+                    }
 
-                return LayoutBuilder(
-                  builder: (context, constraints) {
-                    final horizontalPadding = constraints.maxWidth >= 600
-                        ? 32.0
-                        : 16.0;
+                    return LayoutBuilder(
+                      builder: (context, constraints) {
+                        final horizontalPadding = constraints.maxWidth >= 600
+                            ? 32.0
+                            : 16.0;
 
-                    return ListView.separated(
-                      padding: EdgeInsets.fromLTRB(
-                        horizontalPadding,
-                        12,
-                        horizontalPadding,
-                        32,
-                      ),
-                      itemCount: analyses.length,
-                      separatorBuilder: (context, index) =>
-                          const SizedBox(height: 12),
-                      itemBuilder: (context, index) {
-                        final analysis = analyses[index];
-                        return Center(
-                          child: ConstrainedBox(
-                            constraints: const BoxConstraints(maxWidth: 680),
-                            child: _HistoryCard(
-                              analysis: analysis,
-                              onTap: () => context.push(
-                                AppRoutes.historyDetail(analysis.id),
-                              ),
-                              onDelete: () =>
-                                  _confirmDelete(context, ref, analysis.id),
-                            ),
+                        return ListView.separated(
+                          padding: EdgeInsets.fromLTRB(
+                            horizontalPadding,
+                            20,
+                            horizontalPadding,
+                            32,
                           ),
+                          itemCount: analyses.length,
+                          separatorBuilder: (context, index) =>
+                              const SizedBox(height: 12),
+                          itemBuilder: (context, index) {
+                            final analysis = analyses[index];
+                            return Center(
+                              child: ConstrainedBox(
+                                constraints: const BoxConstraints(
+                                  maxWidth: 680,
+                                ),
+                                child: _HistoryCard(
+                                  analysis: analysis,
+                                  onTap: () => context.push(
+                                    AppRoutes.historyDetail(analysis.id),
+                                  ),
+                                  onDelete: () =>
+                                      _confirmDelete(context, ref, analysis.id),
+                                ),
+                              ),
+                            );
+                          },
                         );
                       },
                     );
                   },
-                );
-              },
-            ),
+                ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
@@ -108,19 +143,11 @@ class HistoryPage extends ConsumerWidget {
     final l10n = AppLocalizations.of(context);
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (context) => _DestructiveConfirmationDialog(
         title: Text(l10n.deleteAnalysisTitle),
-        content: Text(l10n.deleteAnalysisMessage),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: Text(l10n.cancel),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: Text(l10n.delete),
-          ),
-        ],
+        message: l10n.deleteAnalysisMessage,
+        cancelLabel: l10n.cancel,
+        confirmLabel: l10n.delete,
       ),
     );
 
@@ -133,25 +160,112 @@ class HistoryPage extends ConsumerWidget {
     final l10n = AppLocalizations.of(context);
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (context) => _DestructiveConfirmationDialog(
         title: Text(l10n.clearHistoryTitle),
-        content: Text(l10n.clearHistoryMessage),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: Text(l10n.cancel),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: Text(l10n.clear),
-          ),
-        ],
+        message: l10n.clearHistoryMessage,
+        cancelLabel: l10n.cancel,
+        confirmLabel: l10n.clear,
       ),
     );
 
     if (confirmed ?? false) {
       await ref.read(historyActionsProvider.notifier).clearHistory();
     }
+  }
+}
+
+class _DestructiveConfirmationDialog extends StatelessWidget {
+  const _DestructiveConfirmationDialog({
+    required this.title,
+    required this.message,
+    required this.cancelLabel,
+    required this.confirmLabel,
+  });
+
+  final Widget title;
+  final String message;
+  final String cancelLabel;
+  final String confirmLabel;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+
+    return AlertDialog(
+      insetPadding: const EdgeInsets.symmetric(horizontal: 42),
+      contentPadding: const EdgeInsets.fromLTRB(24, 6, 24, 22),
+      titlePadding: const EdgeInsets.fromLTRB(24, 20, 24, 0),
+      actionsPadding: const EdgeInsets.fromLTRB(24, 0, 24, 22),
+      iconPadding: const EdgeInsets.only(top: 22),
+      icon: Container(
+        width: 48,
+        height: 48,
+        decoration: BoxDecoration(
+          color: colors.errorContainer,
+          shape: BoxShape.circle,
+        ),
+        child: Icon(
+          Icons.delete_outline_rounded,
+          color: colors.onErrorContainer,
+          size: 24,
+        ),
+      ),
+      title: DefaultTextStyle.merge(
+        textAlign: TextAlign.center,
+        style: theme.textTheme.titleLarge?.copyWith(
+          fontWeight: FontWeight.w800,
+          letterSpacing: -0.25,
+        ),
+        child: title,
+      ),
+      content: Text(
+        message,
+        textAlign: TextAlign.center,
+        style: theme.textTheme.bodyMedium?.copyWith(
+          color: colors.onSurfaceVariant,
+          height: 1.4,
+        ),
+      ),
+      actions: [
+        Row(
+          children: [
+            Expanded(
+              child: OutlinedButton(
+                onPressed: () => Navigator.pop(context, false),
+                style: OutlinedButton.styleFrom(
+                  minimumSize: const Size.fromHeight(52),
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  textStyle: const TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                child: Text(cancelLabel),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: FilledButton.icon(
+                onPressed: () => Navigator.pop(context, true),
+                style: FilledButton.styleFrom(
+                  backgroundColor: colors.error,
+                  foregroundColor: colors.onError,
+                  minimumSize: const Size.fromHeight(52),
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  textStyle: const TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                icon: const Icon(Icons.delete_outline_rounded, size: 18),
+                label: Text(confirmLabel),
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
   }
 }
 
@@ -172,20 +286,33 @@ class _HistoryCard extends StatelessWidget {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
 
-    return Card(
+    return Container(
       clipBehavior: Clip.antiAlias,
-      elevation: 0,
-      color: colors.surfaceContainerLow,
+      decoration: BoxDecoration(
+        color: colors.surface.withValues(alpha: 0.86),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(
+          color: colors.outlineVariant.withValues(alpha: 0.65),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: colors.shadow.withValues(alpha: 0.1),
+            blurRadius: 24,
+            offset: const Offset(0, 10),
+          ),
+        ],
+      ),
       child: InkWell(
+        borderRadius: BorderRadius.circular(24),
         onTap: onTap,
         child: Padding(
           padding: const EdgeInsets.all(12),
           child: Row(
             children: [
               ClipRRect(
-                borderRadius: BorderRadius.circular(16),
+                borderRadius: BorderRadius.circular(18),
                 child: SizedBox.square(
-                  dimension: 92,
+                  dimension: 96,
                   child: ColoredBox(
                     color: colors.surfaceContainerHighest,
                     child: Image.file(
@@ -212,6 +339,7 @@ class _HistoryCard extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                       style: theme.textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.w800,
+                        letterSpacing: -0.25,
                       ),
                     ),
                     const SizedBox(height: 7),
@@ -280,13 +408,26 @@ class _CompactValue extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Icon(icon, color: AppColors.champagne, size: 15),
-        const SizedBox(width: 4),
-        Text(value, style: Theme.of(context).textTheme.labelMedium),
-      ],
+    final colors = Theme.of(context).colorScheme;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+      decoration: BoxDecoration(
+        color: colors.tertiaryContainer.withValues(alpha: 0.52),
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, color: AppColors.champagne, size: 14),
+          const SizedBox(width: 4),
+          Text(
+            value,
+            style: Theme.of(
+              context,
+            ).textTheme.labelMedium?.copyWith(fontWeight: FontWeight.w700),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -307,17 +448,27 @@ class _EmptyHistory extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Container(
-              width: 92,
-              height: 92,
+              width: 106,
+              height: 106,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: colors.primaryContainer,
+                gradient: const LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [AppColors.emeraldBright, AppColors.teal],
+                ),
+                border: Border.all(
+                  color: AppColors.champagneLight.withValues(alpha: 0.5),
+                ),
+                boxShadow: const [
+                  BoxShadow(
+                    color: Color(0x38064E3B),
+                    blurRadius: 28,
+                    offset: Offset(0, 12),
+                  ),
+                ],
               ),
-              child: Icon(
-                Icons.history_rounded,
-                color: colors.onPrimaryContainer,
-                size: 42,
-              ),
+              child: Icon(Icons.history_rounded, color: Colors.white, size: 46),
             ),
             const SizedBox(height: 22),
             Text(
