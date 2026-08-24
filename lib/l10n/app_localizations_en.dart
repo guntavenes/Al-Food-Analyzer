@@ -101,6 +101,69 @@ class AppLocalizationsEn extends AppLocalizations {
       'The analysis service is temporarily unavailable. Please try again.';
 
   @override
+  String get premiumRequired =>
+      'Your free analysis has been used. Premium is required to continue.';
+
+  @override
+  String get signInTitle => 'Welcome back';
+
+  @override
+  String get createAccountTitle => 'Create your account';
+
+  @override
+  String get authDescription =>
+      'Your account securely keeps your free analysis and future Premium access across reinstallations.';
+
+  @override
+  String get emailLabel => 'Email';
+
+  @override
+  String get passwordLabel => 'Password';
+
+  @override
+  String get signIn => 'Sign in';
+
+  @override
+  String get createAccount => 'Create account';
+
+  @override
+  String get alreadyHaveAccount => 'Already have an account? Sign in';
+
+  @override
+  String get createAccountInstead => 'New here? Create an account';
+
+  @override
+  String get authValidationMessage =>
+      'Enter a valid email and a password of at least 8 characters.';
+
+  @override
+  String get checkEmailMessage =>
+      'Check your email to confirm your account, then sign in.';
+
+  @override
+  String get premiumTitle => 'Unlock Premium';
+
+  @override
+  String get premiumDescription =>
+      'Your complimentary analysis has been used. Continue discovering what is on your plate with Premium.';
+
+  @override
+  String get premiumBenefitAnalysis => 'Continue analyzing meals';
+
+  @override
+  String get premiumBenefitHistory => 'Keep your personal meal history';
+
+  @override
+  String get premiumBenefitNutrition => 'Detailed nutrition estimates';
+
+  @override
+  String get premiumComingSoon => 'Premium purchasing coming soon';
+
+  @override
+  String get purchaseNotAvailable =>
+      'Purchasing will be enabled after App Store and Google Play products are configured.';
+
+  @override
   String get resultTitle => 'Food Analysis';
 
   @override

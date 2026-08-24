@@ -104,7 +104,7 @@ describe('backend API', () => {
     expect(response.body.error.code).toBe('UNAUTHORIZED');
   });
 
-  it('records usage for an authenticated analysis', async () => {
+  it('claims usage for an authenticated analysis', async () => {
     const usageRepository = new TestUsageRepository();
     const response = await request(createApp({ ...baseConfig, authRequired: true }, {
       authTokenVerifier: new TestAuthTokenVerifier(),
@@ -128,28 +128,54 @@ describe('backend API', () => {
     expect(response.status).toBe(503);
     expect(provider.callCount).toBe(0);
   });
+
+  it('returns premium required without calling the analysis provider', async () => {
+    const provider = new CountingFoodAnalysisProvider();
+    const response = await request(createApp({ ...baseConfig, authRequired: true }, {
+      provider,
+      authTokenVerifier: new TestAuthTokenVerifier(),
+      usageRepository: new PremiumRequiredUsageRepository()
+    })).post('/v1/food/analyze')
+      .set('Authorization', 'Bearer valid-token')
+      .attach('image', png, { filename: 'meal.png', contentType: 'image/png' });
+    expect(response.status).toBe(402);
+    expect(response.body.error.code).toBe('PREMIUM_REQUIRED');
+    expect(provider.callCount).toBe(0);
+  });
 });
 
 class TestAuthTokenVerifier implements AuthTokenVerifier {
   async verify(token: string) {
     if (token !== 'valid-token') throw new AppError('UNAUTHORIZED', 'Invalid session.', 401);
-    return { userId: '3d13ab9e-2bb0-4949-b352-02fb91e1761e', isAnonymous: true };
+    return { userId: '3d13ab9e-2bb0-4949-b352-02fb91e1761e', isAnonymous: false };
   }
 }
 
 class TestUsageRepository implements AnalysisUsageRepository {
   readonly userIds: string[] = [];
 
-  async recordAnalysis(userId: string, requestId: string): Promise<void> {
+  async claimAnalysis(userId: string, requestId: string): Promise<void> {
     void requestId;
     this.userIds.push(userId);
   }
+
+  async releaseAnalysis(): Promise<void> {}
 }
 
 class FailingUsageRepository implements AnalysisUsageRepository {
-  async recordAnalysis(): Promise<void> {
+  async claimAnalysis(): Promise<void> {
     throw new AppError('SERVICE_UNAVAILABLE', 'Usage unavailable.', 503);
   }
+
+  async releaseAnalysis(): Promise<void> {}
+}
+
+class PremiumRequiredUsageRepository implements AnalysisUsageRepository {
+  async claimAnalysis(): Promise<void> {
+    throw new AppError('PREMIUM_REQUIRED', 'Premium required.', 402);
+  }
+
+  async releaseAnalysis(): Promise<void> {}
 }
 
 class CountingFoodAnalysisProvider implements FoodAnalysisProvider {

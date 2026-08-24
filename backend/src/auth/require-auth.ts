@@ -11,6 +11,9 @@ export function requireAuth(verifier: AuthTokenVerifier) {
       const token = match?.[1];
       if (!token) throw new AppError('UNAUTHORIZED', 'A valid user session is required.', 401);
       request.auth = await verifier.verify(token);
+      if (request.auth.isAnonymous) {
+        throw new AppError('UNAUTHORIZED', 'A permanent user account is required.', 401);
+      }
       next();
     } catch (error) {
       next(error);

@@ -1,8 +1,10 @@
+import 'package:ai_food_analyzer/core/config/app_config.dart';
 import 'package:ai_food_analyzer/core/router/app_router.dart';
 import 'package:ai_food_analyzer/core/theme/app_colors.dart';
 import 'package:ai_food_analyzer/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class SplashPage extends StatefulWidget {
   const SplashPage({super.key});
@@ -34,7 +36,11 @@ class _SplashPageState extends State<SplashPage>
     ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutBack));
     _controller.addStatusListener((status) {
       if (status == AnimationStatus.completed && mounted) {
-        context.go(AppRoutes.home);
+        final hasPermanentAccount =
+            !AppConfig.isSupabaseConfigured ||
+            (Supabase.instance.client.auth.currentUser != null &&
+                Supabase.instance.client.auth.currentUser?.isAnonymous != true);
+        context.go(hasPermanentAccount ? AppRoutes.home : AppRoutes.auth);
       }
     });
     _controller.forward();

@@ -79,16 +79,23 @@ export function createApp(config: AppConfig, dependencies: AppDependencies = {})
       if (correctionResult && !correctionResult.success) {
         throw new AppError('INVALID_IMAGE', 'The correction details are invalid.', 400);
       }
-      await usageRepository.recordAnalysis(request.auth?.userId ?? 'development', request.id);
-      const result = await provider.analyze(
-        {
-          image: image.buffer,
-          mimeType: image.mimetype,
-          locale: localeResult.data,
-          correction: correctionResult?.data
-        },
-        request.id
-      );
+      const userId = request.auth?.userId ?? 'development';
+      await usageRepository.claimAnalysis(userId, request.id);
+      let result;
+      try {
+        result = await provider.analyze(
+          {
+            image: image.buffer,
+            mimeType: image.mimetype,
+            locale: localeResult.data,
+            correction: correctionResult?.data
+          },
+          request.id
+        );
+      } catch (error) {
+        await usageRepository.releaseAnalysis(userId, request.id);
+        throw error;
+      }
       response.json(foodAnalysisResponseSchema.parse(result));
     } catch (error) {
       next(error);

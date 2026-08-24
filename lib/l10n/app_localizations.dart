@@ -260,6 +260,120 @@ abstract class AppLocalizations {
   /// **'The analysis service is temporarily unavailable. Please try again.'**
   String get serviceUnavailable;
 
+  /// No description provided for @premiumRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Your free analysis has been used. Premium is required to continue.'**
+  String get premiumRequired;
+
+  /// No description provided for @signInTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Welcome back'**
+  String get signInTitle;
+
+  /// No description provided for @createAccountTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Create your account'**
+  String get createAccountTitle;
+
+  /// No description provided for @authDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Your account securely keeps your free analysis and future Premium access across reinstallations.'**
+  String get authDescription;
+
+  /// No description provided for @emailLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Email'**
+  String get emailLabel;
+
+  /// No description provided for @passwordLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Password'**
+  String get passwordLabel;
+
+  /// No description provided for @signIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in'**
+  String get signIn;
+
+  /// No description provided for @createAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Create account'**
+  String get createAccount;
+
+  /// No description provided for @alreadyHaveAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Already have an account? Sign in'**
+  String get alreadyHaveAccount;
+
+  /// No description provided for @createAccountInstead.
+  ///
+  /// In en, this message translates to:
+  /// **'New here? Create an account'**
+  String get createAccountInstead;
+
+  /// No description provided for @authValidationMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid email and a password of at least 8 characters.'**
+  String get authValidationMessage;
+
+  /// No description provided for @checkEmailMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Check your email to confirm your account, then sign in.'**
+  String get checkEmailMessage;
+
+  /// No description provided for @premiumTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlock Premium'**
+  String get premiumTitle;
+
+  /// No description provided for @premiumDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Your complimentary analysis has been used. Continue discovering what is on your plate with Premium.'**
+  String get premiumDescription;
+
+  /// No description provided for @premiumBenefitAnalysis.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue analyzing meals'**
+  String get premiumBenefitAnalysis;
+
+  /// No description provided for @premiumBenefitHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep your personal meal history'**
+  String get premiumBenefitHistory;
+
+  /// No description provided for @premiumBenefitNutrition.
+  ///
+  /// In en, this message translates to:
+  /// **'Detailed nutrition estimates'**
+  String get premiumBenefitNutrition;
+
+  /// No description provided for @premiumComingSoon.
+  ///
+  /// In en, this message translates to:
+  /// **'Premium purchasing coming soon'**
+  String get premiumComingSoon;
+
+  /// No description provided for @purchaseNotAvailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Purchasing will be enabled after App Store and Google Play products are configured.'**
+  String get purchaseNotAvailable;
+
   /// Food analysis result screen title
   ///
   /// In en, this message translates to:

@@ -269,6 +269,28 @@ void main() {
     );
   });
 
+  test('backend premium requirement maps to the paywall domain state', () {
+    final requestOptions = RequestOptions(path: '/v1/food/analyze');
+    final error = DioException(
+      requestOptions: requestOptions,
+      response: Response<Map<String, Object?>>(
+        requestOptions: requestOptions,
+        statusCode: 402,
+        data: {
+          'error': <String, Object?>{
+            'code': 'PREMIUM_REQUIRED',
+            'message': 'A premium membership is required.',
+          },
+        },
+      ),
+    );
+
+    expect(
+      BackendErrorMapper.fromDioException(error).type,
+      FoodAnalysisErrorType.premiumRequired,
+    );
+  });
+
   test(
     'same analysis provider prevents duplicate concurrent requests',
     () async {

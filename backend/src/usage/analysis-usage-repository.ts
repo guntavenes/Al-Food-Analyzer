@@ -1,9 +1,15 @@
 export interface AnalysisUsageRepository {
-  recordAnalysis(userId: string, requestId: string): Promise<void>;
+  claimAnalysis(userId: string, requestId: string): Promise<void>;
+  releaseAnalysis(userId: string, requestId: string): Promise<void>;
 }
 
 export class NoopAnalysisUsageRepository implements AnalysisUsageRepository {
-  async recordAnalysis(userId: string, requestId: string): Promise<void> {
+  async claimAnalysis(userId: string, requestId: string): Promise<void> {
+    void userId;
+    void requestId;
+  }
+
+  async releaseAnalysis(userId: string, requestId: string): Promise<void> {
     void userId;
     void requestId;
   }

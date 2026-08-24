@@ -100,6 +100,69 @@ class AppLocalizationsTr extends AppLocalizations {
       'Analiz servisi geçici olarak kullanılamıyor. Lütfen tekrar dene.';
 
   @override
+  String get premiumRequired =>
+      'Ücretsiz analiz hakkını kullandın. Devam etmek için Premium gerekli.';
+
+  @override
+  String get signInTitle => 'Tekrar hoş geldin';
+
+  @override
+  String get createAccountTitle => 'Hesabını oluştur';
+
+  @override
+  String get authDescription =>
+      'Hesabın, ücretsiz analiz hakkını ve gelecekteki Premium erişimini uygulamayı yeniden yüklesen bile güvenle korur.';
+
+  @override
+  String get emailLabel => 'E-posta';
+
+  @override
+  String get passwordLabel => 'Şifre';
+
+  @override
+  String get signIn => 'Giriş yap';
+
+  @override
+  String get createAccount => 'Hesap oluştur';
+
+  @override
+  String get alreadyHaveAccount => 'Zaten hesabın var mı? Giriş yap';
+
+  @override
+  String get createAccountInstead => 'Yeni misin? Hesap oluştur';
+
+  @override
+  String get authValidationMessage =>
+      'Geçerli bir e-posta ve en az 8 karakterli bir şifre gir.';
+
+  @override
+  String get checkEmailMessage =>
+      'Hesabını doğrulamak için e-postanı kontrol et, ardından giriş yap.';
+
+  @override
+  String get premiumTitle => 'Premium\'u aç';
+
+  @override
+  String get premiumDescription =>
+      'Ücretsiz analiz hakkını kullandın. Tabağındakileri keşfetmeye Premium ile devam et.';
+
+  @override
+  String get premiumBenefitAnalysis => 'Yemeklerini analiz etmeye devam et';
+
+  @override
+  String get premiumBenefitHistory => 'Kişisel yemek geçmişini koru';
+
+  @override
+  String get premiumBenefitNutrition => 'Detaylı besin değeri tahminleri';
+
+  @override
+  String get premiumComingSoon => 'Premium satın alma yakında';
+
+  @override
+  String get purchaseNotAvailable =>
+      'App Store ve Google Play ürünleri yapılandırıldıktan sonra satın alma etkinleştirilecek.';
+
+  @override
   String get resultTitle => 'Yemek Analizi';
 
   @override

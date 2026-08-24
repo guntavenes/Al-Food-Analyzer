@@ -3,6 +3,7 @@ import multer from 'multer';
 
 export type ErrorCode =
   | 'UNAUTHORIZED'
+  | 'PREMIUM_REQUIRED'
   | 'INVALID_IMAGE'
   | 'IMAGE_TOO_LARGE'
   | 'UNSUPPORTED_IMAGE_TYPE'

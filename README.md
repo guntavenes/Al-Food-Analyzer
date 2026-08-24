@@ -62,9 +62,12 @@ oluşturabilir. Kullanım ve fiyatlandırmayı seçilen model için ayrıca izle
 
 ### Supabase kimlik doğrulaması
 
-Production backend, mobil uygulamanın oluşturduğu Supabase anonim oturum JWT'sini
-doğrular. Başarılı analiz kullanımı `analysis_usage` tablosuna kullanıcı ve istek
-kimliğiyle kaydedilir. Mobil istemcinin tabloya doğrudan erişimi yoktur.
+Production backend, kalıcı Supabase kullanıcı hesabının JWT'sini doğrular; anonim
+oturumlar analiz yapamaz. Kullanıcı başına ilk başarılı analiz ücretsizdir. Hak,
+`claim_analysis_entitlement` veritabanı fonksiyonuyla atomik biçimde tüketilir;
+eşzamanlı istekler ek hak oluşturamaz. AI çağrısı başarısız olursa rezervasyon geri
+alınır. Sonraki istekler aktif Premium hakkı yoksa `PREMIUM_REQUIRED` döndürür.
+Mobil istemcinin kullanım ve entitlement tablolarına doğrudan erişimi yoktur.
 
 Backend `.env` değerleri:
 
@@ -131,10 +134,11 @@ uygulamada gerçek servis anahtarı kesinlikle bulundurulmamalıdır.
 Production öncesinde EXIF metadata'nın upload öncesinde silinmesi, kullanıcı
 onayı, veri bölgesi ve saklama politikaları değerlendirilmelidir.
 
-Anonim oturum bir kullanıcı hesabı ekranı gerektirmez ancak uygulama silinirse
-cihazdaki oturum kaybolabilir. Production yayını öncesinde anonim kayıt suistimalini
-azaltmak için Supabase Auth CAPTCHA/Turnstile ve mağaza tarafında App Attest / Play
-Integrity değerlendirilmelidir.
+Uygulama e-posta ve şifreyle kalıcı hesap oluşturur. Böylece uygulamayı silip tekrar
+yüklemek ücretsiz hakkı yenilemez. Production yayını öncesinde Supabase Auth için
+CAPTCHA/Turnstile, parola sıfırlama akışı ve mağaza tarafında App Attest / Play
+Integrity değerlendirilmelidir. Premium satın alma ekranı şimdilik güvenli bir
+placeholder'dır; App Store veya Google Play ürünleri bağlanmadan ödeme kabul etmez.
 
 ## AI davranış sözleşmesi
 

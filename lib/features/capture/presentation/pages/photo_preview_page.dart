@@ -46,6 +46,11 @@ class _PhotoPreviewPageState extends ConsumerState<PhotoPreviewPage> {
           ),
         );
       }
+    } on FoodAnalysisException catch (error) {
+      if (error.type == FoodAnalysisErrorType.premiumRequired && mounted) {
+        await context.push(AppRoutes.premium);
+      }
+      // The provider exposes other error states in the UI below.
     } on Object {
       // The provider exposes the error state in the UI below.
     } finally {
@@ -225,6 +230,7 @@ class _PhotoPreviewPageState extends ConsumerState<PhotoPreviewPage> {
       FoodAnalysisErrorType.invalidImage => l10n.invalidImage,
       FoodAnalysisErrorType.imageTooLarge => l10n.imageTooLarge,
       FoodAnalysisErrorType.unauthorized => l10n.authenticationRequired,
+      FoodAnalysisErrorType.premiumRequired => l10n.premiumRequired,
       FoodAnalysisErrorType.rateLimited => l10n.rateLimited,
       FoodAnalysisErrorType.timeout => l10n.analysisTimeout,
       FoodAnalysisErrorType.network => l10n.networkError,

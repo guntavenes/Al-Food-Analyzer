@@ -3,6 +3,7 @@ enum FoodAnalysisErrorType {
   invalidImage,
   imageTooLarge,
   unauthorized,
+  premiumRequired,
   rateLimited,
   timeout,
   network,
