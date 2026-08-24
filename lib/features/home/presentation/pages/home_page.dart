@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class HomePage extends ConsumerStatefulWidget {
   const HomePage({super.key});
@@ -17,6 +18,7 @@ class HomePage extends ConsumerStatefulWidget {
 
 class _HomePageState extends ConsumerState<HomePage> {
   bool _isOpeningHistory = false;
+  bool _isSigningOut = false;
 
   Future<void> _openHistory() async {
     if (_isOpeningHistory) return;
@@ -24,6 +26,45 @@ class _HomePageState extends ConsumerState<HomePage> {
     await context.push(AppRoutes.history);
     if (mounted) {
       setState(() => _isOpeningHistory = false);
+    }
+  }
+
+  Future<void> _confirmSignOut() async {
+    if (_isSigningOut) return;
+    final l10n = AppLocalizations.of(context);
+    final shouldSignOut = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        icon: const Icon(Icons.logout_rounded),
+        title: Text(l10n.signOutTitle, textAlign: TextAlign.center),
+        content: Text(l10n.signOutDescription, textAlign: TextAlign.center),
+        actionsAlignment: MainAxisAlignment.spaceBetween,
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            child: Text(l10n.cancel),
+          ),
+          FilledButton.icon(
+            onPressed: () => Navigator.of(dialogContext).pop(true),
+            icon: const Icon(Icons.logout_rounded),
+            label: Text(l10n.signOut),
+          ),
+        ],
+      ),
+    );
+    if (shouldSignOut != true || !mounted) return;
+
+    setState(() => _isSigningOut = true);
+    try {
+      await Supabase.instance.client.auth.signOut();
+      if (mounted) context.go(AppRoutes.auth);
+    } on AuthException {
+      if (!mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(l10n.signOutFailed)));
+    } finally {
+      if (mounted) setState(() => _isSigningOut = false);
     }
   }
 
@@ -194,6 +235,21 @@ class _HomePageState extends ConsumerState<HomePage> {
                         foregroundColor: colors.onSurface,
                       ),
                       icon: const Icon(Icons.history_rounded),
+                    ),
+                    const SizedBox(width: 6),
+                    IconButton.filledTonal(
+                      tooltip: l10n.accountTitle,
+                      onPressed: _isSigningOut ? null : _confirmSignOut,
+                      style: IconButton.styleFrom(
+                        backgroundColor: colors.surface.withValues(alpha: 0.78),
+                        foregroundColor: colors.onSurface,
+                      ),
+                      icon: _isSigningOut
+                          ? const SizedBox.square(
+                              dimension: 18,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            )
+                          : const Icon(Icons.person_outline_rounded),
                     ),
                   ],
                 ),

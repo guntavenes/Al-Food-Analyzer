@@ -141,6 +141,18 @@ class _AuthPageState extends State<AuthPage> {
                         prefixIcon: const Icon(Icons.lock_outline_rounded),
                       ),
                     ),
+                    if (!_isSignUp) ...[
+                      const SizedBox(height: 6),
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: TextButton(
+                          onPressed: _isLoading
+                              ? null
+                              : () => context.push(AppRoutes.forgotPassword),
+                          child: Text(l10n.forgotPassword),
+                        ),
+                      ),
+                    ],
                     if (_message != null) ...[
                       const SizedBox(height: 14),
                       Text(

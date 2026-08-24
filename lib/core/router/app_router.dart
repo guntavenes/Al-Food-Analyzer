@@ -1,5 +1,7 @@
 import 'package:ai_food_analyzer/features/analysis/presentation/pages/food_analysis_result_page.dart';
 import 'package:ai_food_analyzer/features/auth/presentation/pages/auth_page.dart';
+import 'package:ai_food_analyzer/features/auth/presentation/pages/forgot_password_page.dart';
+import 'package:ai_food_analyzer/features/auth/presentation/pages/reset_password_page.dart';
 import 'package:ai_food_analyzer/features/capture/presentation/pages/camera_page.dart';
 import 'package:ai_food_analyzer/features/capture/presentation/pages/photo_preview_page.dart';
 import 'package:ai_food_analyzer/features/history/presentation/pages/history_page.dart';
@@ -28,6 +30,19 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         pageBuilder: (context, state) => _premiumPage(
           state: state,
           child: const AuthPage(),
+          transition: _AppTransition.fade,
+        ),
+      ),
+      GoRoute(
+        path: AppRoutes.forgotPassword,
+        pageBuilder: (context, state) =>
+            _premiumPage(state: state, child: const ForgotPasswordPage()),
+      ),
+      GoRoute(
+        path: AppRoutes.resetPassword,
+        pageBuilder: (context, state) => _premiumPage(
+          state: state,
+          child: const ResetPasswordPage(),
           transition: _AppTransition.fade,
         ),
       ),
@@ -115,6 +130,8 @@ final appRouterProvider = Provider<GoRouter>((ref) {
 abstract final class AppRoutes {
   static const splash = '/splash';
   static const auth = '/auth';
+  static const forgotPassword = '/forgot-password';
+  static const resetPassword = '/reset-password';
   static const home = '/';
   static const camera = '/camera';
   static const preview = '/preview';

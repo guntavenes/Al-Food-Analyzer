@@ -344,6 +344,120 @@ abstract class AppLocalizations {
   /// **'A new confirmation email was sent.'**
   String get confirmationResent;
 
+  /// No description provided for @forgotPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Forgot password?'**
+  String get forgotPassword;
+
+  /// No description provided for @forgotPasswordTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset your password'**
+  String get forgotPasswordTitle;
+
+  /// No description provided for @forgotPasswordDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your account email. We will send a secure link to create a new password.'**
+  String get forgotPasswordDescription;
+
+  /// No description provided for @sendResetLink.
+  ///
+  /// In en, this message translates to:
+  /// **'Send reset link'**
+  String get sendResetLink;
+
+  /// No description provided for @resetLinkSent.
+  ///
+  /// In en, this message translates to:
+  /// **'Password reset email sent. Open the link on this device.'**
+  String get resetLinkSent;
+
+  /// No description provided for @emailRateLimitedMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Too many emails were requested. Please wait a while before trying again.'**
+  String get emailRateLimitedMessage;
+
+  /// No description provided for @backToSignIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Back to sign in'**
+  String get backToSignIn;
+
+  /// No description provided for @newPasswordTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Create a new password'**
+  String get newPasswordTitle;
+
+  /// No description provided for @newPasswordDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a secure password with at least 8 characters.'**
+  String get newPasswordDescription;
+
+  /// No description provided for @newPasswordLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'New password'**
+  String get newPasswordLabel;
+
+  /// No description provided for @confirmPasswordLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm new password'**
+  String get confirmPasswordLabel;
+
+  /// No description provided for @passwordsDoNotMatch.
+  ///
+  /// In en, this message translates to:
+  /// **'Passwords do not match.'**
+  String get passwordsDoNotMatch;
+
+  /// No description provided for @updatePassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Update password'**
+  String get updatePassword;
+
+  /// No description provided for @passwordUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Your password was updated successfully.'**
+  String get passwordUpdated;
+
+  /// No description provided for @accountTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Account'**
+  String get accountTitle;
+
+  /// No description provided for @signOut.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign out'**
+  String get signOut;
+
+  /// No description provided for @signOutTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign out?'**
+  String get signOutTitle;
+
+  /// No description provided for @signOutDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'You will return to the sign-in screen. Your saved account and analysis entitlement will remain secure.'**
+  String get signOutDescription;
+
+  /// No description provided for @signOutFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not sign out. Please try again.'**
+  String get signOutFailed;
+
   /// No description provided for @premiumTitle.
   ///
   /// In en, this message translates to:

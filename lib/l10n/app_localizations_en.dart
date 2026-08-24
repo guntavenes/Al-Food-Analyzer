@@ -147,6 +147,68 @@ class AppLocalizationsEn extends AppLocalizations {
   String get confirmationResent => 'A new confirmation email was sent.';
 
   @override
+  String get forgotPassword => 'Forgot password?';
+
+  @override
+  String get forgotPasswordTitle => 'Reset your password';
+
+  @override
+  String get forgotPasswordDescription =>
+      'Enter your account email. We will send a secure link to create a new password.';
+
+  @override
+  String get sendResetLink => 'Send reset link';
+
+  @override
+  String get resetLinkSent =>
+      'Password reset email sent. Open the link on this device.';
+
+  @override
+  String get emailRateLimitedMessage =>
+      'Too many emails were requested. Please wait a while before trying again.';
+
+  @override
+  String get backToSignIn => 'Back to sign in';
+
+  @override
+  String get newPasswordTitle => 'Create a new password';
+
+  @override
+  String get newPasswordDescription =>
+      'Choose a secure password with at least 8 characters.';
+
+  @override
+  String get newPasswordLabel => 'New password';
+
+  @override
+  String get confirmPasswordLabel => 'Confirm new password';
+
+  @override
+  String get passwordsDoNotMatch => 'Passwords do not match.';
+
+  @override
+  String get updatePassword => 'Update password';
+
+  @override
+  String get passwordUpdated => 'Your password was updated successfully.';
+
+  @override
+  String get accountTitle => 'Account';
+
+  @override
+  String get signOut => 'Sign out';
+
+  @override
+  String get signOutTitle => 'Sign out?';
+
+  @override
+  String get signOutDescription =>
+      'You will return to the sign-in screen. Your saved account and analysis entitlement will remain secure.';
+
+  @override
+  String get signOutFailed => 'Could not sign out. Please try again.';
+
+  @override
   String get premiumTitle => 'Unlock Premium';
 
   @override

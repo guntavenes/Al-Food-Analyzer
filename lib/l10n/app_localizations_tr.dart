@@ -146,6 +146,68 @@ class AppLocalizationsTr extends AppLocalizations {
   String get confirmationResent => 'Yeni doğrulama e-postası gönderildi.';
 
   @override
+  String get forgotPassword => 'Şifreni mi unuttun?';
+
+  @override
+  String get forgotPasswordTitle => 'Şifreni yenile';
+
+  @override
+  String get forgotPasswordDescription =>
+      'Hesabına ait e-posta adresini gir. Yeni şifre oluşturman için güvenli bir bağlantı göndereceğiz.';
+
+  @override
+  String get sendResetLink => 'Sıfırlama bağlantısı gönder';
+
+  @override
+  String get resetLinkSent =>
+      'Şifre sıfırlama e-postası gönderildi. Bağlantıyı bu cihazda aç.';
+
+  @override
+  String get emailRateLimitedMessage =>
+      'Çok fazla e-posta istendi. Bir süre bekleyip tekrar dene.';
+
+  @override
+  String get backToSignIn => 'Giriş ekranına dön';
+
+  @override
+  String get newPasswordTitle => 'Yeni şifre oluştur';
+
+  @override
+  String get newPasswordDescription =>
+      'En az 8 karakterden oluşan güvenli bir şifre belirle.';
+
+  @override
+  String get newPasswordLabel => 'Yeni şifre';
+
+  @override
+  String get confirmPasswordLabel => 'Yeni şifreyi doğrula';
+
+  @override
+  String get passwordsDoNotMatch => 'Şifreler birbiriyle eşleşmiyor.';
+
+  @override
+  String get updatePassword => 'Şifreyi güncelle';
+
+  @override
+  String get passwordUpdated => 'Şifren başarıyla güncellendi.';
+
+  @override
+  String get accountTitle => 'Hesap';
+
+  @override
+  String get signOut => 'Çıkış yap';
+
+  @override
+  String get signOutTitle => 'Çıkış yapılsın mı?';
+
+  @override
+  String get signOutDescription =>
+      'Giriş ekranına döneceksin. Hesabın ve analiz kullanım hakkın güvenle korunmaya devam edecek.';
+
+  @override
+  String get signOutFailed => 'Çıkış yapılamadı. Lütfen tekrar dene.';
+
+  @override
   String get premiumTitle => 'Premium\'u aç';
 
   @override
