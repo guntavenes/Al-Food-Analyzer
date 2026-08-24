@@ -21,6 +21,7 @@ const environmentSchema = z.object({
   OPENAI_MODEL: z.string().trim().min(1).optional(),
   OPENAI_TIMEOUT_MS: z.coerce.number().int().min(1000).max(120000).default(30000),
   OPENAI_MAX_RETRIES: z.coerce.number().int().min(0).max(3).default(1),
+  OPENAI_REASONING_EFFORT: z.enum(['none', 'low', 'medium', 'high', 'xhigh', 'max']).default('low'),
   OPENAI_IMAGE_DETAIL: z.enum(['low', 'high', 'auto']).default('low')
 }).superRefine((value, context) => {
   if (value.FOOD_ANALYSIS_PROVIDER === 'openai') {
@@ -51,6 +52,7 @@ export type AppConfig = {
   openaiModel?: string;
   openaiTimeoutMs: number;
   openaiMaxRetries: number;
+  openaiReasoningEffort: 'none' | 'low' | 'medium' | 'high' | 'xhigh' | 'max';
   openaiImageDetail: 'low' | 'high' | 'auto';
 };
 
@@ -76,6 +78,7 @@ export function loadConfig(environment: NodeJS.ProcessEnv = process.env): AppCon
     openaiModel: value.OPENAI_MODEL,
     openaiTimeoutMs: value.OPENAI_TIMEOUT_MS,
     openaiMaxRetries: value.OPENAI_MAX_RETRIES,
+    openaiReasoningEffort: value.OPENAI_REASONING_EFFORT,
     openaiImageDetail: value.OPENAI_IMAGE_DETAIL
   };
 }

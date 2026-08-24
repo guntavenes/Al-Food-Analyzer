@@ -46,13 +46,16 @@ modeli açıkça seçin:
 ```dotenv
 FOOD_ANALYSIS_PROVIDER=openai
 OPENAI_API_KEY=your_server_side_key
-OPENAI_MODEL=your_explicit_model_name
+OPENAI_MODEL=gpt-5.6-luna
 OPENAI_TIMEOUT_MS=30000
 OPENAI_MAX_RETRIES=1
+OPENAI_REASONING_EFFORT=low
 OPENAI_IMAGE_DETAIL=low
 ```
 
-Anahtar veya model eksikse OpenAI modu başlamaz. `mock` modu API anahtarı olmadan
+Production yapılandırması fiyat/performans dengesi için `gpt-5.6-luna` ve düşük
+reasoning kullanır. Düz `gpt-5.6` alias'ı daha pahalı Sol modeline yönlendiğinden
+bilinçli olarak kullanılmaz. Anahtar veya model eksikse OpenAI modu başlamaz. `mock` modu API anahtarı olmadan
 çalışmaya devam eder. `low` image detail maliyeti düşürür ancak küçük içeriklerin
 ve porsiyon ipuçlarının doğruluğunu azaltabilir; `high` daha fazla token ve maliyet
 oluşturabilir. Kullanım ve fiyatlandırmayı seçilen model için ayrıca izleyin.

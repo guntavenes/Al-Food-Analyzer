@@ -15,11 +15,13 @@ services:
       - key: OPENAI_API_KEY
         sync: false
       - key: OPENAI_MODEL
-        value: gpt-4o-mini
+        value: gpt-5.6-luna
       - key: OPENAI_TIMEOUT_MS
         value: "30000"
       - key: OPENAI_MAX_RETRIES
         value: "1"
+      - key: OPENAI_REASONING_EFFORT
+        value: low
       - key: OPENAI_IMAGE_DETAIL
         value: low
       - key: MAX_IMAGE_SIZE_MB

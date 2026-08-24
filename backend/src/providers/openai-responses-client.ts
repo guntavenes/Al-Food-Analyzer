@@ -21,6 +21,7 @@ export function createOpenAIAnalyzeCall(options: {
   apiKey: string;
   timeoutMs: number;
   maxRetries: number;
+  reasoningEffort: 'none' | 'low' | 'medium' | 'high' | 'xhigh' | 'max';
 }): OpenAIAnalyzeCall {
   const client = new OpenAI({
     apiKey: options.apiKey,
@@ -42,6 +43,7 @@ export function createOpenAIAnalyzeCall(options: {
           { type: 'input_image', image_url: input.imageDataUrl, detail: input.imageDetail }
         ]
       }],
+      reasoning: { effort: options.reasoningEffort },
       text: { format: zodTextFormat(foodAnalysisStructuredOutputSchema, 'food_analysis') },
       max_output_tokens: 1600
     });

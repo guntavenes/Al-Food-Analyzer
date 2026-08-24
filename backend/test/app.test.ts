@@ -16,7 +16,8 @@ const baseConfig: AppConfig = {
   corsOrigins: ['http://localhost'], rateLimitWindowMs: 60000, rateLimitMaxRequests: 30,
   analysisRateLimitWindowMs: 3600000, analysisRateLimitMaxRequests: 10,
   authRequired: false,
-  openaiTimeoutMs: 30000, openaiMaxRetries: 1, openaiImageDetail: 'low'
+  openaiTimeoutMs: 30000, openaiMaxRetries: 1,
+  openaiReasoningEffort: 'low', openaiImageDetail: 'low'
 };
 
 describe('backend API', () => {

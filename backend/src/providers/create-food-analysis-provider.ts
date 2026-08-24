@@ -20,7 +20,8 @@ export function createFoodAnalysisProvider(config: AppConfig): FoodAnalysisProvi
     call: createOpenAIAnalyzeCall({
       apiKey: config.openaiApiKey,
       timeoutMs: config.openaiTimeoutMs,
-      maxRetries: config.openaiMaxRetries
+      maxRetries: config.openaiMaxRetries,
+      reasoningEffort: config.openaiReasoningEffort
     })
   });
 }
