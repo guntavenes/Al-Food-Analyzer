@@ -18,6 +18,7 @@ class _AuthPageState extends State<AuthPage> {
   final _passwordController = TextEditingController();
   bool _isSignUp = false;
   bool _isLoading = false;
+  bool _awaitingEmailConfirmation = false;
   String? _message;
 
   @override
@@ -44,16 +45,40 @@ class _AuthPageState extends State<AuthPage> {
       final auth = Supabase.instance.client.auth;
       if (auth.currentUser?.isAnonymous == true) await auth.signOut();
       if (_isSignUp) {
-        final response = await auth.signUp(email: email, password: password);
+        final response = await auth.signUp(
+          email: email,
+          password: password,
+          emailRedirectTo: 'aifoodanalyzer://login-callback',
+        );
         if (!mounted) return;
         if (response.session == null) {
-          setState(() => _message = l10n.checkEmailMessage);
+          setState(() {
+            _awaitingEmailConfirmation = true;
+            _message = l10n.checkEmailMessage;
+          });
           return;
         }
       } else {
         await auth.signInWithPassword(email: email, password: password);
       }
       if (mounted) context.go(AppRoutes.home);
+    } on AuthException catch (error) {
+      if (mounted) setState(() => _message = error.message);
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  Future<void> _resendConfirmation() async {
+    final l10n = AppLocalizations.of(context);
+    setState(() => _isLoading = true);
+    try {
+      await Supabase.instance.client.auth.resend(
+        type: OtpType.signup,
+        email: _emailController.text.trim(),
+        emailRedirectTo: 'aifoodanalyzer://login-callback',
+      );
+      if (mounted) setState(() => _message = l10n.confirmationResent);
     } on AuthException catch (error) {
       if (mounted) setState(() => _message = error.message);
     } finally {
@@ -124,6 +149,14 @@ class _AuthPageState extends State<AuthPage> {
                         style: TextStyle(color: theme.colorScheme.error),
                       ),
                     ],
+                    if (_awaitingEmailConfirmation) ...[
+                      const SizedBox(height: 10),
+                      TextButton.icon(
+                        onPressed: _isLoading ? null : _resendConfirmation,
+                        icon: const Icon(Icons.outgoing_mail),
+                        label: Text(l10n.resendConfirmation),
+                      ),
+                    ],
                     const SizedBox(height: 22),
                     PremiumActionButton(
                       label: _isSignUp ? l10n.createAccount : l10n.signIn,
@@ -139,6 +172,7 @@ class _AuthPageState extends State<AuthPage> {
                           ? null
                           : () => setState(() {
                               _isSignUp = !_isSignUp;
+                              _awaitingEmailConfirmation = false;
                               _message = null;
                             }),
                       child: Text(

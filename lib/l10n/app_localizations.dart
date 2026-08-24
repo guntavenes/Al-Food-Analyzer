@@ -332,6 +332,18 @@ abstract class AppLocalizations {
   /// **'Check your email to confirm your account, then sign in.'**
   String get checkEmailMessage;
 
+  /// No description provided for @resendConfirmation.
+  ///
+  /// In en, this message translates to:
+  /// **'Send confirmation email again'**
+  String get resendConfirmation;
+
+  /// No description provided for @confirmationResent.
+  ///
+  /// In en, this message translates to:
+  /// **'A new confirmation email was sent.'**
+  String get confirmationResent;
+
   /// No description provided for @premiumTitle.
   ///
   /// In en, this message translates to:

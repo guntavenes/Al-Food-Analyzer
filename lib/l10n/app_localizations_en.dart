@@ -141,6 +141,12 @@ class AppLocalizationsEn extends AppLocalizations {
       'Check your email to confirm your account, then sign in.';
 
   @override
+  String get resendConfirmation => 'Send confirmation email again';
+
+  @override
+  String get confirmationResent => 'A new confirmation email was sent.';
+
+  @override
   String get premiumTitle => 'Unlock Premium';
 
   @override

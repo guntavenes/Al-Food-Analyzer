@@ -140,6 +140,12 @@ class AppLocalizationsTr extends AppLocalizations {
       'Hesabını doğrulamak için e-postanı kontrol et, ardından giriş yap.';
 
   @override
+  String get resendConfirmation => 'Doğrulama e-postasını yeniden gönder';
+
+  @override
+  String get confirmationResent => 'Yeni doğrulama e-postası gönderildi.';
+
+  @override
   String get premiumTitle => 'Premium\'u aç';
 
   @override

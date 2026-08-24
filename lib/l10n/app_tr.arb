@@ -39,6 +39,8 @@
   "createAccountInstead": "Yeni misin? Hesap oluştur",
   "authValidationMessage": "Geçerli bir e-posta ve en az 8 karakterli bir şifre gir.",
   "checkEmailMessage": "Hesabını doğrulamak için e-postanı kontrol et, ardından giriş yap.",
+  "resendConfirmation": "Doğrulama e-postasını yeniden gönder",
+  "confirmationResent": "Yeni doğrulama e-postası gönderildi.",
   "premiumTitle": "Premium'u aç",
   "premiumDescription": "Ücretsiz analiz hakkını kullandın. Tabağındakileri keşfetmeye Premium ile devam et.",
   "premiumBenefitAnalysis": "Yemeklerini analiz etmeye devam et",
