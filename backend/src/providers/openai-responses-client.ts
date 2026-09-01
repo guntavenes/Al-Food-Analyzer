@@ -32,6 +32,7 @@ export function createOpenAIAnalyzeCall(options: {
   return async (input) => {
     const response = await client.responses.parse({
       model: input.model,
+      store: false,
       instructions: input.prompt,
       input: [{
         role: 'user',
