@@ -17,6 +17,10 @@ const environmentSchema = z.object({
   AUTH_REQUIRED: z.stringbool().default(false),
   SUPABASE_URL: z.url().optional(),
   SUPABASE_SERVER_KEY_V2: z.string().trim().min(1).optional(),
+  APPLE_IAP_ENABLED: z.stringbool().default(false),
+  APPLE_BUNDLE_ID: z.string().trim().min(1).default('com.enesguntav.aiFoodAnalyzer'),
+  APPLE_APP_ID: z.coerce.number().int().positive().default(6806656867),
+  APPLE_ROOT_CA_BASE64: z.string().trim().optional(),
   OPENAI_API_KEY: z.string().trim().min(1).optional(),
   OPENAI_MODEL: z.string().trim().min(1).optional(),
   OPENAI_TIMEOUT_MS: z.coerce.number().int().min(1000).max(120000).default(30000),
@@ -48,6 +52,10 @@ export type AppConfig = {
   authRequired: boolean;
   supabaseUrl?: string;
   supabaseSecretKey?: string;
+  appleIapEnabled: boolean;
+  appleBundleId: string;
+  appleAppId: number;
+  appleRootCertificates: Buffer[];
   openaiApiKey?: string;
   openaiModel?: string;
   openaiTimeoutMs: number;
@@ -74,6 +82,12 @@ export function loadConfig(environment: NodeJS.ProcessEnv = process.env): AppCon
     authRequired: value.AUTH_REQUIRED,
     supabaseUrl: value.SUPABASE_URL,
     supabaseSecretKey: value.SUPABASE_SERVER_KEY_V2,
+    appleIapEnabled: value.APPLE_IAP_ENABLED,
+    appleBundleId: value.APPLE_BUNDLE_ID,
+    appleAppId: value.APPLE_APP_ID,
+    appleRootCertificates: value.APPLE_ROOT_CA_BASE64
+      ? value.APPLE_ROOT_CA_BASE64.split(',').map((certificate) => Buffer.from(certificate.trim(), 'base64'))
+      : [],
     openaiApiKey: value.OPENAI_API_KEY,
     openaiModel: value.OPENAI_MODEL,
     openaiTimeoutMs: value.OPENAI_TIMEOUT_MS,

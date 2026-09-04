@@ -15,11 +15,14 @@ import { createFoodAnalysisProvider } from './providers/create-food-analysis-pro
 import type { FoodAnalysisProvider } from './providers/food-analysis-provider.js';
 import { NoopAnalysisUsageRepository, type AnalysisUsageRepository } from './usage/analysis-usage-repository.js';
 import { SupabaseAnalysisUsageRepository } from './usage/supabase-analysis-usage-repository.js';
+import { ApplePurchaseVerifier, type ApplePurchaseVerifying } from './purchases/apple-purchase-verifier.js';
+import { z } from 'zod';
 
 type AppDependencies = {
   provider?: FoodAnalysisProvider;
   authTokenVerifier?: AuthTokenVerifier;
   usageRepository?: AnalysisUsageRepository;
+  applePurchaseVerifier?: ApplePurchaseVerifying;
 };
 
 export function createApp(config: AppConfig, dependencies: AppDependencies = {}) {
@@ -28,10 +31,13 @@ export function createApp(config: AppConfig, dependencies: AppDependencies = {})
   const authTokenVerifier = dependencies.authTokenVerifier ?? (config.authRequired
     ? new SupabaseAuthTokenVerifier(config.supabaseUrl!)
     : undefined);
-  const usageRepository = dependencies.usageRepository ?? (config.authRequired
+  const usageRepository: AnalysisUsageRepository = dependencies.usageRepository ?? (config.authRequired
     ? new SupabaseAnalysisUsageRepository(config.supabaseUrl!, config.supabaseSecretKey!)
     : new NoopAnalysisUsageRepository());
   const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: config.maxImageBytes, files: 1 } });
+  const applePurchaseVerifier = dependencies.applePurchaseVerifier ?? (config.appleIapEnabled
+    ? new ApplePurchaseVerifier(config.appleRootCertificates, config.appleBundleId, config.appleAppId)
+    : undefined);
 
   app.disable('x-powered-by');
   app.use(helmet());
@@ -53,6 +59,25 @@ export function createApp(config: AppConfig, dependencies: AppDependencies = {})
   }));
 
   app.get('/health', (_request, response) => response.json({ status: 'ok', provider: provider.name }));
+  if (config.authRequired && authTokenVerifier) {
+    app.post('/v1/subscriptions/apple/verify', requireAuth(authTokenVerifier), async (request, response, next) => {
+      try {
+        if (!applePurchaseVerifier || !usageRepository.activatePremium) {
+          throw new AppError('PURCHASE_CONFIGURATION_ERROR', 'Apple purchases are not enabled.', 503);
+        }
+        const input = z.object({ signedTransaction: z.string().min(20) }).parse(request.body);
+        const purchase = await applePurchaseVerifier.verify(input.signedTransaction, request.auth!.userId);
+        await usageRepository.activatePremium(request.auth!.userId, purchase.expiresAt, purchase.transactionId);
+        response.json({
+          productId: purchase.productId,
+          transactionId: purchase.transactionId,
+          premiumUntil: purchase.expiresAt.toISOString()
+        });
+      } catch (error) {
+        next(error);
+      }
+    });
+  }
   const analysisRateLimiter = rateLimit({
     windowMs: config.analysisRateLimitWindowMs,
     limit: config.analysisRateLimitMaxRequests,

@@ -232,6 +232,25 @@ class AppLocalizationsEn extends AppLocalizations {
       'Purchasing will be enabled after App Store and Google Play products are configured.';
 
   @override
+  String get premiumMonthlyPlan => 'Monthly Premium';
+
+  @override
+  String get premiumYearlyPlan => 'Yearly Premium';
+
+  @override
+  String get premiumBestValue => 'BEST VALUE';
+
+  @override
+  String get restorePurchases => 'Restore purchases';
+
+  @override
+  String get premiumPurchaseSuccess => 'Premium is active';
+
+  @override
+  String get premiumRenewalDisclosure =>
+      'Subscriptions renew automatically unless canceled at least 24 hours before the end of the current period. You can manage or cancel them in your App Store account.';
+
+  @override
   String get resultTitle => 'Food Analysis';
 
   @override

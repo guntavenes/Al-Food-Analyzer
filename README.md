@@ -137,8 +137,49 @@ onayı, veri bölgesi ve saklama politikaları değerlendirilmelidir.
 Uygulama e-posta ve şifreyle kalıcı hesap oluşturur. Böylece uygulamayı silip tekrar
 yüklemek ücretsiz hakkı yenilemez. Production yayını öncesinde Supabase Auth için
 CAPTCHA/Turnstile, parola sıfırlama akışı ve mağaza tarafında App Attest / Play
-Integrity değerlendirilmelidir. Premium satın alma ekranı şimdilik güvenli bir
-placeholder'dır; App Store veya Google Play ürünleri bağlanmadan ödeme kabul etmez.
+Integrity değerlendirilmelidir.
+
+## App Store Premium abonelikleri
+
+iOS Premium ekranı fiyatları doğrudan App Store'dan yükler, satın alma ve
+`Restore Purchases` akışlarını StoreKit 2 üzerinden yürütür. Tanımlı ürünler:
+
+- Aylık: `com.enesguntav.aifood.premium.monthly` — Türkiye için ₺49,99
+- Yıllık: `com.enesguntav.aifood.premium.yearly` — Türkiye için ₺399,99
+
+Mobil uygulama Apple'ın imzaladığı işlem verisini Supabase oturumuyla birlikte
+`POST /v1/subscriptions/apple/verify` endpoint'ine gönderir. Backend JWS imzasını,
+bundle ID'yi, App Store uygulama ID'sini, ürün kimliğini, kullanıcıya bağlanan
+`appAccountToken` değerini, iptal ve bitiş tarihini doğruladıktan sonra Premium
+hakkını Supabase'e yazar. Satın alma doğrulanmadan istemcide Premium açılmaz.
+
+Önce [`supabase/migrations`](supabase/migrations) içindeki güncel migration'ları
+Supabase projesine uygulayın. Ardından Render'a şu değişkenleri ekleyin:
+
+```dotenv
+APPLE_IAP_ENABLED=false
+APPLE_BUNDLE_ID=com.enesguntav.aiFoodAnalyzer
+APPLE_APP_ID=6806656867
+APPLE_ROOT_CA_BASE64=comma_separated_base64_der_apple_root_certificates
+```
+
+Apple Root CA sertifikalarını [Apple Certificate Authority](https://www.apple.com/certificateauthority/)
+sayfasından alın. DER içeriklerini base64'e çevirip virgülle ayırın. Sertifikalar
+ve migration hazır olmadan `APPLE_IAP_ENABLED=true` yapmayın; eksik sertifikayla
+backend bilinçli olarak başlamaz. Hazır olduğunda değeri `true` yapıp Render'ı
+yeniden deploy edin.
+
+Sandbox testi gerçek cihazda veya TestFlight build'inde Sandbox Apple hesabıyla
+yapılmalıdır. Başarılı testte aylık/yıllık ürünler yerel App Store fiyatıyla
+görünmeli, satın alma backend tarafından doğrulanmalı, ikinci analiz açılmalı ve
+`Restore Purchases` aynı Supabase hesabında Premium erişimi geri getirmelidir.
+StoreKit 2, sunucu doğrulamasına uygun JWS işlem verisini kullanır; StoreKit 1'e
+geri dönüş bu entegrasyonda desteklenmez.
+
+İlk abonelikler uygulamanın yeni sürümüyle birlikte App Review'a gönderilmelidir.
+App Store Connect'te her iki ürün için review screenshot ve eksik metadata
+tamamlanmadan incelemeye gönderilmemelidir. Google Play Billing bu aşamanın
+kapsamında değildir.
 
 ## AI davranış sözleşmesi
 

@@ -126,6 +126,12 @@
   "premiumBenefitNutrition": "Detailed nutrition estimates",
   "premiumComingSoon": "Premium purchasing coming soon",
   "purchaseNotAvailable": "Purchasing will be enabled after App Store and Google Play products are configured.",
+  "premiumMonthlyPlan": "Monthly Premium",
+  "premiumYearlyPlan": "Yearly Premium",
+  "premiumBestValue": "BEST VALUE",
+  "restorePurchases": "Restore purchases",
+  "premiumPurchaseSuccess": "Premium is active",
+  "premiumRenewalDisclosure": "Subscriptions renew automatically unless canceled at least 24 hours before the end of the current period. You can manage or cancel them in your App Store account.",
   "resultTitle": "Food Analysis",
   "@resultTitle": {
     "description": "Food analysis result screen title"

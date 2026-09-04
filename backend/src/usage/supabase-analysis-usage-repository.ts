@@ -62,4 +62,25 @@ export class SupabaseAnalysisUsageRepository implements AnalysisUsageRepository 
       }));
     }
   }
+
+  async activatePremium(userId: string, premiumUntil: Date, transactionId: string): Promise<void> {
+    const response = await fetch(`${this.claimEndpoint.replace('/rpc/claim_analysis_entitlement', '/user_entitlements')}?on_conflict=user_id`, {
+      method: 'POST',
+      headers: {
+        apikey: this.secretKey,
+        'content-type': 'application/json',
+        prefer: 'resolution=merge-duplicates,return=minimal'
+      },
+      body: JSON.stringify({
+        user_id: userId,
+        premium_until: premiumUntil.toISOString(),
+        premium_source: 'apple',
+        premium_transaction_id: transactionId,
+        updated_at: new Date().toISOString()
+      })
+    });
+    if (!response.ok) {
+      throw new AppError('SERVICE_UNAVAILABLE', 'Premium access could not be updated.', 503);
+    }
+  }
 }

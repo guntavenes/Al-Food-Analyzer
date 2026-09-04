@@ -2,12 +2,16 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 abstract interface class AccessTokenProvider {
   Future<String?> getAccessToken();
+  String? get userId;
 }
 
 class SupabaseAccessTokenProvider implements AccessTokenProvider {
   SupabaseAccessTokenProvider(this._client);
 
   final SupabaseClient _client;
+
+  @override
+  String? get userId => _client.auth.currentUser?.id;
 
   @override
   Future<String?> getAccessToken() async {
@@ -24,4 +28,7 @@ class NoopAccessTokenProvider implements AccessTokenProvider {
 
   @override
   Future<String?> getAccessToken() async => null;
+
+  @override
+  String? get userId => null;
 }

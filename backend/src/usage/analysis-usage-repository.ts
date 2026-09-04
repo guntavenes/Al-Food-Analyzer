@@ -1,6 +1,7 @@
 export interface AnalysisUsageRepository {
   claimAnalysis(userId: string, requestId: string): Promise<void>;
   releaseAnalysis(userId: string, requestId: string): Promise<void>;
+  activatePremium?(userId: string, premiumUntil: Date, transactionId: string): Promise<void>;
 }
 
 export class NoopAnalysisUsageRepository implements AnalysisUsageRepository {

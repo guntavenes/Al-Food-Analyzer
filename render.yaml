@@ -36,6 +36,14 @@ services:
         value: https://jwdqoyxxuvumpeuzliwp.supabase.co
       - key: SUPABASE_SERVER_KEY_V2
         sync: false
+      - key: APPLE_IAP_ENABLED
+        value: "false"
+      - key: APPLE_BUNDLE_ID
+        value: com.enesguntav.aiFoodAnalyzer
+      - key: APPLE_APP_ID
+        value: "6806656867"
+      - key: APPLE_ROOT_CA_BASE64
+        sync: false
       - key: ANALYSIS_RATE_LIMIT_WINDOW_MS
         value: "3600000"
       - key: ANALYSIS_RATE_LIMIT_MAX_REQUESTS

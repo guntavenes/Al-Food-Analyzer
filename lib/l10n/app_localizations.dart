@@ -500,6 +500,42 @@ abstract class AppLocalizations {
   /// **'Purchasing will be enabled after App Store and Google Play products are configured.'**
   String get purchaseNotAvailable;
 
+  /// No description provided for @premiumMonthlyPlan.
+  ///
+  /// In en, this message translates to:
+  /// **'Monthly Premium'**
+  String get premiumMonthlyPlan;
+
+  /// No description provided for @premiumYearlyPlan.
+  ///
+  /// In en, this message translates to:
+  /// **'Yearly Premium'**
+  String get premiumYearlyPlan;
+
+  /// No description provided for @premiumBestValue.
+  ///
+  /// In en, this message translates to:
+  /// **'BEST VALUE'**
+  String get premiumBestValue;
+
+  /// No description provided for @restorePurchases.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore purchases'**
+  String get restorePurchases;
+
+  /// No description provided for @premiumPurchaseSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Premium is active'**
+  String get premiumPurchaseSuccess;
+
+  /// No description provided for @premiumRenewalDisclosure.
+  ///
+  /// In en, this message translates to:
+  /// **'Subscriptions renew automatically unless canceled at least 24 hours before the end of the current period. You can manage or cancel them in your App Store account.'**
+  String get premiumRenewalDisclosure;
+
   /// Food analysis result screen title
   ///
   /// In en, this message translates to:

@@ -231,6 +231,25 @@ class AppLocalizationsTr extends AppLocalizations {
       'App Store ve Google Play ürünleri yapılandırıldıktan sonra satın alma etkinleştirilecek.';
 
   @override
+  String get premiumMonthlyPlan => 'Aylık Premium';
+
+  @override
+  String get premiumYearlyPlan => 'Yıllık Premium';
+
+  @override
+  String get premiumBestValue => 'EN AVANTAJLI';
+
+  @override
+  String get restorePurchases => 'Satın alımları geri yükle';
+
+  @override
+  String get premiumPurchaseSuccess => 'Premium etkin';
+
+  @override
+  String get premiumRenewalDisclosure =>
+      'Abonelikler, mevcut dönemin bitiminden en az 24 saat önce iptal edilmezse otomatik yenilenir. App Store hesabından yönetebilir veya iptal edebilirsin.';
+
+  @override
   String get resultTitle => 'Yemek Analizi';
 
   @override

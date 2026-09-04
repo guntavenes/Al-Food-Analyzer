@@ -8,6 +8,7 @@ import type { AnalysisUsageRepository } from '../src/usage/analysis-usage-reposi
 import type { FoodAnalysisProvider } from '../src/providers/food-analysis-provider.js';
 import type { AnalyzeInput } from '../src/contracts.js';
 import { MockFoodAnalysisProvider } from '../src/providers/mock-food-analysis-provider.js';
+import type { ApplePurchaseVerifying } from '../src/purchases/apple-purchase-verifier.js';
 
 const png = Buffer.from([137, 80, 78, 71, 13, 10, 26, 10, 1, 2, 3]);
 const baseConfig: AppConfig = {
@@ -16,6 +17,10 @@ const baseConfig: AppConfig = {
   corsOrigins: ['http://localhost'], rateLimitWindowMs: 60000, rateLimitMaxRequests: 30,
   analysisRateLimitWindowMs: 3600000, analysisRateLimitMaxRequests: 10,
   authRequired: false,
+  appleIapEnabled: false,
+  appleBundleId: 'com.enesguntav.aiFoodAnalyzer',
+  appleAppId: 6806656867,
+  appleRootCertificates: [],
   openaiTimeoutMs: 30000, openaiMaxRetries: 1,
   openaiReasoningEffort: 'low', openaiImageDetail: 'low'
 };
@@ -142,6 +147,39 @@ describe('backend API', () => {
     expect(response.body.error.code).toBe('PREMIUM_REQUIRED');
     expect(provider.callCount).toBe(0);
   });
+
+  it('verifies an App Store subscription and activates premium access', async () => {
+    const usageRepository = new TestUsageRepository();
+    const response = await request(createApp({ ...baseConfig, authRequired: true }, {
+      authTokenVerifier: new TestAuthTokenVerifier(),
+      usageRepository,
+      applePurchaseVerifier: new TestApplePurchaseVerifier()
+    })).post('/v1/subscriptions/apple/verify')
+      .set('Authorization', 'Bearer valid-token')
+      .send({ signedTransaction: 'signed-transaction-value-for-testing' });
+
+    expect(response.status).toBe(200);
+    expect(response.body).toMatchObject({
+      productId: 'com.enesguntav.aifood.premium.monthly',
+      transactionId: 'test-transaction-id'
+    });
+    expect(usageRepository.premiumActivations).toEqual([{
+      userId: '3d13ab9e-2bb0-4949-b352-02fb91e1761e',
+      transactionId: 'test-transaction-id'
+    }]);
+  });
+
+  it('rejects App Store subscription verification without a session', async () => {
+    const response = await request(createApp({ ...baseConfig, authRequired: true }, {
+      authTokenVerifier: new TestAuthTokenVerifier(),
+      usageRepository: new TestUsageRepository(),
+      applePurchaseVerifier: new TestApplePurchaseVerifier()
+    })).post('/v1/subscriptions/apple/verify')
+      .send({ signedTransaction: 'signed-transaction-value-for-testing' });
+
+    expect(response.status).toBe(401);
+    expect(response.body.error.code).toBe('UNAUTHORIZED');
+  });
 });
 
 class TestAuthTokenVerifier implements AuthTokenVerifier {
@@ -153,6 +191,7 @@ class TestAuthTokenVerifier implements AuthTokenVerifier {
 
 class TestUsageRepository implements AnalysisUsageRepository {
   readonly userIds: string[] = [];
+  readonly premiumActivations: Array<{ userId: string; transactionId: string }> = [];
 
   async claimAnalysis(userId: string, requestId: string): Promise<void> {
     void requestId;
@@ -160,6 +199,21 @@ class TestUsageRepository implements AnalysisUsageRepository {
   }
 
   async releaseAnalysis(): Promise<void> {}
+
+  async activatePremium(userId: string, premiumUntil: Date, transactionId: string): Promise<void> {
+    void premiumUntil;
+    this.premiumActivations.push({ userId, transactionId });
+  }
+}
+
+class TestApplePurchaseVerifier implements ApplePurchaseVerifying {
+  async verify() {
+    return {
+      productId: 'com.enesguntav.aifood.premium.monthly',
+      transactionId: 'test-transaction-id',
+      expiresAt: new Date('2030-01-01T00:00:00.000Z')
+    };
+  }
 }
 
 class FailingUsageRepository implements AnalysisUsageRepository {

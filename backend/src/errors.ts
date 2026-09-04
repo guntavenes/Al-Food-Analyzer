@@ -4,6 +4,9 @@ import multer from 'multer';
 export type ErrorCode =
   | 'UNAUTHORIZED'
   | 'PREMIUM_REQUIRED'
+  | 'PURCHASE_INVALID'
+  | 'PURCHASE_EXPIRED'
+  | 'PURCHASE_CONFIGURATION_ERROR'
   | 'INVALID_IMAGE'
   | 'IMAGE_TOO_LARGE'
   | 'UNSUPPORTED_IMAGE_TYPE'
