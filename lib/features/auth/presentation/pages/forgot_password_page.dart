@@ -1,6 +1,7 @@
 import 'package:ai_food_analyzer/core/router/app_router.dart';
 import 'package:ai_food_analyzer/core/widgets/premium_action_button.dart';
 import 'package:ai_food_analyzer/core/widgets/premium_screen_background.dart';
+import 'package:ai_food_analyzer/features/auth/domain/auth_input_validator.dart';
 import 'package:ai_food_analyzer/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -28,8 +29,8 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
   Future<void> _sendResetLink() async {
     final l10n = AppLocalizations.of(context);
     final email = _emailController.text.trim();
-    if (!email.contains('@')) {
-      setState(() => _errorMessage = l10n.authValidationMessage);
+    if (!AuthInputValidator.isValidEmail(email)) {
+      setState(() => _errorMessage = l10n.invalidEmailMessage);
       return;
     }
 

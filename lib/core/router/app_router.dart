@@ -2,11 +2,13 @@ import 'package:ai_food_analyzer/features/analysis/presentation/pages/food_analy
 import 'package:ai_food_analyzer/features/auth/presentation/pages/auth_page.dart';
 import 'package:ai_food_analyzer/features/auth/presentation/pages/forgot_password_page.dart';
 import 'package:ai_food_analyzer/features/auth/presentation/pages/reset_password_page.dart';
+import 'package:ai_food_analyzer/features/barcode_scan/presentation/pages/barcode_scan_page.dart';
 import 'package:ai_food_analyzer/features/capture/presentation/pages/camera_page.dart';
 import 'package:ai_food_analyzer/features/capture/presentation/pages/photo_preview_page.dart';
 import 'package:ai_food_analyzer/features/history/presentation/pages/history_page.dart';
 import 'package:ai_food_analyzer/features/history/presentation/pages/saved_analysis_detail_page.dart';
 import 'package:ai_food_analyzer/features/home/presentation/pages/home_page.dart';
+import 'package:ai_food_analyzer/features/menu_scan/presentation/pages/menu_scan_page.dart';
 import 'package:ai_food_analyzer/features/premium/presentation/pages/premium_page.dart';
 import 'package:ai_food_analyzer/features/splash/presentation/pages/splash_page.dart';
 import 'package:flutter/material.dart';
@@ -17,6 +19,22 @@ final appRouterProvider = Provider<GoRouter>((ref) {
   final router = GoRouter(
     initialLocation: AppRoutes.splash,
     routes: [
+      GoRoute(
+        path: AppRoutes.barcodeScan,
+        pageBuilder: (context, state) =>
+            _premiumPage(state: state, child: const BarcodeScanPage()),
+      ),
+      GoRoute(
+        path: AppRoutes.menuScan,
+        pageBuilder: (context, state) => _premiumPage(
+          state: state,
+          child: MenuScanPage(
+            initialImagePath: state.extra is String
+                ? state.extra! as String
+                : null,
+          ),
+        ),
+      ),
       GoRoute(
         path: AppRoutes.splash,
         pageBuilder: (context, state) => _premiumPage(
@@ -138,6 +156,8 @@ abstract final class AppRoutes {
   static const result = '/result';
   static const history = '/history';
   static const premium = '/premium';
+  static const menuScan = '/menu-scan';
+  static const barcodeScan = '/barcode-scan';
 
   static String historyDetail(int id) => '$history/$id';
 }

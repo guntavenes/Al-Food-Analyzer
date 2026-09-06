@@ -38,7 +38,7 @@
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSCameraUsageDescription</key>
-	<string>Take a photo of your meal for nutrition analysis.</string>
+	<string>Take a photo of your meal or scan a product barcode for nutrition analysis.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Choose a meal photo from your library for nutrition analysis.</string>
 	<key>UIApplicationSceneManifest</key>

@@ -326,6 +326,36 @@ abstract class AppLocalizations {
   /// **'Enter a valid email and a password of at least 8 characters.'**
   String get authValidationMessage;
 
+  /// No description provided for @invalidEmailMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid email address, such as name@outlook.com.'**
+  String get invalidEmailMessage;
+
+  /// No description provided for @passwordTooShortMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Your password must be at least 8 characters.'**
+  String get passwordTooShortMessage;
+
+  /// No description provided for @emailAlreadyRegisteredMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'An account already exists for this email. Try signing in instead.'**
+  String get emailAlreadyRegisteredMessage;
+
+  /// No description provided for @invalidLoginMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'The email or password is incorrect.'**
+  String get invalidLoginMessage;
+
+  /// No description provided for @authGenericErrorMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'We could not complete this request. Please try again.'**
+  String get authGenericErrorMessage;
+
   /// No description provided for @checkEmailMessage.
   ///
   /// In en, this message translates to:
@@ -337,6 +367,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Send confirmation email again'**
   String get resendConfirmation;
+
+  /// No description provided for @resendConfirmationCountdown.
+  ///
+  /// In en, this message translates to:
+  /// **'Send again ({seconds}s)'**
+  String resendConfirmationCountdown(int seconds);
 
   /// No description provided for @confirmationResent.
   ///
@@ -458,6 +494,30 @@ abstract class AppLocalizations {
   /// **'Could not sign out. Please try again.'**
   String get signOutFailed;
 
+  /// No description provided for @premiumMember.
+  ///
+  /// In en, this message translates to:
+  /// **'Premium member'**
+  String get premiumMember;
+
+  /// No description provided for @freeMember.
+  ///
+  /// In en, this message translates to:
+  /// **'Free plan'**
+  String get freeMember;
+
+  /// No description provided for @managePremium.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage Premium'**
+  String get managePremium;
+
+  /// No description provided for @upgradeToPremium.
+  ///
+  /// In en, this message translates to:
+  /// **'Upgrade to Premium'**
+  String get upgradeToPremium;
+
   /// No description provided for @premiumTitle.
   ///
   /// In en, this message translates to:
@@ -524,6 +584,18 @@ abstract class AppLocalizations {
   /// **'Restore purchases'**
   String get restorePurchases;
 
+  /// No description provided for @restorePurchasesDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Already subscribed with this Apple ID? Restore your access without being charged again.'**
+  String get restorePurchasesDescription;
+
+  /// No description provided for @manageSubscription.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage or cancel subscription'**
+  String get manageSubscription;
+
   /// No description provided for @premiumPurchaseSuccess.
   ///
   /// In en, this message translates to:
@@ -547,6 +619,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'ESTIMATED CALORIES'**
   String get estimatedCalories;
+
+  /// No description provided for @nutritionSummaryTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Nutrition'**
+  String get nutritionSummaryTitle;
 
   /// Formatted calorie result
   ///
@@ -859,6 +937,216 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'This saved analysis could not be found.'**
   String get analysisNotFound;
+
+  /// No description provided for @chooseFeatureTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'How can we help?'**
+  String get chooseFeatureTitle;
+
+  /// No description provided for @chooseFeatureDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Analyze your meal or find a more balanced choice from a menu.'**
+  String get chooseFeatureDescription;
+
+  /// No description provided for @scanFoodTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan Food'**
+  String get scanFoodTitle;
+
+  /// No description provided for @scanFoodDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Estimate calories and nutrition for your plate.'**
+  String get scanFoodDescription;
+
+  /// No description provided for @scanFoodSourceDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Take or choose a photo that clearly shows the entire meal.'**
+  String get scanFoodSourceDescription;
+
+  /// No description provided for @scanBarcode.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan barcode'**
+  String get scanBarcode;
+
+  /// No description provided for @barcodeScanDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Place the product barcode inside the frame. We\'ll find its exact nutrition facts when available.'**
+  String get barcodeScanDescription;
+
+  /// No description provided for @findingProduct.
+  ///
+  /// In en, this message translates to:
+  /// **'Finding product...'**
+  String get findingProduct;
+
+  /// No description provided for @barcodeProductNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'We couldn\'t find this barcode. You can scan again or analyze the product with a photo.'**
+  String get barcodeProductNotFound;
+
+  /// No description provided for @barcodeLookupFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Product information is temporarily unavailable. Please try again.'**
+  String get barcodeLookupFailed;
+
+  /// No description provided for @verifiedProduct.
+  ///
+  /// In en, this message translates to:
+  /// **'BARCODE MATCH'**
+  String get verifiedProduct;
+
+  /// No description provided for @consumedAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount consumed'**
+  String get consumedAmount;
+
+  /// No description provided for @caloriesForAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Calories for {grams} g'**
+  String caloriesForAmount(int grams);
+
+  /// No description provided for @dataSource.
+  ///
+  /// In en, this message translates to:
+  /// **'Source: {source}'**
+  String dataSource(String source);
+
+  /// No description provided for @scanAnotherBarcode.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan another barcode'**
+  String get scanAnotherBarcode;
+
+  /// No description provided for @enterBarcodeManually.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter barcode manually'**
+  String get enterBarcodeManually;
+
+  /// No description provided for @enterBarcode.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter barcode'**
+  String get enterBarcode;
+
+  /// No description provided for @barcodeHint.
+  ///
+  /// In en, this message translates to:
+  /// **'8–14 digit barcode'**
+  String get barcodeHint;
+
+  /// No description provided for @searchProduct.
+  ///
+  /// In en, this message translates to:
+  /// **'Find product'**
+  String get searchProduct;
+
+  /// No description provided for @emailUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Email information unavailable'**
+  String get emailUnavailable;
+
+  /// No description provided for @menuScanTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose from Menu'**
+  String get menuScanTitle;
+
+  /// No description provided for @menuScanDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan a menu and compare lighter, balanced choices.'**
+  String get menuScanDescription;
+
+  /// No description provided for @menuScanIntroDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Take a clear photo of the menu. We will compare readable dishes by calories, ingredients, and balance.'**
+  String get menuScanIntroDescription;
+
+  /// No description provided for @menuScanComingSoon.
+  ///
+  /// In en, this message translates to:
+  /// **'Menu analysis is being prepared'**
+  String get menuScanComingSoon;
+
+  /// No description provided for @menuScanHeroTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Find the best choice on the menu'**
+  String get menuScanHeroTitle;
+
+  /// No description provided for @menuPhotoSheetTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'How would you like to add the menu?'**
+  String get menuPhotoSheetTitle;
+
+  /// No description provided for @menuPhotoSheetDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Make sure dish names and descriptions are clear and, if possible, visible in one frame.'**
+  String get menuPhotoSheetDescription;
+
+  /// No description provided for @scanMenuAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan Menu'**
+  String get scanMenuAction;
+
+  /// No description provided for @scanAnotherMenu.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan Another Menu'**
+  String get scanAnotherMenu;
+
+  /// No description provided for @analyzingMenu.
+  ///
+  /// In en, this message translates to:
+  /// **'Reviewing the menu...'**
+  String get analyzingMenu;
+
+  /// No description provided for @analyzingMenuDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Comparing options by calories and nutritional balance.'**
+  String get analyzingMenuDescription;
+
+  /// No description provided for @menuAnalysisFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'The menu could not be analyzed. Try again with a photo where the text is clear.'**
+  String get menuAnalysisFailed;
+
+  /// No description provided for @bestMenuChoice.
+  ///
+  /// In en, this message translates to:
+  /// **'Best balanced choice'**
+  String get bestMenuChoice;
+
+  /// No description provided for @otherMenuOptions.
+  ///
+  /// In en, this message translates to:
+  /// **'Other options'**
+  String get otherMenuOptions;
+
+  /// No description provided for @menuEstimateDisclaimer.
+  ///
+  /// In en, this message translates to:
+  /// **'Calories and health scores are estimates based on menu descriptions and may vary by ingredients and serving size.'**
+  String get menuEstimateDisclaimer;
 }
 
 class _AppLocalizationsDelegate

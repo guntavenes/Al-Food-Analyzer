@@ -363,7 +363,7 @@ void main() {
     expect(find.text('Grilled Chicken Bowl'), findsOneWidget);
     expect(find.text('480–600 kcal'), findsOneWidget);
     expect(find.text('Central estimate: 540 kcal'), findsOneWidget);
-    expect(find.text('Confirm the ingredients'), findsOneWidget);
+    expect(find.byTooltip('Edit and analyze again'), findsOneWidget);
     expect(find.text('32 g'), findsOneWidget);
     expect(find.text('%87'), findsOneWidget);
     expect(find.text('Analyze Another Meal'), findsOneWidget);
@@ -401,8 +401,7 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
-    await tester.ensureVisible(find.text('Edit and analyze again'));
-    await tester.tap(find.text('Edit and analyze again'));
+    await tester.tap(find.byTooltip('Edit and analyze again'));
     await tester.pumpAndSettle();
 
     await tester.enterText(

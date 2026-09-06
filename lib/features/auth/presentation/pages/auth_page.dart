@@ -1,6 +1,9 @@
+import 'dart:async';
+
 import 'package:ai_food_analyzer/core/router/app_router.dart';
 import 'package:ai_food_analyzer/core/widgets/premium_action_button.dart';
 import 'package:ai_food_analyzer/core/widgets/premium_screen_background.dart';
+import 'package:ai_food_analyzer/features/auth/domain/auth_input_validator.dart';
 import 'package:ai_food_analyzer/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -20,11 +23,15 @@ class _AuthPageState extends State<AuthPage> {
   bool _isLoading = false;
   bool _awaitingEmailConfirmation = false;
   String? _message;
+  _AuthMessageType _messageType = _AuthMessageType.error;
+  Timer? _resendTimer;
+  int _resendSeconds = 0;
 
   @override
   void dispose() {
     _emailController.dispose();
     _passwordController.dispose();
+    _resendTimer?.cancel();
     super.dispose();
   }
 
@@ -32,8 +39,12 @@ class _AuthPageState extends State<AuthPage> {
     final l10n = AppLocalizations.of(context);
     final email = _emailController.text.trim();
     final password = _passwordController.text;
-    if (!email.contains('@') || password.length < 8) {
-      setState(() => _message = l10n.authValidationMessage);
+    if (!AuthInputValidator.isValidEmail(email)) {
+      _setMessage(l10n.invalidEmailMessage, _AuthMessageType.error);
+      return;
+    }
+    if (password.length < 8) {
+      _setMessage(l10n.passwordTooShortMessage, _AuthMessageType.error);
       return;
     }
 
@@ -55,7 +66,9 @@ class _AuthPageState extends State<AuthPage> {
           setState(() {
             _awaitingEmailConfirmation = true;
             _message = l10n.checkEmailMessage;
+            _messageType = _AuthMessageType.success;
           });
+          _startResendCooldown();
           return;
         }
       } else {
@@ -63,13 +76,16 @@ class _AuthPageState extends State<AuthPage> {
       }
       if (mounted) context.go(AppRoutes.home);
     } on AuthException catch (error) {
-      if (mounted) setState(() => _message = error.message);
+      if (mounted) {
+        _setMessage(_authErrorMessage(error, l10n), _AuthMessageType.error);
+      }
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
   }
 
   Future<void> _resendConfirmation() async {
+    if (_resendSeconds > 0) return;
     final l10n = AppLocalizations.of(context);
     setState(() => _isLoading = true);
     try {
@@ -78,12 +94,61 @@ class _AuthPageState extends State<AuthPage> {
         email: _emailController.text.trim(),
         emailRedirectTo: 'aifoodanalyzer://login-callback',
       );
-      if (mounted) setState(() => _message = l10n.confirmationResent);
+      if (mounted) {
+        _setMessage(l10n.confirmationResent, _AuthMessageType.success);
+        _startResendCooldown();
+      }
     } on AuthException catch (error) {
-      if (mounted) setState(() => _message = error.message);
+      if (mounted) {
+        _setMessage(_authErrorMessage(error, l10n), _AuthMessageType.error);
+        if (_isRateLimited(error)) _startResendCooldown();
+      }
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
+  }
+
+  void _setMessage(String message, _AuthMessageType type) {
+    if (!mounted) return;
+    setState(() {
+      _message = message;
+      _messageType = type;
+    });
+  }
+
+  void _startResendCooldown() {
+    _resendTimer?.cancel();
+    setState(() => _resendSeconds = 60);
+    _resendTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (!mounted || _resendSeconds <= 1) {
+        timer.cancel();
+        if (mounted) setState(() => _resendSeconds = 0);
+        return;
+      }
+      setState(() => _resendSeconds--);
+    });
+  }
+
+  bool _isRateLimited(AuthException error) {
+    final message = error.message.toLowerCase();
+    return error.statusCode == '429' ||
+        error.code == 'over_email_send_rate_limit' ||
+        message.contains('rate limit') ||
+        message.contains('too many requests');
+  }
+
+  String _authErrorMessage(AuthException error, AppLocalizations l10n) {
+    final message = error.message.toLowerCase();
+    if (_isRateLimited(error)) return l10n.emailRateLimitedMessage;
+    if (message.contains('invalid email')) return l10n.invalidEmailMessage;
+    if (message.contains('already registered') ||
+        message.contains('already been registered')) {
+      return l10n.emailAlreadyRegisteredMessage;
+    }
+    if (message.contains('invalid login credentials')) {
+      return l10n.invalidLoginMessage;
+    }
+    return l10n.authGenericErrorMessage;
   }
 
   @override
@@ -155,18 +220,20 @@ class _AuthPageState extends State<AuthPage> {
                     ],
                     if (_message != null) ...[
                       const SizedBox(height: 14),
-                      Text(
-                        _message!,
-                        textAlign: TextAlign.center,
-                        style: TextStyle(color: theme.colorScheme.error),
-                      ),
+                      _AuthMessageCard(message: _message!, type: _messageType),
                     ],
                     if (_awaitingEmailConfirmation) ...[
                       const SizedBox(height: 10),
                       TextButton.icon(
-                        onPressed: _isLoading ? null : _resendConfirmation,
+                        onPressed: _isLoading || _resendSeconds > 0
+                            ? null
+                            : _resendConfirmation,
                         icon: const Icon(Icons.outgoing_mail),
-                        label: Text(l10n.resendConfirmation),
+                        label: Text(
+                          _resendSeconds > 0
+                              ? l10n.resendConfirmationCountdown(_resendSeconds)
+                              : l10n.resendConfirmation,
+                        ),
                       ),
                     ],
                     const SizedBox(height: 22),
@@ -186,6 +253,8 @@ class _AuthPageState extends State<AuthPage> {
                               _isSignUp = !_isSignUp;
                               _awaitingEmailConfirmation = false;
                               _message = null;
+                              _resendTimer?.cancel();
+                              _resendSeconds = 0;
                             }),
                       child: Text(
                         _isSignUp
@@ -198,6 +267,50 @@ class _AuthPageState extends State<AuthPage> {
               ),
             ),
           ),
+        ),
+      ),
+    );
+  }
+}
+
+enum _AuthMessageType { success, error }
+
+class _AuthMessageCard extends StatelessWidget {
+  const _AuthMessageCard({required this.message, required this.type});
+
+  final String message;
+  final _AuthMessageType type;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    final isSuccess = type == _AuthMessageType.success;
+    final foreground = isSuccess ? colors.primary : colors.error;
+    final background = isSuccess
+        ? colors.primaryContainer.withValues(alpha: 0.55)
+        : colors.errorContainer.withValues(alpha: 0.65);
+    return Semantics(
+      liveRegion: true,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        decoration: BoxDecoration(
+          color: background,
+          borderRadius: BorderRadius.circular(18),
+        ),
+        child: Row(
+          children: [
+            Icon(
+              isSuccess ? Icons.mark_email_read_rounded : Icons.error_outline,
+              color: foreground,
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                message,
+                style: TextStyle(color: foreground, height: 1.35),
+              ),
+            ),
+          ],
         ),
       ),
     );

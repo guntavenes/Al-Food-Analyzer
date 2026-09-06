@@ -137,11 +137,35 @@ class AppLocalizationsEn extends AppLocalizations {
       'Enter a valid email and a password of at least 8 characters.';
 
   @override
+  String get invalidEmailMessage =>
+      'Enter a valid email address, such as name@outlook.com.';
+
+  @override
+  String get passwordTooShortMessage =>
+      'Your password must be at least 8 characters.';
+
+  @override
+  String get emailAlreadyRegisteredMessage =>
+      'An account already exists for this email. Try signing in instead.';
+
+  @override
+  String get invalidLoginMessage => 'The email or password is incorrect.';
+
+  @override
+  String get authGenericErrorMessage =>
+      'We could not complete this request. Please try again.';
+
+  @override
   String get checkEmailMessage =>
       'Check your email to confirm your account, then sign in.';
 
   @override
   String get resendConfirmation => 'Send confirmation email again';
+
+  @override
+  String resendConfirmationCountdown(int seconds) {
+    return 'Send again (${seconds}s)';
+  }
 
   @override
   String get confirmationResent => 'A new confirmation email was sent.';
@@ -209,6 +233,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get signOutFailed => 'Could not sign out. Please try again.';
 
   @override
+  String get premiumMember => 'Premium member';
+
+  @override
+  String get freeMember => 'Free plan';
+
+  @override
+  String get managePremium => 'Manage Premium';
+
+  @override
+  String get upgradeToPremium => 'Upgrade to Premium';
+
+  @override
   String get premiumTitle => 'Unlock Premium';
 
   @override
@@ -244,6 +280,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get restorePurchases => 'Restore purchases';
 
   @override
+  String get restorePurchasesDescription =>
+      'Already subscribed with this Apple ID? Restore your access without being charged again.';
+
+  @override
+  String get manageSubscription => 'Manage or cancel subscription';
+
+  @override
   String get premiumPurchaseSuccess => 'Premium is active';
 
   @override
@@ -255,6 +298,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get estimatedCalories => 'ESTIMATED CALORIES';
+
+  @override
+  String get nutritionSummaryTitle => 'Nutrition';
 
   @override
   String calorieValue(int calories) {
@@ -438,4 +484,125 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get analysisNotFound => 'This saved analysis could not be found.';
+
+  @override
+  String get chooseFeatureTitle => 'How can we help?';
+
+  @override
+  String get chooseFeatureDescription =>
+      'Analyze your meal or find a more balanced choice from a menu.';
+
+  @override
+  String get scanFoodTitle => 'Scan Food';
+
+  @override
+  String get scanFoodDescription =>
+      'Estimate calories and nutrition for your plate.';
+
+  @override
+  String get scanFoodSourceDescription =>
+      'Take or choose a photo that clearly shows the entire meal.';
+
+  @override
+  String get scanBarcode => 'Scan barcode';
+
+  @override
+  String get barcodeScanDescription =>
+      'Place the product barcode inside the frame. We\'ll find its exact nutrition facts when available.';
+
+  @override
+  String get findingProduct => 'Finding product...';
+
+  @override
+  String get barcodeProductNotFound =>
+      'We couldn\'t find this barcode. You can scan again or analyze the product with a photo.';
+
+  @override
+  String get barcodeLookupFailed =>
+      'Product information is temporarily unavailable. Please try again.';
+
+  @override
+  String get verifiedProduct => 'BARCODE MATCH';
+
+  @override
+  String get consumedAmount => 'Amount consumed';
+
+  @override
+  String caloriesForAmount(int grams) {
+    return 'Calories for $grams g';
+  }
+
+  @override
+  String dataSource(String source) {
+    return 'Source: $source';
+  }
+
+  @override
+  String get scanAnotherBarcode => 'Scan another barcode';
+
+  @override
+  String get enterBarcodeManually => 'Enter barcode manually';
+
+  @override
+  String get enterBarcode => 'Enter barcode';
+
+  @override
+  String get barcodeHint => '8–14 digit barcode';
+
+  @override
+  String get searchProduct => 'Find product';
+
+  @override
+  String get emailUnavailable => 'Email information unavailable';
+
+  @override
+  String get menuScanTitle => 'Choose from Menu';
+
+  @override
+  String get menuScanDescription =>
+      'Scan a menu and compare lighter, balanced choices.';
+
+  @override
+  String get menuScanIntroDescription =>
+      'Take a clear photo of the menu. We will compare readable dishes by calories, ingredients, and balance.';
+
+  @override
+  String get menuScanComingSoon => 'Menu analysis is being prepared';
+
+  @override
+  String get menuScanHeroTitle => 'Find the best choice on the menu';
+
+  @override
+  String get menuPhotoSheetTitle => 'How would you like to add the menu?';
+
+  @override
+  String get menuPhotoSheetDescription =>
+      'Make sure dish names and descriptions are clear and, if possible, visible in one frame.';
+
+  @override
+  String get scanMenuAction => 'Scan Menu';
+
+  @override
+  String get scanAnotherMenu => 'Scan Another Menu';
+
+  @override
+  String get analyzingMenu => 'Reviewing the menu...';
+
+  @override
+  String get analyzingMenuDescription =>
+      'Comparing options by calories and nutritional balance.';
+
+  @override
+  String get menuAnalysisFailed =>
+      'The menu could not be analyzed. Try again with a photo where the text is clear.';
+
+  @override
+  String get bestMenuChoice => 'Best balanced choice';
+
+  @override
+  String get otherMenuOptions => 'Other options';
+
+  @override
+  String get menuEstimateDisclaimer =>
+      'Calories and health scores are estimates based on menu descriptions and may vary by ingredients and serving size.';
 }

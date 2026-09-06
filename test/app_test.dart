@@ -24,10 +24,10 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    expect(find.text('Take a photo of\nyour meal'), findsOneWidget);
-    expect(find.text('Take a photo'), findsOneWidget);
-    expect(find.text('Choose from gallery'), findsOneWidget);
-    expect(find.byIcon(Icons.photo_camera_rounded), findsOneWidget);
+    expect(find.text('How can we help?'), findsOneWidget);
+    expect(find.text('Scan Food'), findsOneWidget);
+    expect(find.text('Choose from Menu'), findsOneWidget);
+    expect(find.byIcon(Icons.restaurant_rounded), findsOneWidget);
   });
 
   testWidgets('history button opens empty history and back returns home', (
@@ -61,7 +61,7 @@ void main() {
     await tester.pageBack();
     await tester.pumpAndSettle();
 
-    expect(find.text('Take a photo of\nyour meal'), findsOneWidget);
+    expect(find.text('How can we help?'), findsOneWidget);
     expect(find.text('History'), findsNothing);
   });
 
@@ -82,8 +82,8 @@ void main() {
     await tester.tap(find.text('Türkçe'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Yemeğinin\nfotoğrafını çek'), findsOneWidget);
-    expect(find.text('Fotoğraf çek'), findsOneWidget);
+    expect(find.text('Nasıl yardımcı olalım?'), findsOneWidget);
+    expect(find.text('Besin Tara'), findsOneWidget);
     expect(preferences.savedLanguageCode, 'tr');
   });
 
@@ -129,7 +129,7 @@ void main() {
     await tester.tap(find.byIcon(Icons.arrow_back_rounded));
     await tester.pumpAndSettle();
 
-    expect(find.text('Take a photo of\nyour meal'), findsOneWidget);
+    expect(find.text('How can we help?'), findsOneWidget);
     expect(find.text('Food Analysis'), findsNothing);
     expect(find.text('Analyzing...'), findsNothing);
   });

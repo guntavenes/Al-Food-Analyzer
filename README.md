@@ -139,6 +139,12 @@ yüklemek ücretsiz hakkı yenilemez. Production yayını öncesinde Supabase Au
 CAPTCHA/Turnstile, parola sıfırlama akışı ve mağaza tarafında App Attest / Play
 Integrity değerlendirilmelidir.
 
+Yayın öncesi zorunlu: Supabase'in deneme amaçlı yerleşik e-posta servisi yerine
+doğrulanmış alan adına sahip özel SMTP kurulmalı; SPF, DKIM ve DMARC kayıtları
+tamamlanmalı, gönderici adı uygulama markasıyla değiştirilmelidir. Kayıt doğrulama
+ve parola sıfırlama teslimatları Outlook/Hotmail dahil gerçek adreslerle test
+edilmeli; sağlayıcı bounce/delivery logları izlenmelidir.
+
 ## App Store Premium abonelikleri
 
 iOS Premium ekranı fiyatları doğrudan App Store'dan yükler, satın alma ve
@@ -173,6 +179,15 @@ Sandbox testi gerçek cihazda veya TestFlight build'inde Sandbox Apple hesabıyl
 yapılmalıdır. Başarılı testte aylık/yıllık ürünler yerel App Store fiyatıyla
 görünmeli, satın alma backend tarafından doğrulanmalı, ikinci analiz açılmalı ve
 `Restore Purchases` aynı Supabase hesabında Premium erişimi geri getirmelidir.
+
+App Store Connect > App Store Server Notifications bölümünde Version 2 Production
+ve Sandbox URL'lerini aşağıdaki endpoint'e yönlendirin:
+
+`https://<backend-domain>/v1/subscriptions/apple/notifications`
+
+Backend Apple'ın imzalı bildirimini doğrular. Otomatik yenileme kapatıldığında
+kullanıcının erişimi ödenmiş dönem sonuna kadar devam eder; süre dolumu, iade veya
+yetki iptali bildirimi geldiğinde Premium erişimi sunucu tarafında kapatılır.
 StoreKit 2, sunucu doğrulamasına uygun JWS işlem verisini kullanır; StoreKit 1'e
 geri dönüş bu entegrasyonda desteklenmez.
 

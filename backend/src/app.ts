@@ -7,27 +7,33 @@ import multer from 'multer';
 import { requireAuth } from './auth/require-auth.js';
 import { SupabaseAuthTokenVerifier } from './auth/supabase-auth-token-verifier.js';
 import type { AuthTokenVerifier } from './auth/auth-token-verifier.js';
-import { analysisCorrectionSchema, localeSchema, foodAnalysisResponseSchema } from './contracts.js';
+import { analysisCorrectionSchema, localeSchema, foodAnalysisResponseSchema, menuAnalysisResponseSchema } from './contracts.js';
 import type { AppConfig } from './config.js';
 import { AppError, errorHandler } from './errors.js';
 import { validateImage } from './image-validation.js';
 import { createFoodAnalysisProvider } from './providers/create-food-analysis-provider.js';
 import type { FoodAnalysisProvider } from './providers/food-analysis-provider.js';
+import { createMenuAnalysisProvider } from './providers/create-menu-analysis-provider.js';
+import type { MenuAnalysisProvider } from './providers/menu-analysis-provider.js';
 import { NoopAnalysisUsageRepository, type AnalysisUsageRepository } from './usage/analysis-usage-repository.js';
 import { SupabaseAnalysisUsageRepository } from './usage/supabase-analysis-usage-repository.js';
-import { ApplePurchaseVerifier, type ApplePurchaseVerifying } from './purchases/apple-purchase-verifier.js';
+import { ApplePurchaseVerifier, type AppleNotificationVerifying, type ApplePurchaseVerifying } from './purchases/apple-purchase-verifier.js';
 import { z } from 'zod';
+import { findProductByBarcode } from './products/open-food-facts-service.js';
 
 type AppDependencies = {
   provider?: FoodAnalysisProvider;
   authTokenVerifier?: AuthTokenVerifier;
   usageRepository?: AnalysisUsageRepository;
   applePurchaseVerifier?: ApplePurchaseVerifying;
+  appleNotificationVerifier?: AppleNotificationVerifying;
+  menuProvider?: MenuAnalysisProvider;
 };
 
 export function createApp(config: AppConfig, dependencies: AppDependencies = {}) {
   const app = express();
   const provider = dependencies.provider ?? createFoodAnalysisProvider(config);
+  const menuProvider = dependencies.menuProvider ?? createMenuAnalysisProvider(config);
   const authTokenVerifier = dependencies.authTokenVerifier ?? (config.authRequired
     ? new SupabaseAuthTokenVerifier(config.supabaseUrl!)
     : undefined);
@@ -38,6 +44,10 @@ export function createApp(config: AppConfig, dependencies: AppDependencies = {})
   const applePurchaseVerifier = dependencies.applePurchaseVerifier ?? (config.appleIapEnabled
     ? new ApplePurchaseVerifier(config.appleRootCertificates, config.appleBundleId, config.appleAppId)
     : undefined);
+  const appleNotificationVerifier = dependencies.appleNotificationVerifier ??
+    (applePurchaseVerifier && 'verifyNotification' in applePurchaseVerifier
+      ? applePurchaseVerifier as ApplePurchaseVerifying & AppleNotificationVerifying
+      : undefined);
 
   app.disable('x-powered-by');
   app.use(helmet());
@@ -59,7 +69,44 @@ export function createApp(config: AppConfig, dependencies: AppDependencies = {})
   }));
 
   app.get('/health', (_request, response) => response.json({ status: 'ok', provider: provider.name }));
+  app.get('/v1/products/barcode/:barcode', async (request, response, next) => {
+    try {
+      const barcode = z.string().regex(/^\d{8,14}$/).parse(request.params.barcode);
+      response.json(await findProductByBarcode(barcode));
+    } catch (error) {
+      next(error);
+    }
+  });
+  app.post('/v1/subscriptions/apple/notifications', async (request, response, next) => {
+    try {
+      if (!appleNotificationVerifier || !usageRepository.applyAppleSubscriptionEvent) {
+        throw new AppError('PURCHASE_CONFIGURATION_ERROR', 'Apple notifications are not enabled.', 503);
+      }
+      const input = z.object({ signedPayload: z.string().min(20) }).parse(request.body);
+      const event = await appleNotificationVerifier.verifyNotification(input.signedPayload);
+      if (event) await usageRepository.applyAppleSubscriptionEvent(event);
+      response.sendStatus(200);
+    } catch (error) {
+      next(error);
+    }
+  });
   if (config.authRequired && authTokenVerifier) {
+    app.get('/v1/account/entitlement', requireAuth(authTokenVerifier), async (request, response, next) => {
+      try {
+        if (!usageRepository.getPremiumEntitlement) {
+          throw new AppError('SERVICE_UNAVAILABLE', 'Premium status is unavailable.', 503);
+        }
+        const entitlement = await usageRepository.getPremiumEntitlement(request.auth!.userId);
+        response.json({
+          isPremium: entitlement.isPremium,
+          premiumUntil: entitlement.premiumUntil?.toISOString() ?? null,
+          status: entitlement.status,
+          autoRenewEnabled: entitlement.autoRenewEnabled
+        });
+      } catch (error) {
+        next(error);
+      }
+    });
     app.post('/v1/subscriptions/apple/verify', requireAuth(authTokenVerifier), async (request, response, next) => {
       try {
         if (!applePurchaseVerifier || !usageRepository.activatePremium) {
@@ -122,6 +169,32 @@ export function createApp(config: AppConfig, dependencies: AppDependencies = {})
         throw error;
       }
       response.json(foodAnalysisResponseSchema.parse(result));
+    } catch (error) {
+      next(error);
+    }
+  });
+  app.post('/v1/menu/analyze', ...analysisMiddleware, async (request, response, next) => {
+    try {
+      if (!menuProvider) {
+        throw new AppError('SERVICE_UNAVAILABLE', 'Menu analysis is unavailable.', 503);
+      }
+      const image = validateImage(request.file);
+      const localeResult = localeSchema.safeParse(request.body.locale || undefined);
+      if (!localeResult.success) throw new AppError('INVALID_IMAGE', 'The locale value is invalid.', 400);
+      const userId = request.auth?.userId ?? 'development';
+      await usageRepository.claimAnalysis(userId, request.id);
+      let result;
+      try {
+        result = await menuProvider.analyzeMenu({
+          image: image.buffer,
+          mimeType: image.mimetype,
+          locale: localeResult.data
+        }, request.id);
+      } catch (error) {
+        await usageRepository.releaseAnalysis(userId, request.id);
+        throw error;
+      }
+      response.json(menuAnalysisResponseSchema.parse(result));
     } catch (error) {
       next(error);
     }

@@ -80,3 +80,57 @@ export type AnalyzeInput = {
   locale?: 'en' | 'tr';
   correction?: z.infer<typeof analysisCorrectionSchema>;
 };
+
+export const menuItemSchema = z.object({
+  name: z.string().trim().min(1).max(200),
+  description: z.string().trim().max(500),
+  estimatedCaloriesMin: z.number().nonnegative().finite(),
+  estimatedCaloriesMax: z.number().nonnegative().finite(),
+  healthScore: z.number().min(0).max(100).finite(),
+  reasons: z.array(z.string().trim().min(1).max(240)).max(5),
+  concerns: z.array(z.string().trim().min(1).max(240)).max(5)
+}).strict().refine(
+  (item) => item.estimatedCaloriesMax >= item.estimatedCaloriesMin,
+  { message: 'Maximum calories must be greater than or equal to minimum calories.' }
+);
+
+export const menuAnalysisModelOutputSchema = z.object({
+  restaurantName: z.string().trim().min(1).max(200).nullable(),
+  summary: z.string().trim().min(1).max(800),
+  recommendedItemName: z.string().trim().min(1).max(200),
+  confidence: z.number().min(0).max(1).finite(),
+  items: z.array(menuItemSchema).min(1).max(30)
+}).strict();
+
+export const menuAnalysisStructuredOutputSchema = z.object({
+  analysis: menuAnalysisModelOutputSchema
+}).strict();
+
+export const menuAnalysisResponseSchema = menuAnalysisModelOutputSchema.extend({
+  requestId: z.uuid()
+}).strict();
+
+export type MenuAnalysisResponse = z.infer<typeof menuAnalysisResponseSchema>;
+export type MenuAnalyzeInput = Omit<AnalyzeInput, 'correction'>;
+
+export const barcodeProductResponseSchema = z.object({
+  barcode: z.string().regex(/^\d{8,14}$/),
+  name: z.string().trim().min(1).max(240),
+  brand: z.string().trim().max(160).nullable(),
+  imageUrl: z.url().nullable(),
+  quantity: z.string().trim().max(100).nullable(),
+  servingSize: z.string().trim().max(100).nullable(),
+  nutritionPer100g: z.object({
+    calories: z.number().nonnegative().finite().nullable(),
+    protein: z.number().nonnegative().finite().nullable(),
+    carbohydrates: z.number().nonnegative().finite().nullable(),
+    fat: z.number().nonnegative().finite().nullable(),
+    fiber: z.number().nonnegative().finite().nullable(),
+    sugar: z.number().nonnegative().finite().nullable(),
+    sodiumMilligrams: z.number().nonnegative().finite().nullable()
+  }).strict(),
+  sourceName: z.literal('Open Food Facts'),
+  sourceUrl: z.url()
+}).strict();
+
+export type BarcodeProductResponse = z.infer<typeof barcodeProductResponseSchema>;

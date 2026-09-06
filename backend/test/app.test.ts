@@ -4,11 +4,12 @@ import { createApp } from '../src/app.js';
 import { AppError } from '../src/errors.js';
 import type { AppConfig } from '../src/config.js';
 import type { AuthTokenVerifier } from '../src/auth/auth-token-verifier.js';
-import type { AnalysisUsageRepository } from '../src/usage/analysis-usage-repository.js';
+import type { AnalysisUsageRepository, AppleSubscriptionEvent } from '../src/usage/analysis-usage-repository.js';
 import type { FoodAnalysisProvider } from '../src/providers/food-analysis-provider.js';
 import type { AnalyzeInput } from '../src/contracts.js';
 import { MockFoodAnalysisProvider } from '../src/providers/mock-food-analysis-provider.js';
-import type { ApplePurchaseVerifying } from '../src/purchases/apple-purchase-verifier.js';
+import type { AppleNotificationVerifying, ApplePurchaseVerifying } from '../src/purchases/apple-purchase-verifier.js';
+import type { MenuAnalysisProvider } from '../src/providers/menu-analysis-provider.js';
 
 const png = Buffer.from([137, 80, 78, 71, 13, 10, 26, 10, 1, 2, 3]);
 const baseConfig: AppConfig = {
@@ -45,6 +46,18 @@ describe('backend API', () => {
       healthScore: 78
     });
     expect(response.body.detectedFoods).toHaveLength(3);
+  });
+
+  it('analyzes a restaurant menu and returns a listed recommendation', async () => {
+    const response = await request(createApp(baseConfig, { menuProvider: new TestMenuAnalysisProvider() }))
+      .post('/v1/menu/analyze')
+      .field('locale', 'tr')
+      .attach('image', png, { filename: 'menu.png', contentType: 'image/png' });
+
+    expect(response.status).toBe(200);
+    expect(response.body.recommendedItemName).toBe('Izgara tavuk salata');
+    expect(response.body.items).toHaveLength(2);
+    expect(response.body.items[0]).toMatchObject({ healthScore: 88 });
   });
 
   it('passes user corrections to the analysis provider', async () => {
@@ -169,6 +182,21 @@ describe('backend API', () => {
     }]);
   });
 
+  it('returns the authenticated user premium entitlement', async () => {
+    const response = await request(createApp({ ...baseConfig, authRequired: true }, {
+      authTokenVerifier: new TestAuthTokenVerifier(),
+      usageRepository: new TestUsageRepository()
+    })).get('/v1/account/entitlement')
+      .set('Authorization', 'Bearer valid-token');
+
+    expect(response.status).toBe(200);
+    expect(response.body).toMatchObject({
+      isPremium: true,
+      status: 'active',
+      autoRenewEnabled: true
+    });
+  });
+
   it('rejects App Store subscription verification without a session', async () => {
     const response = await request(createApp({ ...baseConfig, authRequired: true }, {
       authTokenVerifier: new TestAuthTokenVerifier(),
@@ -179,6 +207,22 @@ describe('backend API', () => {
 
     expect(response.status).toBe(401);
     expect(response.body.error.code).toBe('UNAUTHORIZED');
+  });
+
+  it('applies a verified App Store cancellation notification', async () => {
+    const usageRepository = new TestUsageRepository();
+    const response = await request(createApp(baseConfig, {
+      usageRepository,
+      appleNotificationVerifier: new TestAppleNotificationVerifier()
+    })).post('/v1/subscriptions/apple/notifications')
+      .send({ signedPayload: 'signed-notification-value-for-testing' });
+
+    expect(response.status).toBe(200);
+    expect(usageRepository.subscriptionEvents).toHaveLength(1);
+    expect(usageRepository.subscriptionEvents[0]).toMatchObject({
+      status: 'canceled',
+      autoRenewEnabled: false
+    });
   });
 });
 
@@ -192,6 +236,7 @@ class TestAuthTokenVerifier implements AuthTokenVerifier {
 class TestUsageRepository implements AnalysisUsageRepository {
   readonly userIds: string[] = [];
   readonly premiumActivations: Array<{ userId: string; transactionId: string }> = [];
+  readonly subscriptionEvents: AppleSubscriptionEvent[] = [];
 
   async claimAnalysis(userId: string, requestId: string): Promise<void> {
     void requestId;
@@ -204,6 +249,19 @@ class TestUsageRepository implements AnalysisUsageRepository {
     void premiumUntil;
     this.premiumActivations.push({ userId, transactionId });
   }
+
+  async applyAppleSubscriptionEvent(event: AppleSubscriptionEvent): Promise<void> {
+    this.subscriptionEvents.push(event);
+  }
+
+  async getPremiumEntitlement() {
+    return {
+      isPremium: true,
+      premiumUntil: new Date('2030-01-01T00:00:00.000Z'),
+      status: 'active',
+      autoRenewEnabled: true
+    };
+  }
 }
 
 class TestApplePurchaseVerifier implements ApplePurchaseVerifying {
@@ -212,6 +270,20 @@ class TestApplePurchaseVerifier implements ApplePurchaseVerifying {
       productId: 'com.enesguntav.aifood.premium.monthly',
       transactionId: 'test-transaction-id',
       expiresAt: new Date('2030-01-01T00:00:00.000Z')
+    };
+  }
+}
+
+class TestAppleNotificationVerifier implements AppleNotificationVerifying {
+  async verifyNotification(): Promise<AppleSubscriptionEvent> {
+    return {
+      userId: '3d13ab9e-2bb0-4949-b352-02fb91e1761e',
+      productId: 'com.enesguntav.aifood.premium.monthly',
+      transactionId: 'renewal-transaction-id',
+      originalTransactionId: 'original-transaction-id',
+      premiumUntil: new Date('2030-02-01T00:00:00.000Z'),
+      status: 'canceled',
+      autoRenewEnabled: false
     };
   }
 }
@@ -250,5 +322,39 @@ class CorrectionCapturingProvider implements FoodAnalysisProvider {
   async analyze(input: AnalyzeInput, requestId: string) {
     this.input = input;
     return this.mock.analyze(input, requestId);
+  }
+}
+
+class TestMenuAnalysisProvider implements MenuAnalysisProvider {
+  readonly name = 'test-menu';
+
+  async analyzeMenu(_input: Parameters<MenuAnalysisProvider['analyzeMenu']>[0], requestId: string) {
+    return {
+      requestId,
+      restaurantName: 'Test Restoran',
+      summary: 'Izgara tavuk salata daha dengeli bir seçimdir.',
+      recommendedItemName: 'Izgara tavuk salata',
+      confidence: 0.9,
+      items: [
+        {
+          name: 'Izgara tavuk salata',
+          description: 'Tavuk ve mevsim yeşillikleri',
+          estimatedCaloriesMin: 380,
+          estimatedCaloriesMax: 520,
+          healthScore: 88,
+          reasons: ['Protein ve sebze dengesi iyi.'],
+          concerns: []
+        },
+        {
+          name: 'Kremalı makarna',
+          description: 'Krema soslu makarna',
+          estimatedCaloriesMin: 700,
+          estimatedCaloriesMax: 950,
+          healthScore: 48,
+          reasons: [],
+          concerns: ['Krema nedeniyle enerji yoğun olabilir.']
+        }
+      ]
+    };
   }
 }

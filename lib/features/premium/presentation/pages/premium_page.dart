@@ -14,6 +14,8 @@ class PremiumPage extends ConsumerWidget {
     final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
     final purchaseState = ref.watch(premiumPurchaseProvider);
+    final isPremium =
+        ref.watch(premiumEntitlementProvider).value ?? purchaseState.isPremium;
     return Scaffold(
       body: PremiumScreenBackground(
         child: SafeArea(
@@ -126,8 +128,39 @@ class PremiumPage extends ConsumerWidget {
                         : () => ref
                               .read(premiumPurchaseProvider.notifier)
                               .restore(),
-                    child: Text(l10n.restorePurchases),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(Icons.restore_rounded, size: 19),
+                        const SizedBox(width: 8),
+                        Text(l10n.restorePurchases),
+                      ],
+                    ),
                   ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    child: Text(
+                      l10n.restorePurchasesDescription,
+                      textAlign: TextAlign.center,
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: theme.colorScheme.onSurfaceVariant,
+                        height: 1.35,
+                      ),
+                    ),
+                  ),
+                  if (isPremium) ...[
+                    const SizedBox(height: 6),
+                    TextButton.icon(
+                      onPressed: purchaseState.isPurchasing
+                          ? null
+                          : () => ref
+                                .read(premiumPurchaseProvider.notifier)
+                                .manageSubscription(),
+                      icon: const Icon(Icons.open_in_new_rounded, size: 18),
+                      label: Text(l10n.manageSubscription),
+                    ),
+                  ],
+                  const SizedBox(height: 8),
                   Text(
                     l10n.premiumRenewalDisclosure,
                     textAlign: TextAlign.center,

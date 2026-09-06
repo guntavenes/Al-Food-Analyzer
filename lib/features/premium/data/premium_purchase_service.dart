@@ -4,6 +4,7 @@ import 'package:ai_food_analyzer/core/auth/access_token_provider.dart';
 import 'package:ai_food_analyzer/features/premium/domain/entities/premium_plan.dart';
 import 'package:dio/dio.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class PremiumPurchaseService {
   PremiumPurchaseService(this._store, this._dio, this._accessTokenProvider);
@@ -74,6 +75,28 @@ class PremiumPurchaseService {
   }
 
   Future<void> restore() => _store.restorePurchases();
+
+  Future<bool> loadPremiumStatus() async {
+    final token = await _accessTokenProvider.getAccessToken();
+    if (token == null) return false;
+    final response = await _dio.get<Map<String, dynamic>>(
+      '/v1/account/entitlement',
+      options: Options(headers: {'Authorization': 'Bearer $token'}),
+    );
+    return response.data?['isPremium'] == true;
+  }
+
+  Future<void> manageSubscription() async {
+    final opened = await launchUrl(
+      Uri.parse('https://apps.apple.com/account/subscriptions'),
+      mode: LaunchMode.externalApplication,
+    );
+    if (!opened) {
+      throw const PremiumPurchaseException(
+        'The subscription management page could not be opened.',
+      );
+    }
+  }
 
   Future<void> verifyAndComplete(PurchaseDetails purchase) async {
     final token = await _accessTokenProvider.getAccessToken();

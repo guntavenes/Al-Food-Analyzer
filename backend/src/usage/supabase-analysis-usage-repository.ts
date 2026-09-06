@@ -1,5 +1,5 @@
 import { AppError } from '../errors.js';
-import type { AnalysisUsageRepository } from './analysis-usage-repository.js';
+import type { AnalysisUsageRepository, AppleSubscriptionEvent, PremiumEntitlement } from './analysis-usage-repository.js';
 
 export class SupabaseAnalysisUsageRepository implements AnalysisUsageRepository {
   private readonly claimEndpoint: string;
@@ -82,5 +82,54 @@ export class SupabaseAnalysisUsageRepository implements AnalysisUsageRepository 
     if (!response.ok) {
       throw new AppError('SERVICE_UNAVAILABLE', 'Premium access could not be updated.', 503);
     }
+  }
+
+  async applyAppleSubscriptionEvent(event: AppleSubscriptionEvent): Promise<void> {
+    const response = await fetch(`${this.claimEndpoint.replace('/rpc/claim_analysis_entitlement', '/user_entitlements')}?on_conflict=user_id`, {
+      method: 'POST',
+      headers: {
+        apikey: this.secretKey,
+        'content-type': 'application/json',
+        prefer: 'resolution=merge-duplicates,return=minimal'
+      },
+      body: JSON.stringify({
+        user_id: event.userId,
+        premium_until: event.premiumUntil.toISOString(),
+        premium_source: 'apple',
+        premium_transaction_id: event.transactionId,
+        apple_original_transaction_id: event.originalTransactionId,
+        apple_product_id: event.productId,
+        subscription_status: event.status,
+        auto_renew_enabled: event.autoRenewEnabled,
+        updated_at: new Date().toISOString()
+      })
+    });
+    if (!response.ok) {
+      throw new AppError('SERVICE_UNAVAILABLE', 'Subscription status could not be updated.', 503);
+    }
+  }
+
+  async getPremiumEntitlement(userId: string): Promise<PremiumEntitlement> {
+    const endpoint = this.claimEndpoint.replace('/rpc/claim_analysis_entitlement', '/user_entitlements');
+    const response = await fetch(
+      `${endpoint}?user_id=eq.${encodeURIComponent(userId)}&select=premium_until,subscription_status,auto_renew_enabled`,
+      { headers: { apikey: this.secretKey } }
+    );
+    if (!response.ok) {
+      throw new AppError('SERVICE_UNAVAILABLE', 'Premium status could not be loaded.', 503);
+    }
+    const rows = await response.json() as Array<{
+      premium_until: string | null;
+      subscription_status?: string;
+      auto_renew_enabled?: boolean | null;
+    }>;
+    const row = rows[0];
+    const premiumUntil = row?.premium_until ? new Date(row.premium_until) : null;
+    return {
+      isPremium: premiumUntil != null && premiumUntil.getTime() > Date.now(),
+      premiumUntil,
+      status: row?.subscription_status ?? 'inactive',
+      autoRenewEnabled: row?.auto_renew_enabled ?? null
+    };
   }
 }

@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:ui';
 
 import 'package:ai_food_analyzer/core/router/app_router.dart';
 import 'package:ai_food_analyzer/core/theme/app_colors.dart';
@@ -139,22 +140,36 @@ class _PhotoPreviewPageState extends ConsumerState<PhotoPreviewPage> {
                           ),
                           child: ClipRRect(
                             borderRadius: BorderRadius.circular(29),
-                            child: ColoredBox(
-                              color: Colors.black,
-                              child: Image.file(
-                                File(widget.imagePath),
-                                width: double.infinity,
-                                fit: BoxFit.cover,
-                                errorBuilder: (context, error, stackTrace) {
-                                  return const Center(
-                                    child: Icon(
-                                      Icons.broken_image_outlined,
-                                      color: Colors.white54,
-                                      size: 64,
-                                    ),
-                                  );
-                                },
-                              ),
+                            child: Stack(
+                              fit: StackFit.expand,
+                              children: [
+                                ImageFiltered(
+                                  imageFilter: ImageFilter.blur(
+                                    sigmaX: 22,
+                                    sigmaY: 22,
+                                  ),
+                                  child: Image.file(
+                                    File(widget.imagePath),
+                                    fit: BoxFit.cover,
+                                    color: Colors.black.withValues(alpha: 0.2),
+                                    colorBlendMode: BlendMode.darken,
+                                  ),
+                                ),
+                                Image.file(
+                                  File(widget.imagePath),
+                                  width: double.infinity,
+                                  fit: BoxFit.contain,
+                                  errorBuilder: (context, error, stackTrace) {
+                                    return const Center(
+                                      child: Icon(
+                                        Icons.broken_image_outlined,
+                                        color: Colors.white54,
+                                        size: 64,
+                                      ),
+                                    );
+                                  },
+                                ),
+                              ],
                             ),
                           ),
                         ),

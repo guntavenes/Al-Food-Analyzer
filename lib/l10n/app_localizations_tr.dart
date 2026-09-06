@@ -136,11 +136,34 @@ class AppLocalizationsTr extends AppLocalizations {
       'Geçerli bir e-posta ve en az 8 karakterli bir şifre gir.';
 
   @override
+  String get invalidEmailMessage =>
+      'Geçerli bir e-posta adresi gir. Örnek: ad@outlook.com.';
+
+  @override
+  String get passwordTooShortMessage => 'Şifren en az 8 karakter olmalı.';
+
+  @override
+  String get emailAlreadyRegisteredMessage =>
+      'Bu e-posta ile zaten bir hesap var. Giriş yapmayı dene.';
+
+  @override
+  String get invalidLoginMessage => 'E-posta veya şifre hatalı.';
+
+  @override
+  String get authGenericErrorMessage =>
+      'İşlem tamamlanamadı. Lütfen tekrar dene.';
+
+  @override
   String get checkEmailMessage =>
       'Hesabını doğrulamak için e-postanı kontrol et, ardından giriş yap.';
 
   @override
   String get resendConfirmation => 'Doğrulama e-postasını yeniden gönder';
+
+  @override
+  String resendConfirmationCountdown(int seconds) {
+    return 'Tekrar gönder ($seconds sn)';
+  }
 
   @override
   String get confirmationResent => 'Yeni doğrulama e-postası gönderildi.';
@@ -208,6 +231,18 @@ class AppLocalizationsTr extends AppLocalizations {
   String get signOutFailed => 'Çıkış yapılamadı. Lütfen tekrar dene.';
 
   @override
+  String get premiumMember => 'Premium üye';
+
+  @override
+  String get freeMember => 'Ücretsiz plan';
+
+  @override
+  String get managePremium => 'Premium\'u yönet';
+
+  @override
+  String get upgradeToPremium => 'Premium\'a geç';
+
+  @override
   String get premiumTitle => 'Premium\'u aç';
 
   @override
@@ -243,6 +278,13 @@ class AppLocalizationsTr extends AppLocalizations {
   String get restorePurchases => 'Satın alımları geri yükle';
 
   @override
+  String get restorePurchasesDescription =>
+      'Bu Apple hesabıyla daha önce abone oldun mu? Yeniden ücret ödemeden erişimini geri yükle.';
+
+  @override
+  String get manageSubscription => 'Aboneliği yönet veya iptal et';
+
+  @override
   String get premiumPurchaseSuccess => 'Premium etkin';
 
   @override
@@ -254,6 +296,9 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get estimatedCalories => 'TAHMİNİ KALORİ';
+
+  @override
+  String get nutritionSummaryTitle => 'Besin değerleri';
 
   @override
   String calorieValue(int calories) {
@@ -433,4 +478,125 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get analysisNotFound => 'Bu kayıtlı analiz bulunamadı.';
+
+  @override
+  String get chooseFeatureTitle => 'Nasıl yardımcı olalım?';
+
+  @override
+  String get chooseFeatureDescription =>
+      'Yemeğini analiz et veya menüdeki seçenekler arasından daha dengeli olanı bul.';
+
+  @override
+  String get scanFoodTitle => 'Besin Tara';
+
+  @override
+  String get scanFoodDescription =>
+      'Tabağının kalori ve besin değerlerini öğren.';
+
+  @override
+  String get scanFoodSourceDescription =>
+      'Yemeğinin tamamı görünecek şekilde bir fotoğraf çek veya galeriden seç.';
+
+  @override
+  String get scanBarcode => 'Barkoddan tara';
+
+  @override
+  String get barcodeScanDescription =>
+      'Ürün barkodunu çerçevenin içine getir. Bulunduğunda birebir besin değerlerini göstereceğiz.';
+
+  @override
+  String get findingProduct => 'Ürün bulunuyor...';
+
+  @override
+  String get barcodeProductNotFound =>
+      'Bu barkodu bulamadık. Tekrar tarayabilir veya ürünü fotoğrafla analiz edebilirsin.';
+
+  @override
+  String get barcodeLookupFailed =>
+      'Ürün bilgisine şu anda ulaşılamıyor. Lütfen tekrar dene.';
+
+  @override
+  String get verifiedProduct => 'BARKOD EŞLEŞTİ';
+
+  @override
+  String get consumedAmount => 'Tüketilen miktar';
+
+  @override
+  String caloriesForAmount(int grams) {
+    return '$grams g için kalori';
+  }
+
+  @override
+  String dataSource(String source) {
+    return 'Kaynak: $source';
+  }
+
+  @override
+  String get scanAnotherBarcode => 'Başka barkod tara';
+
+  @override
+  String get enterBarcodeManually => 'Barkodu elle gir';
+
+  @override
+  String get enterBarcode => 'Barkod numarasını gir';
+
+  @override
+  String get barcodeHint => '8–14 haneli barkod';
+
+  @override
+  String get searchProduct => 'Ürünü bul';
+
+  @override
+  String get emailUnavailable => 'E-posta bilgisi yüklenemedi';
+
+  @override
+  String get menuScanTitle => 'Menüden Seç';
+
+  @override
+  String get menuScanDescription =>
+      'Menüyü tara, daha hafif ve dengeli seçenekleri karşılaştır.';
+
+  @override
+  String get menuScanIntroDescription =>
+      'Menünün net bir fotoğrafını çek. Okunabilen yemekleri kalori, içerik ve denge açısından karşılaştıracağız.';
+
+  @override
+  String get menuScanComingSoon => 'Menü analizi hazırlanıyor';
+
+  @override
+  String get menuScanHeroTitle => 'Menüdeki en iyi seçeneği bul';
+
+  @override
+  String get menuPhotoSheetTitle => 'Menüyü nasıl eklemek istersin?';
+
+  @override
+  String get menuPhotoSheetDescription =>
+      'Yemek adları ve açıklamaları net ve mümkünse tek karede görünsün.';
+
+  @override
+  String get scanMenuAction => 'Menüyü Tara';
+
+  @override
+  String get scanAnotherMenu => 'Başka Bir Menü Tara';
+
+  @override
+  String get analyzingMenu => 'Menü inceleniyor...';
+
+  @override
+  String get analyzingMenuDescription =>
+      'Seçenekleri kalori ve besin dengesi açısından karşılaştırıyoruz.';
+
+  @override
+  String get menuAnalysisFailed =>
+      'Menü analiz edilemedi. Yazıların net göründüğü bir fotoğrafla tekrar dene.';
+
+  @override
+  String get bestMenuChoice => 'En dengeli seçim';
+
+  @override
+  String get otherMenuOptions => 'Diğer seçenekler';
+
+  @override
+  String get menuEstimateDisclaimer =>
+      'Kalori ve sağlık puanları menü açıklamalarına dayalı tahminlerdir; gerçek içerik ve porsiyona göre değişebilir.';
 }

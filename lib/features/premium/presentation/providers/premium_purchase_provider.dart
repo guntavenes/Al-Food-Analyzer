@@ -14,6 +14,10 @@ final premiumPurchaseServiceProvider = Provider<PremiumPurchaseService>((ref) {
   );
 });
 
+final premiumEntitlementProvider = FutureProvider.autoDispose<bool>((ref) {
+  return ref.watch(premiumPurchaseServiceProvider).loadPremiumStatus();
+});
+
 class PremiumPurchaseState {
   const PremiumPurchaseState({
     this.plans = const [],
@@ -92,6 +96,14 @@ class PremiumPurchaseController extends Notifier<PremiumPurchaseState> {
     }
   }
 
+  Future<void> manageSubscription() async {
+    try {
+      await _service.manageSubscription();
+    } catch (error) {
+      state = state.copyWith(errorMessage: _message(error));
+    }
+  }
+
   Future<void> restore() async {
     if (state.isPurchasing) return;
     state = state.copyWith(isPurchasing: true, clearError: true);
@@ -131,6 +143,7 @@ class PremiumPurchaseController extends Notifier<PremiumPurchaseState> {
             isPremium: true,
             clearError: true,
           );
+          ref.invalidate(premiumEntitlementProvider);
         } catch (error) {
           state = state.copyWith(
             isPurchasing: false,
