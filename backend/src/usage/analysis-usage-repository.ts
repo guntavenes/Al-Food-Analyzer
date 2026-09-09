@@ -1,7 +1,13 @@
 export interface AnalysisUsageRepository {
   claimAnalysis(userId: string, requestId: string): Promise<void>;
   releaseAnalysis(userId: string, requestId: string): Promise<void>;
-  activatePremium?(userId: string, premiumUntil: Date, transactionId: string): Promise<void>;
+  activatePremium?(
+    userId: string,
+    premiumUntil: Date,
+    transactionId: string,
+    originalTransactionId?: string,
+    productId?: string
+  ): Promise<void>;
   applyAppleSubscriptionEvent?(event: AppleSubscriptionEvent): Promise<void>;
   getPremiumEntitlement?(userId: string): Promise<PremiumEntitlement>;
 }

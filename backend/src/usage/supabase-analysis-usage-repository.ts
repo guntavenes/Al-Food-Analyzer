@@ -63,7 +63,13 @@ export class SupabaseAnalysisUsageRepository implements AnalysisUsageRepository 
     }
   }
 
-  async activatePremium(userId: string, premiumUntil: Date, transactionId: string): Promise<void> {
+  async activatePremium(
+    userId: string,
+    premiumUntil: Date,
+    transactionId: string,
+    originalTransactionId?: string,
+    productId?: string
+  ): Promise<void> {
     const response = await fetch(`${this.claimEndpoint.replace('/rpc/claim_analysis_entitlement', '/user_entitlements')}?on_conflict=user_id`, {
       method: 'POST',
       headers: {
@@ -76,6 +82,9 @@ export class SupabaseAnalysisUsageRepository implements AnalysisUsageRepository 
         premium_until: premiumUntil.toISOString(),
         premium_source: 'apple',
         premium_transaction_id: transactionId,
+        apple_original_transaction_id: originalTransactionId,
+        apple_product_id: productId,
+        subscription_status: 'active',
         updated_at: new Date().toISOString()
       })
     });

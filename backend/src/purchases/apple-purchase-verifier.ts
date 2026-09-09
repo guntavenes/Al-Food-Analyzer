@@ -10,6 +10,7 @@ const supportedProducts = new Set([
 export type VerifiedApplePurchase = {
   productId: string;
   transactionId: string;
+  originalTransactionId: string;
   expiresAt: Date;
 };
 
@@ -45,18 +46,22 @@ export class ApplePurchaseVerifier implements ApplePurchaseVerifying, AppleNotif
       }
     }
 
-    const { productId, transactionId, expiresDate, revocationDate } = transaction;
-    if (!productId || !supportedProducts.has(productId) || !transactionId || !expiresDate || revocationDate) {
+    const { productId, transactionId, originalTransactionId, expiresDate, revocationDate } = transaction;
+    if (!productId || !supportedProducts.has(productId) || !transactionId ||
+        !originalTransactionId || !expiresDate || revocationDate) {
       throw new AppError('PURCHASE_INVALID', 'The App Store purchase is not valid for this app.', 400);
     }
-    if (transaction.appAccountToken !== userId) {
+    // Purchases made before account tokens were introduced do not have one.
+    // They can be safely bound on first restore because originalTransactionId
+    // is uniquely owned by one app account in the entitlement table.
+    if (transaction.appAccountToken && transaction.appAccountToken !== userId) {
       throw new AppError('PURCHASE_INVALID', 'The App Store purchase belongs to another account.', 403);
     }
     const expiresAt = new Date(expiresDate);
     if (expiresAt.getTime() <= Date.now()) {
       throw new AppError('PURCHASE_EXPIRED', 'The App Store subscription has expired.', 409);
     }
-    return { productId, transactionId, expiresAt };
+    return { productId, transactionId, originalTransactionId, expiresAt };
   }
 
   async verifyNotification(signedPayload: string): Promise<AppleSubscriptionEvent | null> {

@@ -95,38 +95,41 @@ class _PremiumActionButtonState extends State<PremiumActionButton> {
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 18),
                   child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Container(
+                      SizedBox(
                         width: 38,
-                        height: 38,
-                        decoration: BoxDecoration(
-                          color: foreground.withValues(alpha: 0.14),
-                          borderRadius: BorderRadius.circular(13),
-                          border: Border.all(
-                            color: widget.secondary
-                                ? colors.outlineVariant.withValues(alpha: 0.5)
-                                : AppColors.champagneLight.withValues(
-                                    alpha: 0.32,
-                                  ),
+                        child: Container(
+                          width: 38,
+                          height: 38,
+                          decoration: BoxDecoration(
+                            color: foreground.withValues(alpha: 0.14),
+                            borderRadius: BorderRadius.circular(13),
+                            border: Border.all(
+                              color: widget.secondary
+                                  ? colors.outlineVariant.withValues(alpha: 0.5)
+                                  : AppColors.champagneLight.withValues(
+                                      alpha: 0.32,
+                                    ),
+                            ),
                           ),
+                          child: widget.loading
+                              ? Padding(
+                                  padding: const EdgeInsets.all(10),
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2.2,
+                                    color: foreground,
+                                  ),
+                                )
+                              : Icon(widget.icon, color: foreground, size: 21),
                         ),
-                        child: widget.loading
-                            ? Padding(
-                                padding: const EdgeInsets.all(10),
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2.2,
-                                  color: foreground,
-                                ),
-                              )
-                            : Icon(widget.icon, color: foreground, size: 21),
                       ),
-                      const SizedBox(width: 13),
-                      Flexible(
+                      const SizedBox(width: 8),
+                      Expanded(
                         child: Text(
                           widget.label,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
+                          textAlign: TextAlign.center,
                           style: theme.textTheme.titleMedium?.copyWith(
                             color: foreground,
                             fontWeight: FontWeight.w800,
@@ -134,11 +137,17 @@ class _PremiumActionButtonState extends State<PremiumActionButton> {
                           ),
                         ),
                       ),
-                      const SizedBox(width: 12),
-                      Icon(
-                        Icons.arrow_forward_rounded,
-                        color: foreground.withValues(alpha: 0.76),
-                        size: 19,
+                      const SizedBox(width: 8),
+                      SizedBox(
+                        width: 38,
+                        child: Align(
+                          alignment: Alignment.centerRight,
+                          child: Icon(
+                            Icons.arrow_forward_rounded,
+                            color: foreground.withValues(alpha: 0.76),
+                            size: 19,
+                          ),
+                        ),
                       ),
                     ],
                   ),

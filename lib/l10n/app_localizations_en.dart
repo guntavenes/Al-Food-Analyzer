@@ -157,7 +157,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get checkEmailMessage =>
-      'Check your email to confirm your account, then sign in.';
+      'We sent a confirmation email. Check your inbox and spam folder, then sign in.';
 
   @override
   String get resendConfirmation => 'Send confirmation email again';
@@ -168,7 +168,8 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get confirmationResent => 'A new confirmation email was sent.';
+  String get confirmationResent =>
+      'A new confirmation email was sent. Check your spam folder if it is not in your inbox.';
 
   @override
   String get forgotPassword => 'Forgot password?';

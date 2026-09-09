@@ -155,7 +155,7 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get checkEmailMessage =>
-      'Hesabını doğrulamak için e-postanı kontrol et, ardından giriş yap.';
+      'Doğrulama e-postası gönderildi. Gelen kutunu ve spam klasörünü kontrol et, ardından giriş yap.';
 
   @override
   String get resendConfirmation => 'Doğrulama e-postasını yeniden gönder';
@@ -166,7 +166,8 @@ class AppLocalizationsTr extends AppLocalizations {
   }
 
   @override
-  String get confirmationResent => 'Yeni doğrulama e-postası gönderildi.';
+  String get confirmationResent =>
+      'Yeni doğrulama e-postası gönderildi. Gelen kutunda göremezsen spam klasörünü kontrol et.';
 
   @override
   String get forgotPassword => 'Şifreni mi unuttun?';

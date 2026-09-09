@@ -269,6 +269,7 @@ class TestApplePurchaseVerifier implements ApplePurchaseVerifying {
     return {
       productId: 'com.enesguntav.aifood.premium.monthly',
       transactionId: 'test-transaction-id',
+      originalTransactionId: 'test-original-transaction-id',
       expiresAt: new Date('2030-01-01T00:00:00.000Z')
     };
   }

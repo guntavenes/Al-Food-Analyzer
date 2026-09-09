@@ -359,7 +359,7 @@ abstract class AppLocalizations {
   /// No description provided for @checkEmailMessage.
   ///
   /// In en, this message translates to:
-  /// **'Check your email to confirm your account, then sign in.'**
+  /// **'We sent a confirmation email. Check your inbox and spam folder, then sign in.'**
   String get checkEmailMessage;
 
   /// No description provided for @resendConfirmation.
@@ -377,7 +377,7 @@ abstract class AppLocalizations {
   /// No description provided for @confirmationResent.
   ///
   /// In en, this message translates to:
-  /// **'A new confirmation email was sent.'**
+  /// **'A new confirmation email was sent. Check your spam folder if it is not in your inbox.'**
   String get confirmationResent;
 
   /// No description provided for @forgotPassword.

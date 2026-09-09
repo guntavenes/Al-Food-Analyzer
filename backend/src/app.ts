@@ -114,7 +114,13 @@ export function createApp(config: AppConfig, dependencies: AppDependencies = {})
         }
         const input = z.object({ signedTransaction: z.string().min(20) }).parse(request.body);
         const purchase = await applePurchaseVerifier.verify(input.signedTransaction, request.auth!.userId);
-        await usageRepository.activatePremium(request.auth!.userId, purchase.expiresAt, purchase.transactionId);
+        await usageRepository.activatePremium(
+          request.auth!.userId,
+          purchase.expiresAt,
+          purchase.transactionId,
+          purchase.originalTransactionId,
+          purchase.productId
+        );
         response.json({
           productId: purchase.productId,
           transactionId: purchase.transactionId,

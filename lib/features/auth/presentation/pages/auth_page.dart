@@ -36,6 +36,9 @@ class _AuthPageState extends State<AuthPage> {
   }
 
   Future<void> _submit() async {
+    if (_isLoading || (_awaitingEmailConfirmation && _resendSeconds > 0)) {
+      return;
+    }
     final l10n = AppLocalizations.of(context);
     final email = _emailController.text.trim();
     final password = _passwordController.text;
@@ -242,7 +245,11 @@ class _AuthPageState extends State<AuthPage> {
                       icon: _isSignUp
                           ? Icons.person_add_alt_1_rounded
                           : Icons.login_rounded,
-                      onPressed: _isLoading ? null : _submit,
+                      onPressed:
+                          _isLoading ||
+                              (_awaitingEmailConfirmation && _resendSeconds > 0)
+                          ? null
+                          : _submit,
                       loading: _isLoading,
                     ),
                     const SizedBox(height: 12),

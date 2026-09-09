@@ -122,19 +122,16 @@ class PremiumPage extends ConsumerWidget {
                         ),
                       ),
                     ),
-                  TextButton(
+                  TextButton.icon(
                     onPressed: purchaseState.isPurchasing
                         ? null
                         : () => ref
                               .read(premiumPurchaseProvider.notifier)
                               .restore(),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Icon(Icons.restore_rounded, size: 19),
-                        const SizedBox(width: 8),
-                        Text(l10n.restorePurchases),
-                      ],
+                    icon: const Icon(Icons.restore_rounded, size: 19),
+                    label: Text(
+                      l10n.restorePurchases,
+                      textAlign: TextAlign.center,
                     ),
                   ),
                   Padding(
@@ -250,7 +247,10 @@ class _PurchaseError extends StatelessWidget {
       children: [
         Text(message, textAlign: TextAlign.center),
         const SizedBox(height: 8),
-        TextButton(onPressed: onRetry, child: const Text('Try again')),
+        TextButton(
+          onPressed: onRetry,
+          child: Text(AppLocalizations.of(context).tryAgain),
+        ),
       ],
     );
   }
