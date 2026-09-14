@@ -14,7 +14,10 @@ class AppLocaleController extends AsyncNotifier<Locale> {
   @override
   Future<Locale> build() async {
     final saved = await ref.read(localePreferencesProvider).load();
-    return Locale(saved ?? 'en');
+    if (saved != null) return Locale(saved);
+    final deviceLanguage =
+        WidgetsBinding.instance.platformDispatcher.locale.languageCode;
+    return Locale(deviceLanguage == 'tr' ? 'tr' : 'en');
   }
 
   Future<void> setLocale(Locale locale) async {

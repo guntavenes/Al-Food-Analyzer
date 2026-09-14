@@ -110,6 +110,90 @@ abstract class AppLocalizations {
   /// **'Language'**
   String get languageTitle;
 
+  /// No description provided for @continueWithApple.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue with Apple'**
+  String get continueWithApple;
+
+  /// No description provided for @continueWithGoogle.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue with Google'**
+  String get continueWithGoogle;
+
+  /// No description provided for @orContinueWithEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'or continue with email'**
+  String get orContinueWithEmail;
+
+  /// No description provided for @skip.
+  ///
+  /// In en, this message translates to:
+  /// **'Skip'**
+  String get skip;
+
+  /// No description provided for @next.
+  ///
+  /// In en, this message translates to:
+  /// **'Next'**
+  String get next;
+
+  /// No description provided for @getStarted.
+  ///
+  /// In en, this message translates to:
+  /// **'Get started'**
+  String get getStarted;
+
+  /// No description provided for @onboardingScanTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Analyze your meal in seconds'**
+  String get onboardingScanTitle;
+
+  /// No description provided for @onboardingScanDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Take a photo or choose one from your library and let AI prepare nutrition and calorie details.'**
+  String get onboardingScanDescription;
+
+  /// No description provided for @onboardingHistoryTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your analyses stay in History'**
+  String get onboardingHistoryTitle;
+
+  /// No description provided for @onboardingHistoryDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Use the History icon at the top right to revisit your saved meals at any time.'**
+  String get onboardingHistoryDescription;
+
+  /// No description provided for @onboardingPersonalizeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage your language and account'**
+  String get onboardingPersonalizeTitle;
+
+  /// No description provided for @onboardingPersonalizeDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose English or Turkish from the language icon and manage Premium from your account.'**
+  String get onboardingPersonalizeDescription;
+
+  /// No description provided for @showAppTour.
+  ///
+  /// In en, this message translates to:
+  /// **'Show app tour'**
+  String get showAppTour;
+
+  /// No description provided for @freeAnalysesRemaining.
+  ///
+  /// In en, this message translates to:
+  /// **'Free analyses remaining: {count}'**
+  String freeAnalysesRemaining(int count);
+
   /// English language option
   ///
   /// In en, this message translates to:

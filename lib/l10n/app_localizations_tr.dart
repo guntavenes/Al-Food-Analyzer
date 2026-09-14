@@ -15,6 +15,53 @@ class AppLocalizationsTr extends AppLocalizations {
   String get languageTitle => 'Dil';
 
   @override
+  String get continueWithApple => 'Apple ile devam et';
+
+  @override
+  String get continueWithGoogle => 'Google ile devam et';
+
+  @override
+  String get orContinueWithEmail => 'veya e-posta ile';
+
+  @override
+  String get skip => 'Atla';
+
+  @override
+  String get next => 'İleri';
+
+  @override
+  String get getStarted => 'Başlayalım';
+
+  @override
+  String get onboardingScanTitle => 'Yemeğini saniyeler içinde analiz et';
+
+  @override
+  String get onboardingScanDescription =>
+      'Fotoğraf çek veya galeriden seç; yapay zekâ besin ve kalori bilgilerini senin için hazırlasın.';
+
+  @override
+  String get onboardingHistoryTitle => 'Analizlerin Geçmiş\'te saklanır';
+
+  @override
+  String get onboardingHistoryDescription =>
+      'Sağ üstteki geçmiş simgesinden kaydettiğin öğünlere istediğin zaman yeniden ulaşabilirsin.';
+
+  @override
+  String get onboardingPersonalizeTitle => 'Dilini ve hesabını yönet';
+
+  @override
+  String get onboardingPersonalizeDescription =>
+      'Sağ üstteki dil simgesinden Türkçe veya İngilizceyi seç; hesap alanından Premium ve üyelik bilgilerine ulaş.';
+
+  @override
+  String get showAppTour => 'Uygulama turunu göster';
+
+  @override
+  String freeAnalysesRemaining(int count) {
+    return 'Kalan ücretsiz analiz: $count';
+  }
+
+  @override
   String get englishLanguage => 'English';
 
   @override

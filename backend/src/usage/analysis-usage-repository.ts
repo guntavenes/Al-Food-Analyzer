@@ -14,6 +14,7 @@ export interface AnalysisUsageRepository {
 
 export type PremiumEntitlement = {
   isPremium: boolean;
+  freeAnalysesUsed: number;
   premiumUntil: Date | null;
   status: string;
   autoRenewEnabled: boolean | null;

@@ -121,13 +121,14 @@ export class SupabaseAnalysisUsageRepository implements AnalysisUsageRepository 
   async getPremiumEntitlement(userId: string): Promise<PremiumEntitlement> {
     const endpoint = this.claimEndpoint.replace('/rpc/claim_analysis_entitlement', '/user_entitlements');
     const response = await fetch(
-      `${endpoint}?user_id=eq.${encodeURIComponent(userId)}&select=premium_until,subscription_status,auto_renew_enabled`,
+      `${endpoint}?user_id=eq.${encodeURIComponent(userId)}&select=free_analyses_used,premium_until,subscription_status,auto_renew_enabled`,
       { headers: { apikey: this.secretKey } }
     );
     if (!response.ok) {
       throw new AppError('SERVICE_UNAVAILABLE', 'Premium status could not be loaded.', 503);
     }
     const rows = await response.json() as Array<{
+      free_analyses_used: number;
       premium_until: string | null;
       subscription_status?: string;
       auto_renew_enabled?: boolean | null;
@@ -136,6 +137,7 @@ export class SupabaseAnalysisUsageRepository implements AnalysisUsageRepository 
     const premiumUntil = row?.premium_until ? new Date(row.premium_until) : null;
     return {
       isPremium: premiumUntil != null && premiumUntil.getTime() > Date.now(),
+      freeAnalysesUsed: row?.free_analyses_used ?? 0,
       premiumUntil,
       status: row?.subscription_status ?? 'inactive',
       autoRenewEnabled: row?.auto_renew_enabled ?? null

@@ -14,8 +14,12 @@ final premiumPurchaseServiceProvider = Provider<PremiumPurchaseService>((ref) {
   );
 });
 
-final premiumEntitlementProvider = FutureProvider.autoDispose<bool>((ref) {
-  return ref.watch(premiumPurchaseServiceProvider).loadPremiumStatus();
+final accountEntitlementProvider = FutureProvider<AccountEntitlement>((ref) {
+  return ref.watch(premiumPurchaseServiceProvider).loadAccountEntitlement();
+});
+
+final premiumEntitlementProvider = FutureProvider<bool>((ref) async {
+  return (await ref.watch(accountEntitlementProvider.future)).isPremium;
 });
 
 class PremiumPurchaseState {
@@ -52,10 +56,9 @@ class PremiumPurchaseState {
 }
 
 final premiumPurchaseProvider =
-    NotifierProvider.autoDispose<
-      PremiumPurchaseController,
-      PremiumPurchaseState
-    >(PremiumPurchaseController.new);
+    NotifierProvider<PremiumPurchaseController, PremiumPurchaseState>(
+      PremiumPurchaseController.new,
+    );
 
 class PremiumPurchaseController extends Notifier<PremiumPurchaseState> {
   StreamSubscription<List<PurchaseDetails>>? _subscription;
@@ -68,6 +71,7 @@ class PremiumPurchaseController extends Notifier<PremiumPurchaseState> {
     _subscription = _service.purchaseUpdates.listen(_handlePurchases);
     ref.onDispose(() => _subscription?.cancel());
     Future<void>.microtask(loadPlans);
+    Future<void>.microtask(refreshStatus);
     return const PremiumPurchaseState();
   }
 
@@ -109,11 +113,25 @@ class PremiumPurchaseController extends Notifier<PremiumPurchaseState> {
     state = state.copyWith(isPurchasing: true, clearError: true);
     try {
       await _service.restore();
+      await Future<void>.delayed(const Duration(milliseconds: 800));
+      await refreshStatus();
+      if (state.isPurchasing) state = state.copyWith(isPurchasing: false);
     } catch (error) {
       state = state.copyWith(
         isPurchasing: false,
         errorMessage: _message(error),
       );
+    }
+  }
+
+  Future<void> refreshStatus() async {
+    try {
+      final entitlement = await _service.loadAccountEntitlement();
+      state = state.copyWith(isPremium: entitlement.isPremium);
+      ref.invalidate(accountEntitlementProvider);
+      ref.invalidate(premiumEntitlementProvider);
+    } catch (_) {
+      // Preserve the last known entitlement while offline; resume retries it.
     }
   }
 
@@ -144,6 +162,7 @@ class PremiumPurchaseController extends Notifier<PremiumPurchaseState> {
             clearError: true,
           );
           ref.invalidate(premiumEntitlementProvider);
+          ref.invalidate(accountEntitlementProvider);
         } catch (error) {
           state = state.copyWith(
             isPurchasing: false,

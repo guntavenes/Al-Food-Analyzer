@@ -77,13 +77,24 @@ class PremiumPurchaseService {
   Future<void> restore() => _store.restorePurchases();
 
   Future<bool> loadPremiumStatus() async {
+    return (await loadAccountEntitlement()).isPremium;
+  }
+
+  Future<AccountEntitlement> loadAccountEntitlement() async {
     final token = await _accessTokenProvider.getAccessToken();
-    if (token == null) return false;
+    if (token == null) return const AccountEntitlement();
     final response = await _dio.get<Map<String, dynamic>>(
       '/v1/account/entitlement',
       options: Options(headers: {'Authorization': 'Bearer $token'}),
     );
-    return response.data?['isPremium'] == true;
+    final data = response.data;
+    return AccountEntitlement(
+      isPremium: data?['isPremium'] == true,
+      freeAnalysesUsed: data?['freeAnalysesUsed'] as int? ?? 0,
+      freeAnalysesLimit: data?['freeAnalysesLimit'] as int? ?? 1,
+      premiumUntil: DateTime.tryParse(data?['premiumUntil'] as String? ?? ''),
+      serverTime: DateTime.tryParse(data?['serverTime'] as String? ?? ''),
+    );
   }
 
   Future<void> manageSubscription() async {
@@ -114,6 +125,25 @@ class PremiumPurchaseService {
       await _store.completePurchase(purchase);
     }
   }
+}
+
+class AccountEntitlement {
+  const AccountEntitlement({
+    this.isPremium = false,
+    this.freeAnalysesUsed = 0,
+    this.freeAnalysesLimit = 1,
+    this.premiumUntil,
+    this.serverTime,
+  });
+
+  final bool isPremium;
+  final int freeAnalysesUsed;
+  final int freeAnalysesLimit;
+  final DateTime? premiumUntil;
+  final DateTime? serverTime;
+
+  int get freeAnalysesRemaining =>
+      (freeAnalysesLimit - freeAnalysesUsed).clamp(0, freeAnalysesLimit);
 }
 
 class PremiumPurchaseException implements Exception {

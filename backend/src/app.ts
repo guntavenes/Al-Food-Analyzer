@@ -99,6 +99,9 @@ export function createApp(config: AppConfig, dependencies: AppDependencies = {})
         const entitlement = await usageRepository.getPremiumEntitlement(request.auth!.userId);
         response.json({
           isPremium: entitlement.isPremium,
+          freeAnalysesUsed: entitlement.freeAnalysesUsed,
+          freeAnalysesLimit: 1,
+          serverTime: new Date().toISOString(),
           premiumUntil: entitlement.premiumUntil?.toISOString() ?? null,
           status: entitlement.status,
           autoRenewEnabled: entitlement.autoRenewEnabled

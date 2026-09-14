@@ -118,10 +118,15 @@ class _HomePageState extends ConsumerState<HomePage> {
 
   Future<void> _openAccount() async {
     final l10n = AppLocalizations.of(context);
-    final isPremium = ref.read(premiumEntitlementProvider).value ?? false;
-    final email = AppConfig.isSupabaseConfigured
-        ? Supabase.instance.client.auth.currentUser?.email ?? ''
-        : '';
+    final entitlement = ref.read(accountEntitlementProvider).value;
+    final isPremium = entitlement?.isPremium ?? false;
+    final user = AppConfig.isSupabaseConfigured
+        ? Supabase.instance.client.auth.currentUser
+        : null;
+    final email = user?.email ??
+        (user?.userMetadata?['email'] as String?) ??
+        (user?.userMetadata?['preferred_email'] as String?) ??
+        '';
     final action = await showModalBottomSheet<String>(
       context: context,
       showDragHandle: true,
@@ -185,6 +190,14 @@ class _HomePageState extends ConsumerState<HomePage> {
                 ],
               ),
             ),
+            if (!isPremium && entitlement != null) ...[
+              const SizedBox(height: 10),
+              Text(
+                l10n.freeAnalysesRemaining(entitlement.freeAnalysesRemaining),
+                textAlign: TextAlign.center,
+                style: Theme.of(sheetContext).textTheme.bodySmall,
+              ),
+            ],
             const SizedBox(height: 22),
             SizedBox(
               width: double.infinity,
@@ -210,6 +223,15 @@ class _HomePageState extends ConsumerState<HomePage> {
             const SizedBox(height: 10),
             SizedBox(
               width: double.infinity,
+              height: 48,
+              child: TextButton.icon(
+                onPressed: () => Navigator.of(sheetContext).pop('tour'),
+                icon: const Icon(Icons.school_outlined),
+                label: Text(l10n.showAppTour),
+              ),
+            ),
+            SizedBox(
+              width: double.infinity,
               height: 50,
               child: OutlinedButton.icon(
                 style: OutlinedButton.styleFrom(
@@ -233,6 +255,9 @@ class _HomePageState extends ConsumerState<HomePage> {
     if (action == 'premium') {
       await context.push(AppRoutes.premium);
       ref.invalidate(premiumEntitlementProvider);
+      ref.invalidate(accountEntitlementProvider);
+    } else if (action == 'tour') {
+      await context.push(AppRoutes.onboarding);
     } else if (action == 'signOut') {
       await _confirmSignOut();
     }
@@ -287,7 +312,9 @@ class _HomePageState extends ConsumerState<HomePage> {
               child: LayoutBuilder(
                 builder: (context, constraints) {
                   return SingleChildScrollView(
-                    padding: const EdgeInsets.fromLTRB(28, 28, 28, 24),
+                    // Leave a little more breathing room below the system/status
+                    // area so the brand mark does not compete with the top actions.
+                    padding: const EdgeInsets.fromLTRB(28, 48, 28, 24),
                     child: ConstrainedBox(
                       constraints: BoxConstraints(
                         minHeight: constraints.maxHeight - 52,
@@ -402,16 +429,34 @@ class _HomePageState extends ConsumerState<HomePage> {
                           ),
                         ];
                       },
-                      icon: const Icon(Icons.language_rounded),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 10,
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(Icons.language_rounded, size: 20),
+                            const SizedBox(width: 5),
+                            Text(l10n.languageTitle),
+                          ],
+                        ),
+                      ),
                     ),
                     IconButton.filledTonal(
-                      tooltip: l10n.historyTitle,
                       onPressed: _isOpeningHistory ? null : _openHistory,
-                      style: IconButton.styleFrom(
+                      tooltip: l10n.historyTitle,
+                      style: TextButton.styleFrom(
                         backgroundColor: colors.surface.withValues(alpha: 0.78),
                         foregroundColor: colors.onSurface,
                       ),
-                      icon: const Icon(Icons.history_rounded),
+                      icon: _isOpeningHistory
+                          ? const SizedBox.square(
+                              dimension: 18,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            )
+                          : const Icon(Icons.history_rounded, size: 20),
                     ),
                     const SizedBox(width: 6),
                     IconButton.filledTonal(

@@ -9,6 +9,7 @@ import 'package:ai_food_analyzer/features/history/presentation/pages/history_pag
 import 'package:ai_food_analyzer/features/history/presentation/pages/saved_analysis_detail_page.dart';
 import 'package:ai_food_analyzer/features/home/presentation/pages/home_page.dart';
 import 'package:ai_food_analyzer/features/menu_scan/presentation/pages/menu_scan_page.dart';
+import 'package:ai_food_analyzer/features/onboarding/presentation/pages/onboarding_page.dart';
 import 'package:ai_food_analyzer/features/premium/presentation/pages/premium_page.dart';
 import 'package:ai_food_analyzer/features/splash/presentation/pages/splash_page.dart';
 import 'package:flutter/material.dart';
@@ -19,6 +20,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
   final router = GoRouter(
     initialLocation: AppRoutes.splash,
     routes: [
+      GoRoute(
+        path: AppRoutes.onboarding,
+        pageBuilder: (context, state) =>
+            _premiumPage(state: state, child: const OnboardingPage()),
+      ),
       GoRoute(
         path: AppRoutes.barcodeScan,
         pageBuilder: (context, state) =>
@@ -146,6 +152,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
 });
 
 abstract final class AppRoutes {
+  static const onboarding = '/onboarding';
   static const splash = '/splash';
   static const auth = '/auth';
   static const forgotPassword = '/forgot-password';

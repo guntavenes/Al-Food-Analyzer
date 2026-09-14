@@ -1,10 +1,12 @@
 import 'dart:async';
 
 import 'package:ai_food_analyzer/core/router/app_router.dart';
+import 'package:ai_food_analyzer/core/config/app_config.dart';
 import 'package:ai_food_analyzer/core/widgets/premium_action_button.dart';
 import 'package:ai_food_analyzer/core/widgets/premium_screen_background.dart';
 import 'package:ai_food_analyzer/features/auth/domain/auth_input_validator.dart';
 import 'package:ai_food_analyzer/l10n/app_localizations.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -111,6 +113,41 @@ class _AuthPageState extends State<AuthPage> {
     }
   }
 
+  Future<void> _socialSignIn(OAuthProvider provider) async {
+    if (_isLoading) return;
+    if (!AppConfig.isSupabaseConfigured) {
+      if (mounted) {
+        _setMessage(
+          'Giriş sağlayıcısı henüz yapılandırılmadı. Uygulamayı Supabase ayarlarıyla yeniden başlatın.',
+          _AuthMessageType.error,
+        );
+      }
+      return;
+    }
+    setState(() {
+      _isLoading = true;
+      _message = null;
+    });
+    try {
+      final auth = Supabase.instance.client.auth;
+      if (auth.currentUser?.isAnonymous == true) await auth.signOut();
+      await auth.signInWithOAuth(
+        provider,
+        redirectTo: 'aifoodanalyzer://login-callback',
+        authScreenLaunchMode: LaunchMode.externalApplication,
+      );
+    } on AuthException catch (error) {
+      if (mounted) {
+        _setMessage(
+          _authErrorMessage(error, AppLocalizations.of(context)),
+          _AuthMessageType.error,
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
   void _setMessage(String message, _AuthMessageType type) {
     if (!mounted) return;
     setState(() {
@@ -189,6 +226,35 @@ class _AuthPageState extends State<AuthPage> {
                       ),
                     ),
                     const SizedBox(height: 30),
+                    if (defaultTargetPlatform == TargetPlatform.iOS) ...[
+                      _SocialSignInButton(
+                        label: l10n.continueWithApple,
+                        icon: Icons.apple,
+                        onPressed: _isLoading
+                            ? null
+                            : () => _socialSignIn(OAuthProvider.apple),
+                      ),
+                      const SizedBox(height: 12),
+                    ],
+                    _SocialSignInButton(
+                      label: l10n.continueWithGoogle,
+                      icon: Icons.g_mobiledata_rounded,
+                      onPressed: _isLoading
+                          ? null
+                          : () => _socialSignIn(OAuthProvider.google),
+                    ),
+                    const SizedBox(height: 20),
+                    Row(
+                      children: [
+                        const Expanded(child: Divider()),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 12),
+                          child: Text(l10n.orContinueWithEmail),
+                        ),
+                        const Expanded(child: Divider()),
+                      ],
+                    ),
+                    const SizedBox(height: 20),
                     TextField(
                       controller: _emailController,
                       keyboardType: TextInputType.emailAddress,
@@ -275,6 +341,30 @@ class _AuthPageState extends State<AuthPage> {
             ),
           ),
         ),
+      ),
+    );
+  }
+}
+
+class _SocialSignInButton extends StatelessWidget {
+  const _SocialSignInButton({
+    required this.label,
+    required this.icon,
+    required this.onPressed,
+  });
+
+  final String label;
+  final IconData icon;
+  final VoidCallback? onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 54,
+      child: OutlinedButton.icon(
+        onPressed: onPressed,
+        icon: Icon(icon, size: 25),
+        label: Text(label, textAlign: TextAlign.center),
       ),
     );
   }

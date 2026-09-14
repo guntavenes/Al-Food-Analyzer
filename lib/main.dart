@@ -1,5 +1,6 @@
 import 'package:ai_food_analyzer/app/app.dart';
 import 'package:ai_food_analyzer/core/config/app_config.dart';
+import 'package:ai_food_analyzer/features/onboarding/data/onboarding_preferences.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -13,5 +14,6 @@ Future<void> main() async {
       publishableKey: AppConfig.supabasePublishableKey,
     );
   }
-  runApp(const ProviderScope(child: App()));
+  final showOnboarding = !await const OnboardingPreferences().isComplete();
+  runApp(ProviderScope(child: App(showOnboarding: showOnboarding)));
 }

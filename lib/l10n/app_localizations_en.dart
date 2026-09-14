@@ -15,6 +15,53 @@ class AppLocalizationsEn extends AppLocalizations {
   String get languageTitle => 'Language';
 
   @override
+  String get continueWithApple => 'Continue with Apple';
+
+  @override
+  String get continueWithGoogle => 'Continue with Google';
+
+  @override
+  String get orContinueWithEmail => 'or continue with email';
+
+  @override
+  String get skip => 'Skip';
+
+  @override
+  String get next => 'Next';
+
+  @override
+  String get getStarted => 'Get started';
+
+  @override
+  String get onboardingScanTitle => 'Analyze your meal in seconds';
+
+  @override
+  String get onboardingScanDescription =>
+      'Take a photo or choose one from your library and let AI prepare nutrition and calorie details.';
+
+  @override
+  String get onboardingHistoryTitle => 'Your analyses stay in History';
+
+  @override
+  String get onboardingHistoryDescription =>
+      'Use the History icon at the top right to revisit your saved meals at any time.';
+
+  @override
+  String get onboardingPersonalizeTitle => 'Manage your language and account';
+
+  @override
+  String get onboardingPersonalizeDescription =>
+      'Choose English or Turkish from the language icon and manage Premium from your account.';
+
+  @override
+  String get showAppTour => 'Show app tour';
+
+  @override
+  String freeAnalysesRemaining(int count) {
+    return 'Free analyses remaining: $count';
+  }
+
+  @override
   String get englishLanguage => 'English';
 
   @override

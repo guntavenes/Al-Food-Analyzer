@@ -257,6 +257,7 @@ class TestUsageRepository implements AnalysisUsageRepository {
   async getPremiumEntitlement() {
     return {
       isPremium: true,
+      freeAnalysesUsed: 1,
       premiumUntil: new Date('2030-01-01T00:00:00.000Z'),
       status: 'active',
       autoRenewEnabled: true
