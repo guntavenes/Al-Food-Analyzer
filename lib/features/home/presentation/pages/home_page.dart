@@ -1,8 +1,13 @@
 import 'package:ai_food_analyzer/core/config/app_config.dart';
 import 'package:ai_food_analyzer/core/localization/locale_providers.dart';
+import 'package:ai_food_analyzer/core/notifications/smart_notification_service.dart';
 import 'package:ai_food_analyzer/core/router/app_router.dart';
 import 'package:ai_food_analyzer/core/theme/app_colors.dart';
 import 'package:ai_food_analyzer/core/widgets/premium_action_button.dart';
+import 'package:ai_food_analyzer/features/history/presentation/providers/history_providers.dart';
+import 'package:ai_food_analyzer/features/nutrition_summary/data/wellness_preferences.dart';
+import 'package:ai_food_analyzer/features/nutrition_summary/domain/daily_nutrition_summary.dart';
+import 'package:ai_food_analyzer/features/nutrition_summary/presentation/providers/nutrition_summary_providers.dart';
 import 'package:ai_food_analyzer/features/premium/presentation/providers/premium_purchase_provider.dart';
 import 'package:ai_food_analyzer/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
@@ -21,6 +26,36 @@ class HomePage extends ConsumerStatefulWidget {
 class _HomePageState extends ConsumerState<HomePage> {
   bool _isOpeningHistory = false;
   bool _isSigningOut = false;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (!mounted) return;
+      final l10n = AppLocalizations.of(context);
+      final settings = await ref.read(wellnessSettingsProvider.future);
+      if (!settings.smartRemindersEnabled ||
+          !settings.weeklyInsightsEnabled ||
+          !mounted) {
+        return;
+      }
+      final analyses = await ref.read(analysisHistoryProvider.future);
+      await SmartNotificationService.instance.maybeShowWeeklyInsight(
+        analyses: analyses,
+        title: l10n.weeklyInsightTitle,
+        body: l10n.weeklyInsightBody,
+      );
+    });
+  }
+
+  Future<void> _openNutritionSummary() async {
+    final isPremium = ref.read(premiumEntitlementProvider).value ?? false;
+    if (!isPremium) {
+      await context.push(AppRoutes.premium);
+      return;
+    }
+    await context.push(AppRoutes.nutritionSummary);
+  }
 
   Future<void> _openHistory() async {
     if (_isOpeningHistory) return;
@@ -123,131 +158,237 @@ class _HomePageState extends ConsumerState<HomePage> {
     final user = AppConfig.isSupabaseConfigured
         ? Supabase.instance.client.auth.currentUser
         : null;
-    final email = user?.email ??
+    final email =
+        user?.email ??
         (user?.userMetadata?['email'] as String?) ??
         (user?.userMetadata?['preferred_email'] as String?) ??
         '';
+    final displayName =
+        (user?.userMetadata?['full_name'] as String?) ??
+        (user?.userMetadata?['name'] as String?) ??
+        '';
+    final avatarUrl =
+        (user?.userMetadata?['avatar_url'] as String?) ??
+        (user?.userMetadata?['picture'] as String?) ??
+        '';
+    final settings = await ref.read(wellnessSettingsProvider.future);
+    if (!mounted) return;
+    final remindersEnabled = settings.smartRemindersEnabled;
     final action = await showModalBottomSheet<String>(
       context: context,
       showDragHandle: true,
       useSafeArea: true,
       isScrollControlled: true,
-      builder: (sheetContext) => Padding(
-        padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            CircleAvatar(
-              radius: 30,
-              backgroundColor: isPremium
-                  ? AppColors.champagneLight
-                  : Theme.of(sheetContext).colorScheme.surfaceContainerHighest,
-              child: Icon(
-                isPremium
-                    ? Icons.workspace_premium_rounded
-                    : Icons.person_rounded,
-                color: isPremium
-                    ? AppColors.deepEmerald
-                    : Theme.of(sheetContext).colorScheme.onSurfaceVariant,
+      builder: (sheetContext) => StatefulBuilder(
+        builder: (sheetContext, setSheetState) => Padding(
+          padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(3),
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  gradient: isPremium
+                      ? const LinearGradient(
+                          colors: [
+                            AppColors.champagneLight,
+                            AppColors.champagne,
+                          ],
+                        )
+                      : null,
+                ),
+                child: CircleAvatar(
+                  radius: 34,
+                  backgroundColor: isPremium
+                      ? AppColors.champagneLight
+                      : Theme.of(
+                          sheetContext,
+                        ).colorScheme.surfaceContainerHighest,
+                  backgroundImage: avatarUrl.isNotEmpty
+                      ? NetworkImage(avatarUrl)
+                      : null,
+                  child: avatarUrl.isEmpty
+                      ? Icon(
+                          isPremium
+                              ? Icons.workspace_premium_rounded
+                              : Icons.person_rounded,
+                          color: isPremium
+                              ? AppColors.deepEmerald
+                              : Theme.of(
+                                  sheetContext,
+                                ).colorScheme.onSurfaceVariant,
+                        )
+                      : null,
+                ),
               ),
-            ),
-            const SizedBox(height: 14),
-            Text(
-              l10n.accountTitle,
-              style: Theme.of(
-                sheetContext,
-              ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w800),
-            ),
-            const SizedBox(height: 14),
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(14),
-              decoration: BoxDecoration(
-                color: Theme.of(
-                  sheetContext,
-                ).colorScheme.surfaceContainerHighest,
-                borderRadius: BorderRadius.circular(18),
-              ),
-              child: Row(
-                children: [
-                  const Icon(Icons.mail_outline_rounded, size: 21),
-                  const SizedBox(width: 11),
-                  Expanded(
-                    child: Text(
-                      email.isNotEmpty ? email : l10n.emailUnavailable,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(fontWeight: FontWeight.w600),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
-                    isPremium ? l10n.premiumMember : l10n.freeMember,
-                    style: const TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w800,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            if (!isPremium && entitlement != null) ...[
-              const SizedBox(height: 10),
+              const SizedBox(height: 12),
               Text(
-                l10n.freeAnalysesRemaining(entitlement.freeAnalysesRemaining),
-                textAlign: TextAlign.center,
-                style: Theme.of(sheetContext).textTheme.bodySmall,
+                displayName.isNotEmpty ? displayName : l10n.accountTitle,
+                style: Theme.of(sheetContext).textTheme.headlineSmall?.copyWith(
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+              if (isPremium) ...[
+                const SizedBox(height: 7),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 6,
+                  ),
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                      colors: [AppColors.champagneLight, AppColors.champagne],
+                    ),
+                    borderRadius: BorderRadius.circular(999),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(
+                        Icons.workspace_premium_rounded,
+                        size: 16,
+                        color: AppColors.deepEmerald,
+                      ),
+                      const SizedBox(width: 6),
+                      Text(
+                        l10n.premiumMember,
+                        style: const TextStyle(
+                          color: AppColors.deepEmerald,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w900,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+              const SizedBox(height: 14),
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(14),
+                decoration: BoxDecoration(
+                  color: Theme.of(
+                    sheetContext,
+                  ).colorScheme.surfaceContainerHighest,
+                  borderRadius: BorderRadius.circular(18),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(Icons.mail_outline_rounded, size: 21),
+                    const SizedBox(width: 11),
+                    Expanded(
+                      child: Text(
+                        email.isNotEmpty ? email : l10n.emailUnavailable,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(fontWeight: FontWeight.w600),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      isPremium ? l10n.premiumMember : l10n.freeMember,
+                      style: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              if (!isPremium && entitlement != null) ...[
+                const SizedBox(height: 10),
+                Text(
+                  l10n.freeAnalysesRemaining(entitlement.freeAnalysesRemaining),
+                  textAlign: TextAlign.center,
+                  style: Theme.of(sheetContext).textTheme.bodySmall,
+                ),
+              ],
+              const SizedBox(height: 12),
+              OutlinedButton.icon(
+                onPressed: () async {
+                  Navigator.of(sheetContext).pop();
+                  await _editNutritionGoals(settings);
+                },
+                icon: const Icon(Icons.track_changes_rounded),
+                label: Text(l10n.nutritionGoals),
+              ),
+              Container(
+                margin: const EdgeInsets.only(top: 14),
+                decoration: BoxDecoration(
+                  color: Theme.of(
+                    sheetContext,
+                  ).colorScheme.surfaceContainerHighest,
+                  borderRadius: BorderRadius.circular(18),
+                ),
+                child: ListTile(
+                  onTap: () async {
+                    Navigator.of(sheetContext).pop();
+                    await _editNotificationSettings(settings);
+                  },
+                  title: Text(
+                    l10n.smartReminders,
+                    style: const TextStyle(fontWeight: FontWeight.w800),
+                  ),
+                  subtitle: Text(
+                    remindersEnabled
+                        ? 'Açık · ${settings.reminderHour.toString().padLeft(2, '0')}:${settings.reminderMinute.toString().padLeft(2, '0')}'
+                        : 'Kapalı',
+                  ),
+                  leading: const Icon(Icons.notifications_active_outlined),
+                  trailing: const Icon(Icons.chevron_right_rounded),
+                ),
+              ),
+              const SizedBox(height: 22),
+              SizedBox(
+                width: double.infinity,
+                height: 54,
+                child: FilledButton.icon(
+                  style: FilledButton.styleFrom(
+                    backgroundColor: isPremium
+                        ? AppColors.deepEmerald
+                        : AppColors.emerald,
+                    foregroundColor: Colors.white,
+                  ),
+                  onPressed: () => Navigator.of(sheetContext).pop('premium'),
+                  icon: Icon(
+                    isPremium
+                        ? Icons.workspace_premium_outlined
+                        : Icons.auto_awesome_rounded,
+                  ),
+                  label: Text(
+                    isPremium ? l10n.managePremium : l10n.upgradeToPremium,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 10),
+              SizedBox(
+                width: double.infinity,
+                height: 48,
+                child: TextButton.icon(
+                  onPressed: () => Navigator.of(sheetContext).pop('tour'),
+                  icon: const Icon(Icons.school_outlined),
+                  label: Text(l10n.showAppTour),
+                ),
+              ),
+              SizedBox(
+                width: double.infinity,
+                height: 50,
+                child: OutlinedButton.icon(
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: Theme.of(sheetContext).colorScheme.error,
+                    side: BorderSide(
+                      color: Theme.of(
+                        sheetContext,
+                      ).colorScheme.error.withValues(alpha: 0.55),
+                    ),
+                  ),
+                  onPressed: () => Navigator.of(sheetContext).pop('signOut'),
+                  icon: const Icon(Icons.logout_rounded),
+                  label: Text(l10n.signOut),
+                ),
               ),
             ],
-            const SizedBox(height: 22),
-            SizedBox(
-              width: double.infinity,
-              height: 54,
-              child: FilledButton.icon(
-                style: FilledButton.styleFrom(
-                  backgroundColor: isPremium
-                      ? AppColors.deepEmerald
-                      : AppColors.emerald,
-                  foregroundColor: Colors.white,
-                ),
-                onPressed: () => Navigator.of(sheetContext).pop('premium'),
-                icon: Icon(
-                  isPremium
-                      ? Icons.workspace_premium_outlined
-                      : Icons.auto_awesome_rounded,
-                ),
-                label: Text(
-                  isPremium ? l10n.managePremium : l10n.upgradeToPremium,
-                ),
-              ),
-            ),
-            const SizedBox(height: 10),
-            SizedBox(
-              width: double.infinity,
-              height: 48,
-              child: TextButton.icon(
-                onPressed: () => Navigator.of(sheetContext).pop('tour'),
-                icon: const Icon(Icons.school_outlined),
-                label: Text(l10n.showAppTour),
-              ),
-            ),
-            SizedBox(
-              width: double.infinity,
-              height: 50,
-              child: OutlinedButton.icon(
-                style: OutlinedButton.styleFrom(
-                  foregroundColor: Theme.of(sheetContext).colorScheme.error,
-                  side: BorderSide(
-                    color: Theme.of(
-                      sheetContext,
-                    ).colorScheme.error.withValues(alpha: 0.55),
-                  ),
-                ),
-                onPressed: () => Navigator.of(sheetContext).pop('signOut'),
-                icon: const Icon(Icons.logout_rounded),
-                label: Text(l10n.signOut),
-              ),
-            ),
-          ],
+          ),
         ),
       ),
     );
@@ -263,6 +404,172 @@ class _HomePageState extends ConsumerState<HomePage> {
     }
   }
 
+  Future<void> _editNotificationSettings(WellnessSettings settings) async {
+    final l10n = AppLocalizations.of(context);
+    var time = TimeOfDay(
+      hour: settings.reminderHour,
+      minute: settings.reminderMinute,
+    );
+    var daily = settings.smartRemindersEnabled;
+    var weekly = settings.weeklyInsightsEnabled;
+    await showDialog<void>(
+      context: context,
+      builder: (dialogContext) => StatefulBuilder(
+        builder: (context, setState) => AlertDialog(
+          title: Text(l10n.smartReminders),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                contentPadding: EdgeInsets.zero,
+                leading: const Icon(Icons.schedule_rounded),
+                title: const Text('Bildirim saati'),
+                trailing: Text(
+                  time.format(context),
+                  style: const TextStyle(fontWeight: FontWeight.w800),
+                ),
+                onTap: () async {
+                  final picked = await showTimePicker(
+                    context: context,
+                    initialTime: time,
+                  );
+                  if (picked != null) setState(() => time = picked);
+                },
+              ),
+              SwitchListTile.adaptive(
+                contentPadding: EdgeInsets.zero,
+                value: daily,
+                onChanged: (value) => setState(() => daily = value),
+                title: const Text('Günlük hatırlatma'),
+              ),
+              SwitchListTile.adaptive(
+                contentPadding: EdgeInsets.zero,
+                value: weekly,
+                onChanged: (value) => setState(() => weekly = value),
+                title: const Text('Haftalık gelişim özeti'),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext),
+              child: Text(MaterialLocalizations.of(context).cancelButtonLabel),
+            ),
+            FilledButton(
+              onPressed: () async {
+                if (daily) {
+                  final granted = await SmartNotificationService.instance
+                      .enableDailyReminder(
+                        title: l10n.dailyReminderTitle,
+                        body: l10n.dailyReminderBody,
+                        hour: time.hour,
+                        minute: time.minute,
+                      );
+                  if (!granted && mounted) {
+                    ScaffoldMessenger.of(this.context).showSnackBar(
+                      SnackBar(
+                        content: Text(l10n.notificationsPermissionRequired),
+                      ),
+                    );
+                    return;
+                  }
+                } else {
+                  await SmartNotificationService.instance
+                      .disableDailyReminder();
+                }
+                final prefs = ref.read(wellnessPreferencesProvider);
+                await prefs.setSmartReminders(daily);
+                await prefs.saveNotificationSettings(
+                  hour: time.hour,
+                  minute: time.minute,
+                  weeklyInsights: weekly,
+                );
+                ref.invalidate(wellnessSettingsProvider);
+                if (dialogContext.mounted) Navigator.pop(dialogContext);
+              },
+              child: const Text('Kaydet'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _editNutritionGoals(WellnessSettings settings) async {
+    final l10n = AppLocalizations.of(context);
+    final caloriesController = TextEditingController(
+      text: settings.calorieTarget.toString(),
+    );
+    final proteinController = TextEditingController(
+      text: settings.proteinTarget.toString(),
+    );
+    final saved = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(l10n.nutritionGoals),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(l10n.nutritionGoalsDescription),
+            const SizedBox(height: 18),
+            TextField(
+              controller: caloriesController,
+              keyboardType: TextInputType.number,
+              decoration: InputDecoration(
+                labelText: l10n.calorieTarget,
+                suffixText: 'kcal',
+              ),
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: proteinController,
+              keyboardType: TextInputType.number,
+              decoration: InputDecoration(
+                labelText: l10n.proteinTarget,
+                suffixText: 'g',
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, false),
+            child: Text(l10n.cancel),
+          ),
+          FilledButton(
+            onPressed: () {
+              final calories = int.tryParse(caloriesController.text.trim());
+              final protein = int.tryParse(proteinController.text.trim());
+              if (calories == null ||
+                  protein == null ||
+                  calories < 800 ||
+                  calories > 10000 ||
+                  protein < 10 ||
+                  protein > 500) {
+                ScaffoldMessenger.of(
+                  context,
+                ).showSnackBar(SnackBar(content: Text(l10n.invalidGoals)));
+                return;
+              }
+              Navigator.pop(dialogContext, true);
+            },
+            child: Text(l10n.saveGoals),
+          ),
+        ],
+      ),
+    );
+    final calories = int.tryParse(caloriesController.text.trim());
+    final protein = int.tryParse(proteinController.text.trim());
+    caloriesController.dispose();
+    proteinController.dispose();
+    if (saved == true && calories != null && protein != null && mounted) {
+      await ref
+          .read(wellnessPreferencesProvider)
+          .saveTargets(calories: calories, protein: protein);
+      ref.invalidate(wellnessSettingsProvider);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
@@ -270,6 +577,8 @@ class _HomePageState extends ConsumerState<HomePage> {
     final colors = theme.colorScheme;
     final isDark = theme.brightness == Brightness.dark;
     final isPremium = ref.watch(premiumEntitlementProvider).value ?? false;
+    final wellnessSettings = ref.watch(wellnessSettingsProvider).value;
+    final todaySummary = ref.watch(weeklyNutritionSummaryProvider).value?.last;
 
     return Scaffold(
       body: DecoratedBox(
@@ -322,6 +631,15 @@ class _HomePageState extends ConsumerState<HomePage> {
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
+                          if (todaySummary != null && wellnessSettings != null)
+                            Padding(
+                              padding: const EdgeInsets.only(bottom: 16),
+                              child: _TodayProgressCard(
+                                summary: todaySummary,
+                                calorieTarget: wellnessSettings.calorieTarget,
+                                proteinTarget: wellnessSettings.proteinTarget,
+                              ),
+                            ),
                           Column(
                             children: [
                               _BrandMark(isPremium: isPremium),
@@ -375,6 +693,14 @@ class _HomePageState extends ConsumerState<HomePage> {
                           ),
                           Column(
                             children: [
+                              _FeatureCard(
+                                icon: Icons.insights_rounded,
+                                title: l10n.nutritionSummaryTitle,
+                                description: l10n.nutritionSummarySubtitle,
+                                accent: AppColors.champagne,
+                                onTap: _openNutritionSummary,
+                              ),
+                              const SizedBox(height: 14),
                               _FeatureCard(
                                 icon: Icons.restaurant_rounded,
                                 title: l10n.scanFoodTitle,
@@ -661,6 +987,137 @@ class _HomePageState extends ConsumerState<HomePage> {
 }
 
 enum _FoodSource { camera, gallery, barcode }
+
+class _TodayProgressCard extends StatelessWidget {
+  const _TodayProgressCard({
+    required this.summary,
+    required this.calorieTarget,
+    required this.proteinTarget,
+  });
+
+  final DailyNutritionSummary summary;
+  final int calorieTarget;
+  final int proteinTarget;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final colors = Theme.of(context).colorScheme;
+    final calorieProgress = (summary.calories / calorieTarget).clamp(0.0, 1.0);
+    final proteinProgress = (summary.proteinGrams / proteinTarget).clamp(
+      0.0,
+      1.0,
+    );
+    return Container(
+      padding: const EdgeInsets.fromLTRB(18, 16, 18, 18),
+      decoration: BoxDecoration(
+        color: colors.surface.withValues(alpha: .9),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: AppColors.champagne.withValues(alpha: .4)),
+        boxShadow: [
+          BoxShadow(
+            color: colors.shadow.withValues(alpha: .08),
+            blurRadius: 22,
+            offset: const Offset(0, 10),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(
+                Icons.insights_rounded,
+                color: AppColors.emerald,
+                size: 20,
+              ),
+              const SizedBox(width: 8),
+              Text(
+                l10n.todayProgress,
+                style: const TextStyle(fontWeight: FontWeight.w900),
+              ),
+              const Spacer(),
+              Text(
+                l10n.mealsTracked(summary.mealCount),
+                style: TextStyle(color: colors.onSurfaceVariant, fontSize: 11),
+              ),
+            ],
+          ),
+          const SizedBox(height: 15),
+          _ProgressLine(
+            label: l10n.calorieProgress,
+            value: '${summary.calories} kcal',
+            target: l10n.targetValue('$calorieTarget kcal'),
+            progress: calorieProgress,
+            color: AppColors.emerald,
+          ),
+          const SizedBox(height: 13),
+          _ProgressLine(
+            label: l10n.proteinProgress,
+            value: '${summary.proteinGrams} g',
+            target: l10n.targetValue('$proteinTarget g'),
+            progress: proteinProgress,
+            color: AppColors.champagne,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ProgressLine extends StatelessWidget {
+  const _ProgressLine({
+    required this.label,
+    required this.value,
+    required this.target,
+    required this.progress,
+    required this.color,
+  });
+
+  final String label;
+  final String value;
+  final String target;
+  final double progress;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    return Column(
+      children: [
+        Row(
+          children: [
+            Text(
+              label,
+              style: TextStyle(color: colors.onSurfaceVariant, fontSize: 12),
+            ),
+            const Spacer(),
+            Text(
+              value,
+              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w900),
+            ),
+            const SizedBox(width: 8),
+            Text(
+              target,
+              style: TextStyle(color: colors.onSurfaceVariant, fontSize: 10),
+            ),
+          ],
+        ),
+        const SizedBox(height: 7),
+        ClipRRect(
+          borderRadius: BorderRadius.circular(99),
+          child: LinearProgressIndicator(
+            value: progress,
+            minHeight: 7,
+            color: color,
+            backgroundColor: color.withValues(alpha: .13),
+          ),
+        ),
+      ],
+    );
+  }
+}
 
 class _FeatureCard extends StatelessWidget {
   const _FeatureCard({

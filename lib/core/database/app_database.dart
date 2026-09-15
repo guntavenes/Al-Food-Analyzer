@@ -46,6 +46,12 @@ class AppDatabase extends _$AppDatabase {
             foodAnalysisRecords.detectedFoodsJson,
           );
         }
+        if (from >= 1 && from < 3) {
+          await migrator.addColumn(
+            foodAnalysisRecords,
+            foodAnalysisRecords.isFavorite,
+          );
+        }
       },
       beforeOpen: (details) async {
         await customStatement('PRAGMA foreign_keys = ON');
@@ -54,7 +60,7 @@ class AppDatabase extends _$AppDatabase {
   }
 
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 3;
 }
 
 LazyDatabase _openConnection() {

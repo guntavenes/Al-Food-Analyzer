@@ -5,6 +5,7 @@ class SavedFoodAnalysisModel extends SavedFoodAnalysis {
     required super.id,
     required super.imagePath,
     required super.createdAt,
+    super.isFavorite,
     required super.foodName,
     required super.calories,
     required super.proteinGrams,

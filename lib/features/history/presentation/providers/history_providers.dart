@@ -104,4 +104,13 @@ class HistoryActionsController extends AsyncNotifier<void> {
       ref.read(analysisHistoryRepositoryProvider).clearHistory,
     );
   }
+
+  Future<void> setFavorite(int id, {required bool isFavorite}) async {
+    state = const AsyncLoading<void>();
+    state = await AsyncValue.guard(
+      () => ref
+          .read(analysisHistoryRepositoryProvider)
+          .setFavorite(id, isFavorite: isFavorite),
+    );
+  }
 }

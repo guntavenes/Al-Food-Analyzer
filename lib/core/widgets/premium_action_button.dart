@@ -1,5 +1,6 @@
 import 'package:ai_food_analyzer/core/theme/app_colors.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class PremiumActionButton extends StatefulWidget {
   const PremiumActionButton({
@@ -85,7 +86,12 @@ class _PremiumActionButtonState extends State<PremiumActionButton> {
             color: Colors.transparent,
             borderRadius: BorderRadius.circular(24),
             child: InkWell(
-              onTap: enabled ? widget.onPressed : null,
+              onTap: enabled
+                  ? () {
+                      HapticFeedback.selectionClick();
+                      widget.onPressed?.call();
+                    }
+                  : null,
               onHighlightChanged: (value) {
                 if (mounted) setState(() => _pressed = value);
               },

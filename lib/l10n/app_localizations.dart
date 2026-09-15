@@ -707,7 +707,7 @@ abstract class AppLocalizations {
   /// No description provided for @nutritionSummaryTitle.
   ///
   /// In en, this message translates to:
-  /// **'Nutrition'**
+  /// **'Nutrition Summary'**
   String get nutritionSummaryTitle;
 
   /// Formatted calorie result
@@ -1231,6 +1231,342 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Calories and health scores are estimates based on menu descriptions and may vary by ingredients and serving size.'**
   String get menuEstimateDisclaimer;
+
+  /// No description provided for @nutritionSummarySubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Track your daily macros and the last 7 days.'**
+  String get nutritionSummarySubtitle;
+
+  /// No description provided for @todaySummary.
+  ///
+  /// In en, this message translates to:
+  /// **'Today\'s summary'**
+  String get todaySummary;
+
+  /// No description provided for @weeklyCalories.
+  ///
+  /// In en, this message translates to:
+  /// **'Last 7 days'**
+  String get weeklyCalories;
+
+  /// No description provided for @mealsTracked.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} meals saved'**
+  String mealsTracked(int count);
+
+  /// No description provided for @noNutritionData.
+  ///
+  /// In en, this message translates to:
+  /// **'No saved meals yet'**
+  String get noNutritionData;
+
+  /// No description provided for @noNutritionDataDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Save an analysis result to build your daily and weekly summary here.'**
+  String get noNutritionDataDescription;
+
+  /// No description provided for @dailyAverage.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily average'**
+  String get dailyAverage;
+
+  /// No description provided for @premiumNutritionBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'PREMIUM TRACKING'**
+  String get premiumNutritionBadge;
+
+  /// No description provided for @searchHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'Search history'**
+  String get searchHistory;
+
+  /// No description provided for @allHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get allHistory;
+
+  /// No description provided for @favorites.
+  ///
+  /// In en, this message translates to:
+  /// **'Favorites'**
+  String get favorites;
+
+  /// No description provided for @highProtein.
+  ///
+  /// In en, this message translates to:
+  /// **'High protein'**
+  String get highProtein;
+
+  /// No description provided for @selectDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Select date'**
+  String get selectDate;
+
+  /// No description provided for @clearDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear date'**
+  String get clearDate;
+
+  /// No description provided for @noFilteredHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'No meals match these filters.'**
+  String get noFilteredHistory;
+
+  /// No description provided for @addToFavorites.
+  ///
+  /// In en, this message translates to:
+  /// **'Add to favorites'**
+  String get addToFavorites;
+
+  /// No description provided for @removeFromFavorites.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove from favorites'**
+  String get removeFromFavorites;
+
+  /// No description provided for @weeklyComparison.
+  ///
+  /// In en, this message translates to:
+  /// **'Weekly comparison'**
+  String get weeklyComparison;
+
+  /// No description provided for @thisWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'This week'**
+  String get thisWeek;
+
+  /// No description provided for @lastWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'Last week'**
+  String get lastWeek;
+
+  /// No description provided for @calorieChangeUp.
+  ///
+  /// In en, this message translates to:
+  /// **'{percent}% more than last week'**
+  String calorieChangeUp(int percent);
+
+  /// No description provided for @calorieChangeDown.
+  ///
+  /// In en, this message translates to:
+  /// **'{percent}% less than last week'**
+  String calorieChangeDown(int percent);
+
+  /// No description provided for @calorieChangeSame.
+  ///
+  /// In en, this message translates to:
+  /// **'About the same as last week'**
+  String get calorieChangeSame;
+
+  /// No description provided for @premiumReport.
+  ///
+  /// In en, this message translates to:
+  /// **'Premium Analysis'**
+  String get premiumReport;
+
+  /// No description provided for @macroDistribution.
+  ///
+  /// In en, this message translates to:
+  /// **'Macro distribution'**
+  String get macroDistribution;
+
+  /// No description provided for @portionEstimate.
+  ///
+  /// In en, this message translates to:
+  /// **'Portion estimate'**
+  String get portionEstimate;
+
+  /// No description provided for @ingredientRisks.
+  ///
+  /// In en, this message translates to:
+  /// **'Ingredient risks'**
+  String get ingredientRisks;
+
+  /// No description provided for @healthierSuggestions.
+  ///
+  /// In en, this message translates to:
+  /// **'Healthier improvements'**
+  String get healthierSuggestions;
+
+  /// No description provided for @noIngredientRisks.
+  ///
+  /// In en, this message translates to:
+  /// **'No notable ingredient risks were found.'**
+  String get noIngredientRisks;
+
+  /// No description provided for @suggestMoreFiber.
+  ///
+  /// In en, this message translates to:
+  /// **'Add vegetables or a salad for more fiber.'**
+  String get suggestMoreFiber;
+
+  /// No description provided for @suggestLessSodium.
+  ///
+  /// In en, this message translates to:
+  /// **'Reducing sauces and salt may improve the balance.'**
+  String get suggestLessSodium;
+
+  /// No description provided for @suggestMoreProtein.
+  ///
+  /// In en, this message translates to:
+  /// **'Consider adding a little more protein.'**
+  String get suggestMoreProtein;
+
+  /// No description provided for @suggestSmallerPortion.
+  ///
+  /// In en, this message translates to:
+  /// **'A smaller portion can help balance total calories.'**
+  String get suggestSmallerPortion;
+
+  /// No description provided for @suggestBalancedMeal.
+  ///
+  /// In en, this message translates to:
+  /// **'The overall balance looks good; keep the portion steady.'**
+  String get suggestBalancedMeal;
+
+  /// No description provided for @shareReport.
+  ///
+  /// In en, this message translates to:
+  /// **'Share report'**
+  String get shareReport;
+
+  /// No description provided for @shareAsImage.
+  ///
+  /// In en, this message translates to:
+  /// **'Share as image'**
+  String get shareAsImage;
+
+  /// No description provided for @shareAsPdf.
+  ///
+  /// In en, this message translates to:
+  /// **'Share as PDF'**
+  String get shareAsPdf;
+
+  /// No description provided for @preparingReport.
+  ///
+  /// In en, this message translates to:
+  /// **'Preparing report...'**
+  String get preparingReport;
+
+  /// No description provided for @reportShareFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'The report could not be prepared. Please try again.'**
+  String get reportShareFailed;
+
+  /// No description provided for @todayProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'Today\'s progress'**
+  String get todayProgress;
+
+  /// No description provided for @calorieProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'Calories'**
+  String get calorieProgress;
+
+  /// No description provided for @proteinProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'Protein'**
+  String get proteinProgress;
+
+  /// No description provided for @targetValue.
+  ///
+  /// In en, this message translates to:
+  /// **'Target: {value}'**
+  String targetValue(String value);
+
+  /// No description provided for @smartReminders.
+  ///
+  /// In en, this message translates to:
+  /// **'Smart reminders'**
+  String get smartReminders;
+
+  /// No description provided for @smartRemindersDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Get occasional reminders on incomplete days and weekly progress.'**
+  String get smartRemindersDescription;
+
+  /// No description provided for @dailyReminderTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your nutrition check-in'**
+  String get dailyReminderTitle;
+
+  /// No description provided for @dailyReminderBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Complete today\'s analyses; small steps make a big difference.'**
+  String get dailyReminderBody;
+
+  /// No description provided for @notificationsPermissionRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications were not allowed. You can enable them in Settings.'**
+  String get notificationsPermissionRequired;
+
+  /// No description provided for @nutritionGoals.
+  ///
+  /// In en, this message translates to:
+  /// **'Nutrition goals'**
+  String get nutritionGoals;
+
+  /// No description provided for @nutritionGoalsDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Set your daily calorie and protein targets.'**
+  String get nutritionGoalsDescription;
+
+  /// No description provided for @calorieTarget.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily calorie target'**
+  String get calorieTarget;
+
+  /// No description provided for @proteinTarget.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily protein target'**
+  String get proteinTarget;
+
+  /// No description provided for @saveGoals.
+  ///
+  /// In en, this message translates to:
+  /// **'Save goals'**
+  String get saveGoals;
+
+  /// No description provided for @invalidGoals.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter valid targets.'**
+  String get invalidGoals;
+
+  /// No description provided for @weeklyInsightTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your weekly progress'**
+  String get weeklyInsightTitle;
+
+  /// No description provided for @weeklyInsightBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Your vegetable and greens intake increased this week. Keep it going!'**
+  String get weeklyInsightBody;
 }
 
 class _AppLocalizationsDelegate

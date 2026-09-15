@@ -207,6 +207,21 @@ class $FoodAnalysisRecordsTable extends FoodAnalysisRecords
     type: DriftSqlType.dateTime,
     requiredDuringInsert: true,
   );
+  static const VerificationMeta _isFavoriteMeta = const VerificationMeta(
+    'isFavorite',
+  );
+  @override
+  late final GeneratedColumn<bool> isFavorite = GeneratedColumn<bool>(
+    'is_favorite',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("is_favorite" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -227,6 +242,7 @@ class $FoodAnalysisRecordsTable extends FoodAnalysisRecords
     analysisDescription,
     imagePath,
     createdAt,
+    isFavorite,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -388,6 +404,12 @@ class $FoodAnalysisRecordsTable extends FoodAnalysisRecords
     } else if (isInserting) {
       context.missing(_createdAtMeta);
     }
+    if (data.containsKey('is_favorite')) {
+      context.handle(
+        _isFavoriteMeta,
+        isFavorite.isAcceptableOrUnknown(data['is_favorite']!, _isFavoriteMeta),
+      );
+    }
     return context;
   }
 
@@ -469,6 +491,10 @@ class $FoodAnalysisRecordsTable extends FoodAnalysisRecords
         DriftSqlType.dateTime,
         data['${effectivePrefix}created_at'],
       )!,
+      isFavorite: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}is_favorite'],
+      )!,
     );
   }
 
@@ -498,6 +524,7 @@ class FoodAnalysisRecord extends DataClass
   final String analysisDescription;
   final String imagePath;
   final DateTime createdAt;
+  final bool isFavorite;
   const FoodAnalysisRecord({
     required this.id,
     required this.foodName,
@@ -517,6 +544,7 @@ class FoodAnalysisRecord extends DataClass
     required this.analysisDescription,
     required this.imagePath,
     required this.createdAt,
+    required this.isFavorite,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -539,6 +567,7 @@ class FoodAnalysisRecord extends DataClass
     map['analysis_description'] = Variable<String>(analysisDescription);
     map['image_path'] = Variable<String>(imagePath);
     map['created_at'] = Variable<DateTime>(createdAt);
+    map['is_favorite'] = Variable<bool>(isFavorite);
     return map;
   }
 
@@ -562,6 +591,7 @@ class FoodAnalysisRecord extends DataClass
       analysisDescription: Value(analysisDescription),
       imagePath: Value(imagePath),
       createdAt: Value(createdAt),
+      isFavorite: Value(isFavorite),
     );
   }
 
@@ -593,6 +623,7 @@ class FoodAnalysisRecord extends DataClass
       ),
       imagePath: serializer.fromJson<String>(json['imagePath']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      isFavorite: serializer.fromJson<bool>(json['isFavorite']),
     );
   }
   @override
@@ -617,6 +648,7 @@ class FoodAnalysisRecord extends DataClass
       'analysisDescription': serializer.toJson<String>(analysisDescription),
       'imagePath': serializer.toJson<String>(imagePath),
       'createdAt': serializer.toJson<DateTime>(createdAt),
+      'isFavorite': serializer.toJson<bool>(isFavorite),
     };
   }
 
@@ -639,6 +671,7 @@ class FoodAnalysisRecord extends DataClass
     String? analysisDescription,
     String? imagePath,
     DateTime? createdAt,
+    bool? isFavorite,
   }) => FoodAnalysisRecord(
     id: id ?? this.id,
     foodName: foodName ?? this.foodName,
@@ -658,6 +691,7 @@ class FoodAnalysisRecord extends DataClass
     analysisDescription: analysisDescription ?? this.analysisDescription,
     imagePath: imagePath ?? this.imagePath,
     createdAt: createdAt ?? this.createdAt,
+    isFavorite: isFavorite ?? this.isFavorite,
   );
   FoodAnalysisRecord copyWithCompanion(FoodAnalysisRecordsCompanion data) {
     return FoodAnalysisRecord(
@@ -695,6 +729,9 @@ class FoodAnalysisRecord extends DataClass
           : this.analysisDescription,
       imagePath: data.imagePath.present ? data.imagePath.value : this.imagePath,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      isFavorite: data.isFavorite.present
+          ? data.isFavorite.value
+          : this.isFavorite,
     );
   }
 
@@ -718,7 +755,8 @@ class FoodAnalysisRecord extends DataClass
           ..write('servingDescription: $servingDescription, ')
           ..write('analysisDescription: $analysisDescription, ')
           ..write('imagePath: $imagePath, ')
-          ..write('createdAt: $createdAt')
+          ..write('createdAt: $createdAt, ')
+          ..write('isFavorite: $isFavorite')
           ..write(')'))
         .toString();
   }
@@ -743,6 +781,7 @@ class FoodAnalysisRecord extends DataClass
     analysisDescription,
     imagePath,
     createdAt,
+    isFavorite,
   );
   @override
   bool operator ==(Object other) =>
@@ -765,7 +804,8 @@ class FoodAnalysisRecord extends DataClass
           other.servingDescription == this.servingDescription &&
           other.analysisDescription == this.analysisDescription &&
           other.imagePath == this.imagePath &&
-          other.createdAt == this.createdAt);
+          other.createdAt == this.createdAt &&
+          other.isFavorite == this.isFavorite);
 }
 
 class FoodAnalysisRecordsCompanion extends UpdateCompanion<FoodAnalysisRecord> {
@@ -787,6 +827,7 @@ class FoodAnalysisRecordsCompanion extends UpdateCompanion<FoodAnalysisRecord> {
   final Value<String> analysisDescription;
   final Value<String> imagePath;
   final Value<DateTime> createdAt;
+  final Value<bool> isFavorite;
   const FoodAnalysisRecordsCompanion({
     this.id = const Value.absent(),
     this.foodName = const Value.absent(),
@@ -806,6 +847,7 @@ class FoodAnalysisRecordsCompanion extends UpdateCompanion<FoodAnalysisRecord> {
     this.analysisDescription = const Value.absent(),
     this.imagePath = const Value.absent(),
     this.createdAt = const Value.absent(),
+    this.isFavorite = const Value.absent(),
   });
   FoodAnalysisRecordsCompanion.insert({
     this.id = const Value.absent(),
@@ -826,6 +868,7 @@ class FoodAnalysisRecordsCompanion extends UpdateCompanion<FoodAnalysisRecord> {
     required String analysisDescription,
     required String imagePath,
     required DateTime createdAt,
+    this.isFavorite = const Value.absent(),
   }) : foodName = Value(foodName),
        calories = Value(calories),
        protein = Value(protein),
@@ -856,6 +899,7 @@ class FoodAnalysisRecordsCompanion extends UpdateCompanion<FoodAnalysisRecord> {
     Expression<String>? analysisDescription,
     Expression<String>? imagePath,
     Expression<DateTime>? createdAt,
+    Expression<bool>? isFavorite,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -878,6 +922,7 @@ class FoodAnalysisRecordsCompanion extends UpdateCompanion<FoodAnalysisRecord> {
         'analysis_description': analysisDescription,
       if (imagePath != null) 'image_path': imagePath,
       if (createdAt != null) 'created_at': createdAt,
+      if (isFavorite != null) 'is_favorite': isFavorite,
     });
   }
 
@@ -900,6 +945,7 @@ class FoodAnalysisRecordsCompanion extends UpdateCompanion<FoodAnalysisRecord> {
     Value<String>? analysisDescription,
     Value<String>? imagePath,
     Value<DateTime>? createdAt,
+    Value<bool>? isFavorite,
   }) {
     return FoodAnalysisRecordsCompanion(
       id: id ?? this.id,
@@ -920,6 +966,7 @@ class FoodAnalysisRecordsCompanion extends UpdateCompanion<FoodAnalysisRecord> {
       analysisDescription: analysisDescription ?? this.analysisDescription,
       imagePath: imagePath ?? this.imagePath,
       createdAt: createdAt ?? this.createdAt,
+      isFavorite: isFavorite ?? this.isFavorite,
     );
   }
 
@@ -980,6 +1027,9 @@ class FoodAnalysisRecordsCompanion extends UpdateCompanion<FoodAnalysisRecord> {
     if (createdAt.present) {
       map['created_at'] = Variable<DateTime>(createdAt.value);
     }
+    if (isFavorite.present) {
+      map['is_favorite'] = Variable<bool>(isFavorite.value);
+    }
     return map;
   }
 
@@ -1003,7 +1053,8 @@ class FoodAnalysisRecordsCompanion extends UpdateCompanion<FoodAnalysisRecord> {
           ..write('servingDescription: $servingDescription, ')
           ..write('analysisDescription: $analysisDescription, ')
           ..write('imagePath: $imagePath, ')
-          ..write('createdAt: $createdAt')
+          ..write('createdAt: $createdAt, ')
+          ..write('isFavorite: $isFavorite')
           ..write(')'))
         .toString();
   }
@@ -1041,6 +1092,7 @@ typedef $$FoodAnalysisRecordsTableCreateCompanionBuilder =
       required String analysisDescription,
       required String imagePath,
       required DateTime createdAt,
+      Value<bool> isFavorite,
     });
 typedef $$FoodAnalysisRecordsTableUpdateCompanionBuilder =
     FoodAnalysisRecordsCompanion Function({
@@ -1062,6 +1114,7 @@ typedef $$FoodAnalysisRecordsTableUpdateCompanionBuilder =
       Value<String> analysisDescription,
       Value<String> imagePath,
       Value<DateTime> createdAt,
+      Value<bool> isFavorite,
     });
 
 class $$FoodAnalysisRecordsTableFilterComposer
@@ -1160,6 +1213,11 @@ class $$FoodAnalysisRecordsTableFilterComposer
 
   ColumnFilters<DateTime> get createdAt => $composableBuilder(
     column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get isFavorite => $composableBuilder(
+    column: $table.isFavorite,
     builder: (column) => ColumnFilters(column),
   );
 }
@@ -1262,6 +1320,11 @@ class $$FoodAnalysisRecordsTableOrderingComposer
     column: $table.createdAt,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<bool> get isFavorite => $composableBuilder(
+    column: $table.isFavorite,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$FoodAnalysisRecordsTableAnnotationComposer
@@ -1342,6 +1405,11 @@ class $$FoodAnalysisRecordsTableAnnotationComposer
 
   GeneratedColumn<DateTime> get createdAt =>
       $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<bool> get isFavorite => $composableBuilder(
+    column: $table.isFavorite,
+    builder: (column) => column,
+  );
 }
 
 class $$FoodAnalysisRecordsTableTableManager
@@ -1405,6 +1473,7 @@ class $$FoodAnalysisRecordsTableTableManager
                 Value<String> analysisDescription = const Value.absent(),
                 Value<String> imagePath = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
+                Value<bool> isFavorite = const Value.absent(),
               }) => FoodAnalysisRecordsCompanion(
                 id: id,
                 foodName: foodName,
@@ -1424,6 +1493,7 @@ class $$FoodAnalysisRecordsTableTableManager
                 analysisDescription: analysisDescription,
                 imagePath: imagePath,
                 createdAt: createdAt,
+                isFavorite: isFavorite,
               ),
           createCompanionCallback:
               ({
@@ -1445,6 +1515,7 @@ class $$FoodAnalysisRecordsTableTableManager
                 required String analysisDescription,
                 required String imagePath,
                 required DateTime createdAt,
+                Value<bool> isFavorite = const Value.absent(),
               }) => FoodAnalysisRecordsCompanion.insert(
                 id: id,
                 foodName: foodName,
@@ -1464,6 +1535,7 @@ class $$FoodAnalysisRecordsTableTableManager
                 analysisDescription: analysisDescription,
                 imagePath: imagePath,
                 createdAt: createdAt,
+                isFavorite: isFavorite,
               ),
           withReferenceMapper: (p0) => p0
               .map((e) => (e.readTable(table), BaseReferences(db, table, e)))

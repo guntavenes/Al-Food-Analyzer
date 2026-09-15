@@ -16,4 +16,6 @@ abstract interface class AnalysisHistoryRepository {
   Future<void> deleteAnalysis(int id);
 
   Future<void> clearHistory();
+
+  Future<void> setFavorite(int id, {required bool isFavorite});
 }

@@ -38,4 +38,6 @@ class FoodAnalysisRecords extends Table {
   TextColumn get imagePath => text()();
 
   DateTimeColumn get createdAt => dateTime()();
+
+  BoolColumn get isFavorite => boolean().withDefault(const Constant(false))();
 }

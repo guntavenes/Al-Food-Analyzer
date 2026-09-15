@@ -4,6 +4,7 @@ import 'dart:ui';
 import 'package:ai_food_analyzer/core/router/app_router.dart';
 import 'package:ai_food_analyzer/core/theme/app_colors.dart';
 import 'package:ai_food_analyzer/core/widgets/premium_action_button.dart';
+import 'package:ai_food_analyzer/core/widgets/premium_analysis_loader.dart';
 import 'package:ai_food_analyzer/features/analysis/domain/errors/food_analysis_exception.dart';
 import 'package:ai_food_analyzer/features/analysis/presentation/pages/food_analysis_result_page.dart';
 import 'package:ai_food_analyzer/features/analysis/presentation/providers/food_analysis_providers.dart';
@@ -44,6 +45,7 @@ class _PhotoPreviewPageState extends ConsumerState<PhotoPreviewPage> {
           extra: FoodAnalysisResultArguments(
             imagePath: widget.imagePath,
             analysis: analysis,
+            autoSave: true,
           ),
         );
       }
@@ -168,6 +170,17 @@ class _PhotoPreviewPageState extends ConsumerState<PhotoPreviewPage> {
                                       ),
                                     );
                                   },
+                                ),
+                                AnimatedSwitcher(
+                                  duration: const Duration(milliseconds: 320),
+                                  child: isAnalyzing
+                                      ? PremiumAnalysisLoader(
+                                          key: const ValueKey('analyzing'),
+                                          label: l10n.analyzingFood,
+                                        )
+                                      : const SizedBox.shrink(
+                                          key: ValueKey('idle'),
+                                        ),
                                 ),
                               ],
                             ),

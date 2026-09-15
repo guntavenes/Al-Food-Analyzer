@@ -64,6 +64,20 @@ void main() {
     expect(await File(saved.imagePath).exists(), isFalse);
   });
 
+  test('favorite state is persisted and emitted by history', () async {
+    final harness = await _HistoryTestHarness.create();
+    addTearDown(harness.dispose);
+
+    final id = await harness.repository.saveAnalysis(
+      analysis: _analysis,
+      sourceImagePath: harness.sourceImage.path,
+    );
+    await harness.repository.setFavorite(id, isFavorite: true);
+
+    final saved = await harness.repository.getAnalysis(id);
+    expect(saved?.isFavorite, isTrue);
+  });
+
   testWidgets('history shows its empty state without overflow', (tester) async {
     await tester.pumpWidget(
       ProviderScope(

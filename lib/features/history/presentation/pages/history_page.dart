@@ -10,12 +10,28 @@ import 'package:ai_food_analyzer/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 
-class HistoryPage extends ConsumerWidget {
+class HistoryPage extends ConsumerStatefulWidget {
   const HistoryPage({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<HistoryPage> createState() => _HistoryPageState();
+}
+
+class _HistoryPageState extends ConsumerState<HistoryPage> {
+  final _searchController = TextEditingController();
+  _HistoryFilter _filter = _HistoryFilter.all;
+  DateTime? _selectedDate;
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final history = ref.watch(analysisHistoryProvider);
     final actionState = ref.watch(historyActionsProvider);
@@ -88,6 +104,7 @@ class HistoryPage extends ConsumerWidget {
                       return const _EmptyHistory();
                     }
 
+                    final filtered = _filteredAnalyses(analyses);
                     return LayoutBuilder(
                       builder: (context, constraints) {
                         final horizontalPadding = constraints.maxWidth >= 600
@@ -101,11 +118,52 @@ class HistoryPage extends ConsumerWidget {
                             horizontalPadding,
                             32,
                           ),
-                          itemCount: analyses.length,
+                          itemCount:
+                              filtered.length + 2 + (filtered.isEmpty ? 1 : 0),
                           separatorBuilder: (context, index) =>
                               const SizedBox(height: 12),
                           itemBuilder: (context, index) {
-                            final analysis = analyses[index];
+                            if (index == 0) {
+                              return Center(
+                                child: ConstrainedBox(
+                                  constraints: const BoxConstraints(
+                                    maxWidth: 680,
+                                  ),
+                                  child: _HistoryControls(
+                                    controller: _searchController,
+                                    filter: _filter,
+                                    selectedDate: _selectedDate,
+                                    onSearchChanged: (_) => setState(() {}),
+                                    onFilterChanged: (filter) =>
+                                        setState(() => _filter = filter),
+                                    onSelectDate: _selectDate,
+                                    onClearDate: () =>
+                                        setState(() => _selectedDate = null),
+                                  ),
+                                ),
+                              );
+                            }
+                            if (index == 1) {
+                              return Center(
+                                child: ConstrainedBox(
+                                  constraints: const BoxConstraints(
+                                    maxWidth: 680,
+                                  ),
+                                  child: _WeeklyComparison(analyses: analyses),
+                                ),
+                              );
+                            }
+                            if (filtered.isEmpty && index == 2) {
+                              return Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 36,
+                                ),
+                                child: Center(
+                                  child: Text(l10n.noFilteredHistory),
+                                ),
+                              );
+                            }
+                            final analysis = filtered[index - 2];
                             return Center(
                               child: ConstrainedBox(
                                 constraints: const BoxConstraints(
@@ -118,6 +176,12 @@ class HistoryPage extends ConsumerWidget {
                                   ),
                                   onDelete: () =>
                                       _confirmDelete(context, ref, analysis.id),
+                                  onFavorite: () => ref
+                                      .read(historyActionsProvider.notifier)
+                                      .setFavorite(
+                                        analysis.id,
+                                        isFavorite: !analysis.isFavorite,
+                                      ),
                                 ),
                               ),
                             );
@@ -133,6 +197,46 @@ class HistoryPage extends ConsumerWidget {
         ),
       ),
     );
+  }
+
+  List<SavedFoodAnalysis> _filteredAnalyses(List<SavedFoodAnalysis> analyses) {
+    final query = _searchController.text.trim().toLowerCase();
+    return analyses
+        .where((analysis) {
+          if (query.isNotEmpty &&
+              !analysis.foodName.toLowerCase().contains(query) &&
+              !analysis.description.toLowerCase().contains(query)) {
+            return false;
+          }
+          if (_filter == _HistoryFilter.favorites && !analysis.isFavorite) {
+            return false;
+          }
+          if (_filter == _HistoryFilter.highProtein &&
+              analysis.proteinGrams < 25) {
+            return false;
+          }
+          if (_selectedDate != null) {
+            final date = analysis.createdAt.toLocal();
+            if (date.year != _selectedDate!.year ||
+                date.month != _selectedDate!.month ||
+                date.day != _selectedDate!.day) {
+              return false;
+            }
+          }
+          return true;
+        })
+        .toList(growable: false);
+  }
+
+  Future<void> _selectDate() async {
+    final now = DateTime.now();
+    final date = await showDatePicker(
+      context: context,
+      initialDate: _selectedDate ?? now,
+      firstDate: DateTime(now.year - 5),
+      lastDate: now,
+    );
+    if (date != null && mounted) setState(() => _selectedDate = date);
   }
 
   Future<void> _confirmDelete(
@@ -269,16 +373,250 @@ class _DestructiveConfirmationDialog extends StatelessWidget {
   }
 }
 
+enum _HistoryFilter { all, favorites, highProtein }
+
+class _HistoryControls extends StatelessWidget {
+  const _HistoryControls({
+    required this.controller,
+    required this.filter,
+    required this.selectedDate,
+    required this.onSearchChanged,
+    required this.onFilterChanged,
+    required this.onSelectDate,
+    required this.onClearDate,
+  });
+
+  final TextEditingController controller;
+  final _HistoryFilter filter;
+  final DateTime? selectedDate;
+  final ValueChanged<String> onSearchChanged;
+  final ValueChanged<_HistoryFilter> onFilterChanged;
+  final VoidCallback onSelectDate;
+  final VoidCallback onClearDate;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final locale = Localizations.localeOf(context).toLanguageTag();
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        TextField(
+          controller: controller,
+          onChanged: onSearchChanged,
+          textInputAction: TextInputAction.search,
+          decoration: InputDecoration(
+            hintText: l10n.searchHistory,
+            prefixIcon: const Icon(Icons.search_rounded),
+            suffixIcon: controller.text.isEmpty
+                ? null
+                : IconButton(
+                    onPressed: () {
+                      controller.clear();
+                      onSearchChanged('');
+                    },
+                    icon: const Icon(Icons.close_rounded),
+                  ),
+          ),
+        ),
+        const SizedBox(height: 12),
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            children: [
+              ChoiceChip(
+                label: Text(l10n.allHistory),
+                selected: filter == _HistoryFilter.all,
+                onSelected: (_) => onFilterChanged(_HistoryFilter.all),
+              ),
+              const SizedBox(width: 8),
+              ChoiceChip(
+                avatar: const Icon(Icons.favorite_rounded, size: 16),
+                label: Text(l10n.favorites),
+                selected: filter == _HistoryFilter.favorites,
+                onSelected: (_) => onFilterChanged(_HistoryFilter.favorites),
+              ),
+              const SizedBox(width: 8),
+              ChoiceChip(
+                avatar: const Icon(Icons.fitness_center_rounded, size: 16),
+                label: Text(l10n.highProtein),
+                selected: filter == _HistoryFilter.highProtein,
+                onSelected: (_) => onFilterChanged(_HistoryFilter.highProtein),
+              ),
+              const SizedBox(width: 8),
+              ActionChip(
+                avatar: const Icon(Icons.calendar_month_rounded, size: 17),
+                label: Text(
+                  selectedDate == null
+                      ? l10n.selectDate
+                      : DateFormat.yMMMd(locale).format(selectedDate!),
+                ),
+                onPressed: onSelectDate,
+              ),
+              if (selectedDate != null) ...[
+                const SizedBox(width: 4),
+                IconButton(
+                  tooltip: l10n.clearDate,
+                  onPressed: onClearDate,
+                  icon: const Icon(Icons.close_rounded),
+                ),
+              ],
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _WeeklyComparison extends StatelessWidget {
+  const _WeeklyComparison({required this.analyses});
+
+  final List<SavedFoodAnalysis> analyses;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final thisWeekStart = today.subtract(Duration(days: today.weekday - 1));
+    final lastWeekStart = thisWeekStart.subtract(const Duration(days: 7));
+    var thisWeekCalories = 0;
+    var lastWeekCalories = 0;
+    for (final analysis in analyses) {
+      final local = analysis.createdAt.toLocal();
+      if (!local.isBefore(thisWeekStart)) {
+        thisWeekCalories += analysis.calories;
+      } else if (!local.isBefore(lastWeekStart) &&
+          local.isBefore(thisWeekStart)) {
+        lastWeekCalories += analysis.calories;
+      }
+    }
+    final difference = thisWeekCalories - lastWeekCalories;
+    final percent = lastWeekCalories == 0
+        ? (thisWeekCalories == 0 ? 0 : 100)
+        : ((difference.abs() / lastWeekCalories) * 100).round();
+    final comparison = difference > 0
+        ? l10n.calorieChangeUp(percent)
+        : difference < 0
+        ? l10n.calorieChangeDown(percent)
+        : l10n.calorieChangeSame;
+    final colors = Theme.of(context).colorScheme;
+
+    return Container(
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            AppColors.deepEmerald.withValues(alpha: .96),
+            AppColors.teal.withValues(alpha: .92),
+          ],
+        ),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(
+          color: AppColors.champagneLight.withValues(alpha: .3),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(
+                Icons.compare_arrows_rounded,
+                color: AppColors.champagneLight,
+              ),
+              const SizedBox(width: 9),
+              Text(
+                l10n.weeklyComparison,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 17,
+                  fontWeight: FontWeight.w900,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              Expanded(
+                child: _WeekValue(
+                  label: l10n.thisWeek,
+                  value: '$thisWeekCalories kcal',
+                  emphasized: true,
+                ),
+              ),
+              Container(width: 1, height: 42, color: Colors.white24),
+              Expanded(
+                child: _WeekValue(
+                  label: l10n.lastWeek,
+                  value: '$lastWeekCalories kcal',
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 14),
+          Text(
+            comparison,
+            style: TextStyle(
+              color: colors.surface,
+              fontSize: 12,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _WeekValue extends StatelessWidget {
+  const _WeekValue({
+    required this.label,
+    required this.value,
+    this.emphasized = false,
+  });
+
+  final String label;
+  final String value;
+  final bool emphasized;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: const TextStyle(color: Colors.white60, fontSize: 11),
+        ),
+        const SizedBox(height: 3),
+        Text(
+          value,
+          style: TextStyle(
+            color: emphasized ? AppColors.champagneLight : Colors.white,
+            fontSize: 18,
+            fontWeight: FontWeight.w900,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
 class _HistoryCard extends StatelessWidget {
   const _HistoryCard({
     required this.analysis,
     required this.onTap,
     required this.onDelete,
+    required this.onFavorite,
   });
 
   final SavedFoodAnalysis analysis;
   final VoidCallback onTap;
   final VoidCallback onDelete;
+  final VoidCallback onFavorite;
 
   @override
   Widget build(BuildContext context) {
@@ -373,11 +711,32 @@ class _HistoryCard extends StatelessWidget {
               PopupMenuButton<_HistoryAction>(
                 tooltip: l10n.moreActions,
                 onSelected: (action) {
-                  if (action == _HistoryAction.delete) {
+                  if (action == _HistoryAction.favorite) {
+                    onFavorite();
+                  } else if (action == _HistoryAction.delete) {
                     onDelete();
                   }
                 },
                 itemBuilder: (context) => [
+                  PopupMenuItem<_HistoryAction>(
+                    value: _HistoryAction.favorite,
+                    child: Row(
+                      children: [
+                        Icon(
+                          analysis.isFavorite
+                              ? Icons.favorite_rounded
+                              : Icons.favorite_border_rounded,
+                          color: analysis.isFavorite ? Colors.redAccent : null,
+                        ),
+                        const SizedBox(width: 10),
+                        Text(
+                          analysis.isFavorite
+                              ? l10n.removeFromFavorites
+                              : l10n.addToFavorites,
+                        ),
+                      ],
+                    ),
+                  ),
                   PopupMenuItem<_HistoryAction>(
                     value: _HistoryAction.delete,
                     child: Row(
@@ -398,7 +757,7 @@ class _HistoryCard extends StatelessWidget {
   }
 }
 
-enum _HistoryAction { delete }
+enum _HistoryAction { favorite, delete }
 
 class _CompactValue extends StatelessWidget {
   const _CompactValue({required this.icon, required this.value});

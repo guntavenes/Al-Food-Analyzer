@@ -45,6 +45,7 @@ class AnalysisHistoryLocalDataSource {
             analysisDescription: analysis.description,
             imagePath: analysis.imagePath,
             createdAt: analysis.createdAt,
+            isFavorite: Value(analysis.isFavorite),
           ),
         );
   }
@@ -81,6 +82,12 @@ class AnalysisHistoryLocalDataSource {
     await _database.delete(_database.foodAnalysisRecords).go();
   }
 
+  Future<void> setFavorite(int id, {required bool isFavorite}) async {
+    await (_database.update(_database.foodAnalysisRecords)
+          ..where((record) => record.id.equals(id)))
+        .write(FoodAnalysisRecordsCompanion(isFavorite: Value(isFavorite)));
+  }
+
   SavedFoodAnalysisModel _mapRecord(FoodAnalysisRecord record) {
     return SavedFoodAnalysisModel(
       id: record.id,
@@ -112,6 +119,7 @@ class AnalysisHistoryLocalDataSource {
           .toList(growable: false),
       imagePath: record.imagePath,
       createdAt: record.createdAt,
+      isFavorite: record.isFavorite,
     );
   }
 }

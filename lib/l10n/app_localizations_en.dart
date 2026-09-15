@@ -348,7 +348,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get estimatedCalories => 'ESTIMATED CALORIES';
 
   @override
-  String get nutritionSummaryTitle => 'Nutrition';
+  String get nutritionSummaryTitle => 'Nutrition Summary';
 
   @override
   String calorieValue(int calories) {
@@ -653,4 +653,191 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get menuEstimateDisclaimer =>
       'Calories and health scores are estimates based on menu descriptions and may vary by ingredients and serving size.';
+
+  @override
+  String get nutritionSummarySubtitle =>
+      'Track your daily macros and the last 7 days.';
+
+  @override
+  String get todaySummary => 'Today\'s summary';
+
+  @override
+  String get weeklyCalories => 'Last 7 days';
+
+  @override
+  String mealsTracked(int count) {
+    return '$count meals saved';
+  }
+
+  @override
+  String get noNutritionData => 'No saved meals yet';
+
+  @override
+  String get noNutritionDataDescription =>
+      'Save an analysis result to build your daily and weekly summary here.';
+
+  @override
+  String get dailyAverage => 'Daily average';
+
+  @override
+  String get premiumNutritionBadge => 'PREMIUM TRACKING';
+
+  @override
+  String get searchHistory => 'Search history';
+
+  @override
+  String get allHistory => 'All';
+
+  @override
+  String get favorites => 'Favorites';
+
+  @override
+  String get highProtein => 'High protein';
+
+  @override
+  String get selectDate => 'Select date';
+
+  @override
+  String get clearDate => 'Clear date';
+
+  @override
+  String get noFilteredHistory => 'No meals match these filters.';
+
+  @override
+  String get addToFavorites => 'Add to favorites';
+
+  @override
+  String get removeFromFavorites => 'Remove from favorites';
+
+  @override
+  String get weeklyComparison => 'Weekly comparison';
+
+  @override
+  String get thisWeek => 'This week';
+
+  @override
+  String get lastWeek => 'Last week';
+
+  @override
+  String calorieChangeUp(int percent) {
+    return '$percent% more than last week';
+  }
+
+  @override
+  String calorieChangeDown(int percent) {
+    return '$percent% less than last week';
+  }
+
+  @override
+  String get calorieChangeSame => 'About the same as last week';
+
+  @override
+  String get premiumReport => 'Premium Analysis';
+
+  @override
+  String get macroDistribution => 'Macro distribution';
+
+  @override
+  String get portionEstimate => 'Portion estimate';
+
+  @override
+  String get ingredientRisks => 'Ingredient risks';
+
+  @override
+  String get healthierSuggestions => 'Healthier improvements';
+
+  @override
+  String get noIngredientRisks => 'No notable ingredient risks were found.';
+
+  @override
+  String get suggestMoreFiber => 'Add vegetables or a salad for more fiber.';
+
+  @override
+  String get suggestLessSodium =>
+      'Reducing sauces and salt may improve the balance.';
+
+  @override
+  String get suggestMoreProtein => 'Consider adding a little more protein.';
+
+  @override
+  String get suggestSmallerPortion =>
+      'A smaller portion can help balance total calories.';
+
+  @override
+  String get suggestBalancedMeal =>
+      'The overall balance looks good; keep the portion steady.';
+
+  @override
+  String get shareReport => 'Share report';
+
+  @override
+  String get shareAsImage => 'Share as image';
+
+  @override
+  String get shareAsPdf => 'Share as PDF';
+
+  @override
+  String get preparingReport => 'Preparing report...';
+
+  @override
+  String get reportShareFailed =>
+      'The report could not be prepared. Please try again.';
+
+  @override
+  String get todayProgress => 'Today\'s progress';
+
+  @override
+  String get calorieProgress => 'Calories';
+
+  @override
+  String get proteinProgress => 'Protein';
+
+  @override
+  String targetValue(String value) {
+    return 'Target: $value';
+  }
+
+  @override
+  String get smartReminders => 'Smart reminders';
+
+  @override
+  String get smartRemindersDescription =>
+      'Get occasional reminders on incomplete days and weekly progress.';
+
+  @override
+  String get dailyReminderTitle => 'Your nutrition check-in';
+
+  @override
+  String get dailyReminderBody =>
+      'Complete today\'s analyses; small steps make a big difference.';
+
+  @override
+  String get notificationsPermissionRequired =>
+      'Notifications were not allowed. You can enable them in Settings.';
+
+  @override
+  String get nutritionGoals => 'Nutrition goals';
+
+  @override
+  String get nutritionGoalsDescription =>
+      'Set your daily calorie and protein targets.';
+
+  @override
+  String get calorieTarget => 'Daily calorie target';
+
+  @override
+  String get proteinTarget => 'Daily protein target';
+
+  @override
+  String get saveGoals => 'Save goals';
+
+  @override
+  String get invalidGoals => 'Please enter valid targets.';
+
+  @override
+  String get weeklyInsightTitle => 'Your weekly progress';
+
+  @override
+  String get weeklyInsightBody =>
+      'Your vegetable and greens intake increased this week. Keep it going!';
 }

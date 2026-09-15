@@ -81,4 +81,9 @@ class AnalysisHistoryRepositoryImpl implements AnalysisHistoryRepository {
       await _imageStore.deleteImage(analysis.imagePath);
     }
   }
+
+  @override
+  Future<void> setFavorite(int id, {required bool isFavorite}) {
+    return _localDataSource.setFavorite(id, isFavorite: isFavorite);
+  }
 }

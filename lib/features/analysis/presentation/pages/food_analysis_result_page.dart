@@ -5,26 +5,36 @@ import 'package:ai_food_analyzer/core/router/app_router.dart';
 import 'package:ai_food_analyzer/core/theme/app_colors.dart';
 import 'package:ai_food_analyzer/core/widgets/premium_action_button.dart';
 import 'package:ai_food_analyzer/core/widgets/premium_screen_background.dart';
+import 'package:ai_food_analyzer/core/widgets/staggered_reveal.dart';
 import 'package:ai_food_analyzer/features/analysis/domain/entities/food_analysis.dart';
 import 'package:ai_food_analyzer/features/analysis/domain/errors/food_analysis_exception.dart';
 import 'package:ai_food_analyzer/features/analysis/domain/repositories/food_analysis_repository.dart';
 import 'package:ai_food_analyzer/features/analysis/presentation/providers/food_analysis_providers.dart';
 import 'package:ai_food_analyzer/features/history/presentation/providers/history_providers.dart';
+import 'package:ai_food_analyzer/features/premium/presentation/providers/premium_purchase_provider.dart';
 import 'package:ai_food_analyzer/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:pdf/pdf.dart';
+import 'package:pdf/widgets.dart' as pw;
+import 'package:screenshot/screenshot.dart';
+import 'package:share_plus/share_plus.dart';
 
 class FoodAnalysisResultArguments {
   const FoodAnalysisResultArguments({
     required this.imagePath,
     required this.analysis,
     this.initiallySaved = false,
+    this.autoSave = false,
   });
 
   final String imagePath;
   final FoodAnalysis analysis;
   final bool initiallySaved;
+  final bool autoSave;
 }
 
 class FoodAnalysisResultPage extends ConsumerStatefulWidget {
@@ -41,7 +51,9 @@ class _FoodAnalysisResultPageState
     extends ConsumerState<FoodAnalysisResultPage> {
   late final SaveAnalysisRequest _saveRequest;
   bool _isReanalyzing = false;
+  bool _isSharing = false;
   Object? _correctionError;
+  final ScreenshotController _reportController = ScreenshotController();
 
   @override
   void initState() {
@@ -50,13 +62,18 @@ class _FoodAnalysisResultPageState
       analysis: widget.arguments.analysis,
       imagePath: widget.arguments.imagePath,
     );
+    if (!widget.arguments.initiallySaved && widget.arguments.autoSave) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _saveResult(showConfirmation: false);
+      });
+    }
   }
 
-  Future<void> _saveResult() async {
+  Future<void> _saveResult({bool showConfirmation = true}) async {
     final savedId = await ref
         .read(saveAnalysisProvider(_saveRequest).notifier)
         .save();
-    if (savedId != null && mounted) {
+    if (savedId != null && mounted && showConfirmation) {
       final l10n = AppLocalizations.of(context);
       ScaffoldMessenger.of(
         context,
@@ -101,12 +118,106 @@ class _FoodAnalysisResultPageState
     }
   }
 
+  Future<void> _shareReport({required bool asPdf}) async {
+    if (_isSharing) return;
+    final l10n = AppLocalizations.of(context);
+    setState(() => _isSharing = true);
+    try {
+      await HapticFeedback.selectionClick();
+      final image = await _reportController.capture(pixelRatio: 2.5);
+      if (image == null) throw StateError('Report capture failed');
+      final directory = await getTemporaryDirectory();
+      final safeName = widget.arguments.analysis.foodName
+          .replaceAll(RegExp(r'[^a-zA-Z0-9]+'), '-')
+          .replaceAll(RegExp(r'^-|-$'), '')
+          .toLowerCase();
+      final baseName = safeName.isEmpty ? 'food-analysis' : safeName;
+      late final String path;
+      if (asPdf) {
+        final document = pw.Document();
+        final reportImage = pw.MemoryImage(image);
+        document.addPage(
+          pw.Page(
+            pageFormat: PdfPageFormat.a4,
+            margin: const pw.EdgeInsets.all(28),
+            build: (_) =>
+                pw.Center(child: pw.Image(reportImage, fit: pw.BoxFit.contain)),
+          ),
+        );
+        path = '${directory.path}/$baseName-report.pdf';
+        await File(path).writeAsBytes(await document.save(), flush: true);
+      } else {
+        path = '${directory.path}/$baseName-report.png';
+        await File(path).writeAsBytes(image, flush: true);
+      }
+      if (!mounted) return;
+      final box = context.findRenderObject() as RenderBox?;
+      await SharePlus.instance.share(
+        ShareParams(
+          files: [XFile(path)],
+          title:
+              '${widget.arguments.analysis.foodName} · ${l10n.premiumReport}',
+          sharePositionOrigin: box == null
+              ? null
+              : box.localToGlobal(Offset.zero) & box.size,
+        ),
+      );
+    } on Object {
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(l10n.reportShareFailed)));
+      }
+    } finally {
+      if (mounted) setState(() => _isSharing = false);
+    }
+  }
+
+  Future<void> _showShareOptions() async {
+    final l10n = AppLocalizations.of(context);
+    final format = await showModalBottomSheet<String>(
+      context: context,
+      showDragHandle: true,
+      builder: (context) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(20, 4, 20, 20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                l10n.shareReport,
+                style: Theme.of(
+                  context,
+                ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w900),
+              ),
+              const SizedBox(height: 18),
+              ListTile(
+                leading: const Icon(Icons.image_outlined),
+                title: Text(l10n.shareAsImage),
+                onTap: () => Navigator.pop(context, 'image'),
+              ),
+              ListTile(
+                leading: const Icon(Icons.picture_as_pdf_outlined),
+                title: Text(l10n.shareAsPdf),
+                onTap: () => Navigator.pop(context, 'pdf'),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+    if (format != null && mounted) {
+      await _shareReport(asPdf: format == 'pdf');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
     final analysis = widget.arguments.analysis;
+    final isPremium = ref.watch(premiumEntitlementProvider).value == true;
     final saveState = widget.arguments.initiallySaved
         ? const AsyncData<int?>(0)
         : ref.watch(saveAnalysisProvider(_saveRequest));
@@ -135,6 +246,20 @@ class _FoodAnalysisResultPageState
             ),
           ),
           actions: [
+            if (isPremium)
+              Padding(
+                padding: const EdgeInsets.only(right: 4),
+                child: IconButton.filledTonal(
+                  tooltip: l10n.shareReport,
+                  onPressed: _isSharing ? null : _showShareOptions,
+                  icon: _isSharing
+                      ? const SizedBox.square(
+                          dimension: 18,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : const Icon(Icons.ios_share_rounded),
+                ),
+              ),
             if (analysis.needsIngredientConfirmation &&
                 !widget.arguments.initiallySaved)
               Padding(
@@ -172,26 +297,55 @@ class _FoodAnalysisResultPageState
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        _CaloriesCard(
-                          label: l10n.estimatedCalories,
-                          value: l10n.calorieRangeValue(
-                            analysis.minimumEstimatedCalories,
-                            analysis.maximumEstimatedCalories,
-                          ),
-                          estimate: l10n.centralCalorieEstimate(
-                            analysis.calories,
+                        StaggeredReveal(
+                          child: _CaloriesCard(
+                            label: l10n.estimatedCalories,
+                            value: l10n.calorieRangeValue(
+                              analysis.minimumEstimatedCalories,
+                              analysis.maximumEstimatedCalories,
+                            ),
+                            estimate: l10n.centralCalorieEstimate(
+                              analysis.calories,
+                            ),
                           ),
                         ),
                         const SizedBox(height: 16),
-                        _MealImage(imagePath: widget.arguments.imagePath),
-                        const SizedBox(height: 16),
-                        _FoodIdentityCard(
-                          name: analysis.foodName,
-                          serving: analysis.servingDescription,
-                          confidenceLabel: l10n.confidenceLabel,
-                          confidenceValue: l10n.confidenceValue(
-                            analysis.confidencePercent,
+                        StaggeredReveal(
+                          delay: const Duration(milliseconds: 90),
+                          child: _MealImage(
+                            imagePath: widget.arguments.imagePath,
                           ),
+                        ),
+                        const SizedBox(height: 16),
+                        StaggeredReveal(
+                          delay: const Duration(milliseconds: 180),
+                          child: _FoodIdentityCard(
+                            name: analysis.foodName,
+                            serving: analysis.servingDescription,
+                            confidenceLabel: l10n.confidenceLabel,
+                            confidenceValue: l10n.confidenceValue(
+                              analysis.confidencePercent,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        StaggeredReveal(
+                          delay: const Duration(milliseconds: 230),
+                          child: isPremium
+                              ? Screenshot(
+                                  controller: _reportController,
+                                  child: _PremiumReportCard(
+                                    analysis: analysis,
+                                    suggestions: _healthierSuggestions(
+                                      l10n,
+                                      analysis,
+                                    ),
+                                  ),
+                                )
+                              : _LockedReportCard(
+                                  onUpgrade: () =>
+                                      context.push(AppRoutes.premium),
+                                ),
                         ),
                         if (_correctionError != null) ...[
                           const SizedBox(height: 12),
@@ -205,71 +359,80 @@ class _FoodAnalysisResultPageState
                           ),
                         ],
                         const SizedBox(height: 20),
-                        Text(
-                          l10n.nutritionSummaryTitle,
-                          style: theme.textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.w900,
-                            letterSpacing: -0.2,
+                        StaggeredReveal(
+                          delay: const Duration(milliseconds: 260),
+                          child: Text(
+                            l10n.nutritionSummaryTitle,
+                            style: theme.textTheme.titleMedium?.copyWith(
+                              fontWeight: FontWeight.w900,
+                              letterSpacing: -0.2,
+                            ),
                           ),
                         ),
                         const SizedBox(height: 10),
-                        LayoutBuilder(
-                          builder: (context, cardConstraints) {
-                            const spacing = 12.0;
-                            final cardWidth =
-                                (cardConstraints.maxWidth - (spacing * 2)) / 3;
+                        StaggeredReveal(
+                          delay: const Duration(milliseconds: 320),
+                          child: LayoutBuilder(
+                            builder: (context, cardConstraints) {
+                              const spacing = 12.0;
+                              final cardWidth =
+                                  (cardConstraints.maxWidth - (spacing * 2)) /
+                                  3;
 
-                            return Wrap(
-                              spacing: spacing,
-                              runSpacing: spacing,
-                              children: [
-                                _NutrientCard(
-                                  width: cardWidth,
-                                  icon: Icons.fitness_center_rounded,
-                                  color: const Color(0xFF2F9E76),
-                                  label: l10n.proteinLabel,
-                                  value: l10n.gramValue(analysis.proteinGrams),
-                                ),
-                                _NutrientCard(
-                                  width: cardWidth,
-                                  icon: Icons.grain_rounded,
-                                  color: const Color(0xFFE49B3F),
-                                  label: l10n.carbsLabel,
-                                  value: l10n.gramValue(analysis.carbsGrams),
-                                ),
-                                _NutrientCard(
-                                  width: cardWidth,
-                                  icon: Icons.water_drop_rounded,
-                                  color: const Color(0xFFD46A7E),
-                                  label: l10n.fatLabel,
-                                  value: l10n.gramValue(analysis.fatGrams),
-                                ),
-                                _NutrientCard(
-                                  width: cardWidth,
-                                  icon: Icons.eco_rounded,
-                                  color: const Color(0xFF5B8FD3),
-                                  label: l10n.fiberLabel,
-                                  value: l10n.gramValue(analysis.fiberGrams),
-                                ),
-                                _NutrientCard(
-                                  width: cardWidth,
-                                  icon: Icons.cake_outlined,
-                                  color: const Color(0xFF9B6BC2),
-                                  label: l10n.sugarLabel,
-                                  value: l10n.gramValue(analysis.sugarGrams),
-                                ),
-                                _NutrientCard(
-                                  width: cardWidth,
-                                  icon: Icons.science_outlined,
-                                  color: const Color(0xFF4C93A8),
-                                  label: l10n.sodiumLabel,
-                                  value: l10n.milligramValue(
-                                    analysis.sodiumMilligrams,
+                              return Wrap(
+                                spacing: spacing,
+                                runSpacing: spacing,
+                                children: [
+                                  _NutrientCard(
+                                    width: cardWidth,
+                                    icon: Icons.fitness_center_rounded,
+                                    color: const Color(0xFF2F9E76),
+                                    label: l10n.proteinLabel,
+                                    value: l10n.gramValue(
+                                      analysis.proteinGrams,
+                                    ),
                                   ),
-                                ),
-                              ],
-                            );
-                          },
+                                  _NutrientCard(
+                                    width: cardWidth,
+                                    icon: Icons.grain_rounded,
+                                    color: const Color(0xFFE49B3F),
+                                    label: l10n.carbsLabel,
+                                    value: l10n.gramValue(analysis.carbsGrams),
+                                  ),
+                                  _NutrientCard(
+                                    width: cardWidth,
+                                    icon: Icons.water_drop_rounded,
+                                    color: const Color(0xFFD46A7E),
+                                    label: l10n.fatLabel,
+                                    value: l10n.gramValue(analysis.fatGrams),
+                                  ),
+                                  _NutrientCard(
+                                    width: cardWidth,
+                                    icon: Icons.eco_rounded,
+                                    color: const Color(0xFF5B8FD3),
+                                    label: l10n.fiberLabel,
+                                    value: l10n.gramValue(analysis.fiberGrams),
+                                  ),
+                                  _NutrientCard(
+                                    width: cardWidth,
+                                    icon: Icons.cake_outlined,
+                                    color: const Color(0xFF9B6BC2),
+                                    label: l10n.sugarLabel,
+                                    value: l10n.gramValue(analysis.sugarGrams),
+                                  ),
+                                  _NutrientCard(
+                                    width: cardWidth,
+                                    icon: Icons.science_outlined,
+                                    color: const Color(0xFF4C93A8),
+                                    label: l10n.sodiumLabel,
+                                    value: l10n.milligramValue(
+                                      analysis.sodiumMilligrams,
+                                    ),
+                                  ),
+                                ],
+                              );
+                            },
+                          ),
                         ),
                         const SizedBox(height: 16),
                         _AnalysisHighlights(
@@ -327,7 +490,9 @@ class _FoodAnalysisResultPageState
                         ),
                         const SizedBox(height: 12),
                         PremiumActionButton(
-                          onPressed: isSaved || isSaving ? null : _saveResult,
+                          onPressed: isSaved || isSaving
+                              ? null
+                              : () => _saveResult(),
                           secondary: true,
                           loading: isSaving,
                           icon: isSaved
@@ -345,7 +510,7 @@ class _FoodAnalysisResultPageState
                           _SaveError(
                             message: l10n.saveAnalysisFailed,
                             retryLabel: l10n.tryAgain,
-                            onRetry: _saveResult,
+                            onRetry: () => _saveResult(),
                           ),
                         ],
                       ],
@@ -358,6 +523,21 @@ class _FoodAnalysisResultPageState
         ),
       ),
     );
+  }
+
+  List<String> _healthierSuggestions(
+    AppLocalizations l10n,
+    FoodAnalysis analysis,
+  ) {
+    final suggestions = <String>[];
+    if (analysis.fiberGrams < 6) suggestions.add(l10n.suggestMoreFiber);
+    if (analysis.sodiumMilligrams > 700 || analysis.warnings.isNotEmpty) {
+      suggestions.add(l10n.suggestLessSodium);
+    }
+    if (analysis.proteinGrams < 20) suggestions.add(l10n.suggestMoreProtein);
+    if (analysis.calories > 700) suggestions.add(l10n.suggestSmallerPortion);
+    if (suggestions.isEmpty) suggestions.add(l10n.suggestBalancedMeal);
+    return suggestions.take(3).toList(growable: false);
   }
 
   String _analysisErrorMessage(AppLocalizations l10n, Object? error) {
@@ -374,6 +554,417 @@ class _FoodAnalysisResultPageState
       FoodAnalysisErrorType.serviceUnavailable => l10n.serviceUnavailable,
       FoodAnalysisErrorType.unknown => l10n.analysisFailed,
     };
+  }
+}
+
+class _LockedReportCard extends StatelessWidget {
+  const _LockedReportCard({required this.onUpgrade});
+
+  final VoidCallback onUpgrade;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    return Container(
+      padding: const EdgeInsets.all(22),
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          colors: [AppColors.deepEmerald, AppColors.teal],
+        ),
+        borderRadius: BorderRadius.circular(26),
+        border: Border.all(
+          color: AppColors.champagneLight.withValues(alpha: .4),
+        ),
+      ),
+      child: Column(
+        children: [
+          const Icon(
+            Icons.lock_rounded,
+            color: AppColors.champagneLight,
+            size: 30,
+          ),
+          const SizedBox(height: 10),
+          Text(
+            l10n.premiumReport,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 19,
+              fontWeight: FontWeight.w900,
+            ),
+          ),
+          const SizedBox(height: 7),
+          Text(
+            l10n.healthierSuggestions,
+            textAlign: TextAlign.center,
+            style: const TextStyle(color: Colors.white70, height: 1.35),
+          ),
+          const SizedBox(height: 16),
+          FilledButton.icon(
+            onPressed: onUpgrade,
+            style: FilledButton.styleFrom(
+              backgroundColor: AppColors.champagneLight,
+              foregroundColor: AppColors.deepEmerald,
+            ),
+            icon: const Icon(Icons.auto_awesome_rounded, size: 18),
+            label: Text(l10n.upgradeToPremium),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _PremiumReportCard extends StatelessWidget {
+  const _PremiumReportCard({required this.analysis, required this.suggestions});
+
+  final FoodAnalysis analysis;
+  final List<String> suggestions;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final colors = Theme.of(context).colorScheme;
+    return Material(
+      color: colors.surface,
+      borderRadius: BorderRadius.circular(28),
+      child: Container(
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(28),
+          border: Border.all(color: AppColors.champagne.withValues(alpha: .42)),
+          boxShadow: const [
+            BoxShadow(
+              color: Color(0x18064E3B),
+              blurRadius: 24,
+              offset: Offset(0, 10),
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Container(
+                  width: 38,
+                  height: 38,
+                  decoration: const BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [AppColors.champagneLight, AppColors.champagne],
+                    ),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.workspace_premium_rounded,
+                    color: AppColors.deepEmerald,
+                    size: 21,
+                  ),
+                ),
+                const SizedBox(width: 11),
+                Expanded(
+                  child: Text(
+                    l10n.premiumReport,
+                    style: const TextStyle(
+                      color: AppColors.teal,
+                      fontSize: 18,
+                      fontWeight: FontWeight.w900,
+                      letterSpacing: -0.2,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 22),
+            LayoutBuilder(
+              builder: (context, constraints) {
+                final compact = constraints.maxWidth < 390;
+                final health = _HealthScoreRing(score: analysis.healthScore);
+                final macros = _MacroDistributionRing(analysis: analysis);
+                if (compact) {
+                  return Column(
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [health, macros],
+                      ),
+                      const SizedBox(height: 18),
+                      _PortionPanel(analysis: analysis),
+                    ],
+                  );
+                }
+                return Row(
+                  children: [
+                    health,
+                    const SizedBox(width: 18),
+                    macros,
+                    const SizedBox(width: 18),
+                    Expanded(child: _PortionPanel(analysis: analysis)),
+                  ],
+                );
+              },
+            ),
+            const SizedBox(height: 22),
+            _ReportSection(
+              icon: Icons.shield_outlined,
+              title: l10n.ingredientRisks,
+              children: analysis.warnings.isEmpty
+                  ? [_ReportLine(text: l10n.noIngredientRisks, positive: true)]
+                  : analysis.warnings
+                        .take(3)
+                        .map((warning) => _ReportLine(text: warning))
+                        .toList(growable: false),
+            ),
+            const SizedBox(height: 16),
+            _ReportSection(
+              icon: Icons.eco_outlined,
+              title: l10n.healthierSuggestions,
+              children: suggestions
+                  .map(
+                    (suggestion) =>
+                        _ReportLine(text: suggestion, positive: true),
+                  )
+                  .toList(growable: false),
+            ),
+            const SizedBox(height: 16),
+            Center(
+              child: Text(
+                'AI Food Analyzer',
+                style: TextStyle(
+                  color: colors.onSurfaceVariant,
+                  fontSize: 10,
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: 1.1,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _HealthScoreRing extends StatelessWidget {
+  const _HealthScoreRing({required this.score});
+
+  final int score;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    return SizedBox.square(
+      dimension: 94,
+      child: CustomPaint(
+        painter: _RingPainter(
+          values: [
+            score.clamp(0, 100).toDouble(),
+            (100 - score).clamp(0, 100).toDouble(),
+          ],
+          colors: const [AppColors.emerald, Color(0xFFE9EFEA)],
+        ),
+        child: Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                '$score',
+                style: const TextStyle(
+                  fontSize: 23,
+                  fontWeight: FontWeight.w900,
+                ),
+              ),
+              Text(
+                l10n.healthScoreLabel,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  fontSize: 8,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _MacroDistributionRing extends StatelessWidget {
+  const _MacroDistributionRing({required this.analysis});
+
+  final FoodAnalysis analysis;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    return SizedBox.square(
+      dimension: 94,
+      child: CustomPaint(
+        painter: _RingPainter(
+          values: [
+            (analysis.proteinGrams * 4).toDouble(),
+            (analysis.carbsGrams * 4).toDouble(),
+            (analysis.fatGrams * 9).toDouble(),
+          ],
+          colors: const [
+            AppColors.emerald,
+            Color(0xFFE49B3F),
+            Color(0xFFD46A7E),
+          ],
+        ),
+        child: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(17),
+            child: Text(
+              l10n.macroDistribution,
+              textAlign: TextAlign.center,
+              style: const TextStyle(fontSize: 8, fontWeight: FontWeight.w800),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _RingPainter extends CustomPainter {
+  const _RingPainter({required this.values, required this.colors});
+
+  final List<double> values;
+  final List<Color> colors;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final rect = Offset.zero & size;
+    final total = values.fold<double>(0, (sum, value) => sum + value);
+    final paint = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 9
+      ..strokeCap = StrokeCap.round;
+    var start = -1.5708;
+    for (var index = 0; index < values.length; index++) {
+      final sweep = total == 0
+          ? (6.283 / values.length)
+          : (values[index] / total) * 6.283;
+      paint.color = colors[index];
+      canvas.drawArc(rect.deflate(6), start, sweep - .035, false, paint);
+      start += sweep;
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant _RingPainter oldDelegate) =>
+      oldDelegate.values != values || oldDelegate.colors != colors;
+}
+
+class _PortionPanel extends StatelessWidget {
+  const _PortionPanel({required this.analysis});
+
+  final FoodAnalysis analysis;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final weight = analysis.servingWeightGrams > 0
+        ? l10n.gramValue(analysis.servingWeightGrams)
+        : analysis.servingDescription;
+    return Container(
+      padding: const EdgeInsets.all(13),
+      decoration: BoxDecoration(
+        color: AppColors.paleChampagne.withValues(alpha: .48),
+        borderRadius: BorderRadius.circular(18),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            l10n.portionEstimate,
+            style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w800),
+          ),
+          const SizedBox(height: 5),
+          Text(
+            weight,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w900),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            analysis.servingDescription,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(fontSize: 10),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ReportSection extends StatelessWidget {
+  const _ReportSection({
+    required this.icon,
+    required this.title,
+    required this.children,
+  });
+
+  final IconData icon;
+  final String title;
+  final List<Widget> children;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Icon(icon, size: 18, color: AppColors.teal),
+            const SizedBox(width: 7),
+            Expanded(
+              child: Text(
+                title,
+                style: const TextStyle(fontWeight: FontWeight.w900),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 9),
+        ...children,
+      ],
+    );
+  }
+}
+
+class _ReportLine extends StatelessWidget {
+  const _ReportLine({required this.text, this.positive = false});
+
+  final String text;
+  final bool positive;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 7),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(
+            positive ? Icons.check_circle_rounded : Icons.warning_amber_rounded,
+            color: positive ? AppColors.emerald : const Color(0xFFD18431),
+            size: 17,
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              text,
+              style: const TextStyle(fontSize: 12, height: 1.35),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
 

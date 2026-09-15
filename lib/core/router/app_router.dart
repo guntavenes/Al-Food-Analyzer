@@ -9,6 +9,7 @@ import 'package:ai_food_analyzer/features/history/presentation/pages/history_pag
 import 'package:ai_food_analyzer/features/history/presentation/pages/saved_analysis_detail_page.dart';
 import 'package:ai_food_analyzer/features/home/presentation/pages/home_page.dart';
 import 'package:ai_food_analyzer/features/menu_scan/presentation/pages/menu_scan_page.dart';
+import 'package:ai_food_analyzer/features/nutrition_summary/presentation/pages/nutrition_summary_page.dart';
 import 'package:ai_food_analyzer/features/onboarding/presentation/pages/onboarding_page.dart';
 import 'package:ai_food_analyzer/features/premium/presentation/pages/premium_page.dart';
 import 'package:ai_food_analyzer/features/splash/presentation/pages/splash_page.dart';
@@ -125,6 +126,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         ),
       ),
       GoRoute(
+        path: AppRoutes.nutritionSummary,
+        pageBuilder: (context, state) =>
+            _premiumPage(state: state, child: const NutritionSummaryPage()),
+      ),
+      GoRoute(
         path: AppRoutes.history,
         pageBuilder: (context, state) =>
             _premiumPage(state: state, child: const HistoryPage()),
@@ -163,6 +169,7 @@ abstract final class AppRoutes {
   static const result = '/result';
   static const history = '/history';
   static const premium = '/premium';
+  static const nutritionSummary = '/nutrition-summary';
   static const menuScan = '/menu-scan';
   static const barcodeScan = '/barcode-scan';
 

@@ -346,7 +346,7 @@ class AppLocalizationsTr extends AppLocalizations {
   String get estimatedCalories => 'TAHMİNİ KALORİ';
 
   @override
-  String get nutritionSummaryTitle => 'Besin değerleri';
+  String get nutritionSummaryTitle => 'Beslenme Özeti';
 
   @override
   String calorieValue(int calories) {
@@ -647,4 +647,189 @@ class AppLocalizationsTr extends AppLocalizations {
   @override
   String get menuEstimateDisclaimer =>
       'Kalori ve sağlık puanları menü açıklamalarına dayalı tahminlerdir; gerçek içerik ve porsiyona göre değişebilir.';
+
+  @override
+  String get nutritionSummarySubtitle =>
+      'Günlük makrolarını ve son 7 gününü takip et.';
+
+  @override
+  String get todaySummary => 'Bugünün özeti';
+
+  @override
+  String get weeklyCalories => 'Son 7 gün';
+
+  @override
+  String mealsTracked(int count) {
+    return '$count öğün kaydedildi';
+  }
+
+  @override
+  String get noNutritionData => 'Henüz kayıtlı öğün yok';
+
+  @override
+  String get noNutritionDataDescription =>
+      'Analiz sonucunu kaydettiğinde günlük ve haftalık özetin burada oluşacak.';
+
+  @override
+  String get dailyAverage => 'Günlük ortalama';
+
+  @override
+  String get premiumNutritionBadge => 'PREMIUM TAKİP';
+
+  @override
+  String get searchHistory => 'Geçmişte ara';
+
+  @override
+  String get allHistory => 'Tümü';
+
+  @override
+  String get favorites => 'Favoriler';
+
+  @override
+  String get highProtein => 'Yüksek protein';
+
+  @override
+  String get selectDate => 'Tarih seç';
+
+  @override
+  String get clearDate => 'Tarihi temizle';
+
+  @override
+  String get noFilteredHistory => 'Bu filtrelere uygun öğün bulunamadı.';
+
+  @override
+  String get addToFavorites => 'Favorilere ekle';
+
+  @override
+  String get removeFromFavorites => 'Favorilerden çıkar';
+
+  @override
+  String get weeklyComparison => 'Haftalık karşılaştırma';
+
+  @override
+  String get thisWeek => 'Bu hafta';
+
+  @override
+  String get lastWeek => 'Geçen hafta';
+
+  @override
+  String calorieChangeUp(int percent) {
+    return 'Geçen haftaya göre %$percent daha fazla';
+  }
+
+  @override
+  String calorieChangeDown(int percent) {
+    return 'Geçen haftaya göre %$percent daha az';
+  }
+
+  @override
+  String get calorieChangeSame => 'Geçen haftayla aynı seviyede';
+
+  @override
+  String get premiumReport => 'Premium Analiz';
+
+  @override
+  String get macroDistribution => 'Makro dağılımı';
+
+  @override
+  String get portionEstimate => 'Porsiyon tahmini';
+
+  @override
+  String get ingredientRisks => 'İçerik riskleri';
+
+  @override
+  String get healthierSuggestions => 'Daha sağlıklı dokunuşlar';
+
+  @override
+  String get noIngredientRisks => 'Belirgin bir içerik riski bulunmadı.';
+
+  @override
+  String get suggestMoreFiber => 'Lif için sebze veya salata ekleyebilirsin.';
+
+  @override
+  String get suggestLessSodium => 'Sos ve tuzu azaltmak daha dengeli olabilir.';
+
+  @override
+  String get suggestMoreProtein => 'Protein kaynağını biraz artırabilirsin.';
+
+  @override
+  String get suggestSmallerPortion =>
+      'Daha küçük porsiyon toplam kaloriyi dengeleyebilir.';
+
+  @override
+  String get suggestBalancedMeal =>
+      'Genel dağılım dengeli görünüyor; porsiyonu koruyabilirsin.';
+
+  @override
+  String get shareReport => 'Raporu paylaş';
+
+  @override
+  String get shareAsImage => 'Görsel olarak paylaş';
+
+  @override
+  String get shareAsPdf => 'PDF olarak paylaş';
+
+  @override
+  String get preparingReport => 'Rapor hazırlanıyor...';
+
+  @override
+  String get reportShareFailed => 'Rapor hazırlanamadı. Lütfen tekrar dene.';
+
+  @override
+  String get todayProgress => 'Bugünkü ilerleme';
+
+  @override
+  String get calorieProgress => 'Kalori';
+
+  @override
+  String get proteinProgress => 'Protein';
+
+  @override
+  String targetValue(String value) {
+    return 'Hedef: $value';
+  }
+
+  @override
+  String get smartReminders => 'Akıllı hatırlatmalar';
+
+  @override
+  String get smartRemindersDescription =>
+      'Eksik günlerde ve haftalık ilerlemede seyrek bildirim al.';
+
+  @override
+  String get dailyReminderTitle => 'Beslenme takibin';
+
+  @override
+  String get dailyReminderBody =>
+      'Bugünkü analizlerini tamamla; küçük adımlar büyük fark yaratır.';
+
+  @override
+  String get notificationsPermissionRequired =>
+      'Bildirim izni verilmedi. İstersen Ayarlar\'dan açabilirsin.';
+
+  @override
+  String get nutritionGoals => 'Beslenme hedefleri';
+
+  @override
+  String get nutritionGoalsDescription =>
+      'Günlük kalori ve protein hedefini belirle.';
+
+  @override
+  String get calorieTarget => 'Günlük kalori hedefi';
+
+  @override
+  String get proteinTarget => 'Günlük protein hedefi';
+
+  @override
+  String get saveGoals => 'Hedefleri kaydet';
+
+  @override
+  String get invalidGoals => 'Lütfen geçerli hedefler gir.';
+
+  @override
+  String get weeklyInsightTitle => 'Bu haftaki ilerlemen';
+
+  @override
+  String get weeklyInsightBody =>
+      'Sebze ve yeşillik tüketimin geçen haftaya göre arttı. Böyle devam et!';
 }
