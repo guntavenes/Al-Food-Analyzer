@@ -15,6 +15,7 @@ class AnalysisHistoryLocalDataSource {
         .into(_database.foodAnalysisRecords)
         .insert(
           FoodAnalysisRecordsCompanion.insert(
+            remoteId: Value(analysis.remoteId),
             foodName: analysis.foodName,
             calories: analysis.calories,
             protein: analysis.proteinGrams,
@@ -88,9 +89,16 @@ class AnalysisHistoryLocalDataSource {
         .write(FoodAnalysisRecordsCompanion(isFavorite: Value(isFavorite)));
   }
 
+  Future<void> setRemoteId(int id, String remoteId) async {
+    await (_database.update(_database.foodAnalysisRecords)
+          ..where((record) => record.id.equals(id)))
+        .write(FoodAnalysisRecordsCompanion(remoteId: Value(remoteId)));
+  }
+
   SavedFoodAnalysisModel _mapRecord(FoodAnalysisRecord record) {
     return SavedFoodAnalysisModel(
       id: record.id,
+      remoteId: record.remoteId,
       foodName: record.foodName,
       calories: record.calories,
       proteinGrams: record.protein,

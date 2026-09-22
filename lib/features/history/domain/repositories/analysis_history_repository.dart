@@ -11,11 +11,14 @@ abstract interface class AnalysisHistoryRepository {
 
   Stream<List<SavedFoodAnalysis>> watchAnalyses();
 
+  Future<void> syncFromCloud();
+
   Future<SavedFoodAnalysis?> getAnalysis(int id);
 
   Future<void> deleteAnalysis(int id);
 
   Future<void> clearHistory();
+  Future<void> clearLocalHistory();
 
   Future<void> setFavorite(int id, {required bool isFavorite});
 }

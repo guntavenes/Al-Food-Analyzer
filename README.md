@@ -147,6 +147,17 @@ edilmeli; sağlayıcı bounce/delivery logları izlenmelidir.
 
 ## App Store Premium abonelikleri
 
+Release/TestFlight paketi her zaman aşağıdaki komutla üretilmelidir. Böylece
+API ve Supabase değerleri temiz bir Xcode/Flutter kurulumunda kaybolmaz:
+
+```bash
+flutter build ipa --release --dart-define-from-file=config/release.json
+```
+
+`config/release.json` yalnızca yerel makinede tutulur; repoya
+`config/release.example.json` eklenmiştir. Xcode Organizer kullanılacaksa önce
+aynı parametrelerle `flutter build ios --release` çalıştırılmalıdır.
+
 iOS Premium ekranı fiyatları doğrudan App Store'dan yükler, satın alma ve
 `Restore Purchases` akışlarını StoreKit 2 üzerinden yürütür. Tanımlı ürünler:
 

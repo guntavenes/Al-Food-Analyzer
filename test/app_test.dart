@@ -18,6 +18,9 @@ void main() {
           localePreferencesProvider.overrideWithValue(
             _MemoryLocalePreferences('en'),
           ),
+          analysisHistoryProvider.overrideWith(
+            (ref) => Stream.value(const <SavedFoodAnalysis>[]),
+          ),
         ],
         child: const App(),
       ),
@@ -71,7 +74,12 @@ void main() {
     final preferences = _MemoryLocalePreferences('en');
     await tester.pumpWidget(
       ProviderScope(
-        overrides: [localePreferencesProvider.overrideWithValue(preferences)],
+        overrides: [
+          localePreferencesProvider.overrideWithValue(preferences),
+          analysisHistoryProvider.overrideWith(
+            (ref) => Stream.value(const <SavedFoodAnalysis>[]),
+          ),
+        ],
         child: const App(),
       ),
     );
@@ -95,6 +103,9 @@ void main() {
         overrides: [
           localePreferencesProvider.overrideWithValue(
             _MemoryLocalePreferences('en'),
+          ),
+          analysisHistoryProvider.overrideWith(
+            (ref) => Stream.value(const <SavedFoodAnalysis>[]),
           ),
         ],
         child: const App(),

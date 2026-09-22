@@ -20,6 +20,7 @@ import { SupabaseAnalysisUsageRepository } from './usage/supabase-analysis-usage
 import { ApplePurchaseVerifier, type AppleNotificationVerifying, type ApplePurchaseVerifying } from './purchases/apple-purchase-verifier.js';
 import { z } from 'zod';
 import { findProductByBarcode } from './products/open-food-facts-service.js';
+import { SupabaseAccountDeletionService, type AccountDeletionService } from './account/supabase-account-deletion-service.js';
 
 type AppDependencies = {
   provider?: FoodAnalysisProvider;
@@ -28,6 +29,7 @@ type AppDependencies = {
   applePurchaseVerifier?: ApplePurchaseVerifying;
   appleNotificationVerifier?: AppleNotificationVerifying;
   menuProvider?: MenuAnalysisProvider;
+  accountDeletionService?: AccountDeletionService;
 };
 
 export function createApp(config: AppConfig, dependencies: AppDependencies = {}) {
@@ -48,6 +50,9 @@ export function createApp(config: AppConfig, dependencies: AppDependencies = {})
     (applePurchaseVerifier && 'verifyNotification' in applePurchaseVerifier
       ? applePurchaseVerifier as ApplePurchaseVerifying & AppleNotificationVerifying
       : undefined);
+  const accountDeletionService = dependencies.accountDeletionService ?? (config.authRequired
+    ? new SupabaseAccountDeletionService(config.supabaseUrl!, config.supabaseSecretKey!)
+    : undefined);
 
   app.disable('x-powered-by');
   app.use(helmet());
@@ -106,6 +111,17 @@ export function createApp(config: AppConfig, dependencies: AppDependencies = {})
           status: entitlement.status,
           autoRenewEnabled: entitlement.autoRenewEnabled
         });
+      } catch (error) {
+        next(error);
+      }
+    });
+    app.delete('/v1/account', requireAuth(authTokenVerifier), async (request, response, next) => {
+      try {
+        if (!accountDeletionService) {
+          throw new AppError('SERVICE_UNAVAILABLE', 'Account deletion is unavailable.', 503);
+        }
+        await accountDeletionService.deleteAccount(request.auth!.userId);
+        response.sendStatus(204);
       } catch (error) {
         next(error);
       }

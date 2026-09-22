@@ -42,6 +42,13 @@ class _AuthPageState extends State<AuthPage> {
       return;
     }
     final l10n = AppLocalizations.of(context);
+    if (!AppConfig.isSupabaseConfigured) {
+      _setMessage(
+        'Giriş şu anda kullanılamıyor. Supabase bağlantısını kontrol edip uygulamayı yeniden başlatın.',
+        _AuthMessageType.error,
+      );
+      return;
+    }
     final email = _emailController.text.trim();
     final password = _passwordController.text;
     if (!AuthInputValidator.isValidEmail(email)) {
@@ -82,6 +89,13 @@ class _AuthPageState extends State<AuthPage> {
       if (mounted) context.go(AppRoutes.home);
     } on AuthException catch (error) {
       if (mounted) {
+        final isUnconfirmed =
+            error.code == 'email_not_confirmed' ||
+            error.message.toLowerCase().contains('email not confirmed');
+        if (isUnconfirmed) {
+          setState(() => _awaitingEmailConfirmation = true);
+          _startResendCooldown();
+        }
         _setMessage(_authErrorMessage(error, l10n), _AuthMessageType.error);
       }
     } finally {
@@ -92,6 +106,13 @@ class _AuthPageState extends State<AuthPage> {
   Future<void> _resendConfirmation() async {
     if (_resendSeconds > 0) return;
     final l10n = AppLocalizations.of(context);
+    if (!AppConfig.isSupabaseConfigured) {
+      _setMessage(
+        'E-posta doğrulama servisi şu anda kullanılamıyor.',
+        _AuthMessageType.error,
+      );
+      return;
+    }
     setState(() => _isLoading = true);
     try {
       await Supabase.instance.client.auth.resend(
@@ -187,6 +208,10 @@ class _AuthPageState extends State<AuthPage> {
     }
     if (message.contains('invalid login credentials')) {
       return l10n.invalidLoginMessage;
+    }
+    if (error.code == 'email_not_confirmed' ||
+        message.contains('email not confirmed')) {
+      return l10n.checkEmailMessage;
     }
     return l10n.authGenericErrorMessage;
   }

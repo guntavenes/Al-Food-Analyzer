@@ -10,6 +10,7 @@ import type { AnalyzeInput } from '../src/contracts.js';
 import { MockFoodAnalysisProvider } from '../src/providers/mock-food-analysis-provider.js';
 import type { AppleNotificationVerifying, ApplePurchaseVerifying } from '../src/purchases/apple-purchase-verifier.js';
 import type { MenuAnalysisProvider } from '../src/providers/menu-analysis-provider.js';
+import type { AccountDeletionService } from '../src/account/supabase-account-deletion-service.js';
 
 const png = Buffer.from([137, 80, 78, 71, 13, 10, 26, 10, 1, 2, 3]);
 const baseConfig: AppConfig = {
@@ -197,6 +198,18 @@ describe('backend API', () => {
     });
   });
 
+  it('deletes the authenticated account and associated data', async () => {
+    const deletionService = new TestAccountDeletionService();
+    const response = await request(createApp({ ...baseConfig, authRequired: true }, {
+      authTokenVerifier: new TestAuthTokenVerifier(),
+      usageRepository: new TestUsageRepository(),
+      accountDeletionService: deletionService
+    })).delete('/v1/account').set('Authorization', 'Bearer valid-token');
+
+    expect(response.status).toBe(204);
+    expect(deletionService.deletedUserIds).toEqual(['3d13ab9e-2bb0-4949-b352-02fb91e1761e']);
+  });
+
   it('rejects App Store subscription verification without a session', async () => {
     const response = await request(createApp({ ...baseConfig, authRequired: true }, {
       authTokenVerifier: new TestAuthTokenVerifier(),
@@ -230,6 +243,14 @@ class TestAuthTokenVerifier implements AuthTokenVerifier {
   async verify(token: string) {
     if (token !== 'valid-token') throw new AppError('UNAUTHORIZED', 'Invalid session.', 401);
     return { userId: '3d13ab9e-2bb0-4949-b352-02fb91e1761e', isAnonymous: false };
+  }
+}
+
+class TestAccountDeletionService implements AccountDeletionService {
+  readonly deletedUserIds: string[] = [];
+
+  async deleteAccount(userId: string) {
+    this.deletedUserIds.push(userId);
   }
 }
 

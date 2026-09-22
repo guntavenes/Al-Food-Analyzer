@@ -3,6 +3,7 @@ import 'package:ai_food_analyzer/features/analysis/domain/entities/food_analysis
 class SavedFoodAnalysis extends FoodAnalysis {
   const SavedFoodAnalysis({
     required this.id,
+    this.remoteId,
     required this.imagePath,
     required this.createdAt,
     this.isFavorite = false,
@@ -24,6 +25,7 @@ class SavedFoodAnalysis extends FoodAnalysis {
   });
 
   final int id;
+  final String? remoteId;
   final String imagePath;
   final DateTime createdAt;
   final bool isFavorite;

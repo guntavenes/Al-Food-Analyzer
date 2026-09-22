@@ -22,6 +22,18 @@ class $FoodAnalysisRecordsTable extends FoodAnalysisRecords
       'PRIMARY KEY AUTOINCREMENT',
     ),
   );
+  static const VerificationMeta _remoteIdMeta = const VerificationMeta(
+    'remoteId',
+  );
+  @override
+  late final GeneratedColumn<String> remoteId = GeneratedColumn<String>(
+    'remote_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways('UNIQUE'),
+  );
   static const VerificationMeta _foodNameMeta = const VerificationMeta(
     'foodName',
   );
@@ -225,6 +237,7 @@ class $FoodAnalysisRecordsTable extends FoodAnalysisRecords
   @override
   List<GeneratedColumn> get $columns => [
     id,
+    remoteId,
     foodName,
     calories,
     protein,
@@ -258,6 +271,12 @@ class $FoodAnalysisRecordsTable extends FoodAnalysisRecords
     final data = instance.toColumns(true);
     if (data.containsKey('id')) {
       context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('remote_id')) {
+      context.handle(
+        _remoteIdMeta,
+        remoteId.isAcceptableOrUnknown(data['remote_id']!, _remoteIdMeta),
+      );
     }
     if (data.containsKey('food_name')) {
       context.handle(
@@ -423,6 +442,10 @@ class $FoodAnalysisRecordsTable extends FoodAnalysisRecords
         DriftSqlType.int,
         data['${effectivePrefix}id'],
       )!,
+      remoteId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}remote_id'],
+      ),
       foodName: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}food_name'],
@@ -507,6 +530,7 @@ class $FoodAnalysisRecordsTable extends FoodAnalysisRecords
 class FoodAnalysisRecord extends DataClass
     implements Insertable<FoodAnalysisRecord> {
   final int id;
+  final String? remoteId;
   final String foodName;
   final int calories;
   final int protein;
@@ -527,6 +551,7 @@ class FoodAnalysisRecord extends DataClass
   final bool isFavorite;
   const FoodAnalysisRecord({
     required this.id,
+    this.remoteId,
     required this.foodName,
     required this.calories,
     required this.protein,
@@ -550,6 +575,9 @@ class FoodAnalysisRecord extends DataClass
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<int>(id);
+    if (!nullToAbsent || remoteId != null) {
+      map['remote_id'] = Variable<String>(remoteId);
+    }
     map['food_name'] = Variable<String>(foodName);
     map['calories'] = Variable<int>(calories);
     map['protein'] = Variable<int>(protein);
@@ -574,6 +602,9 @@ class FoodAnalysisRecord extends DataClass
   FoodAnalysisRecordsCompanion toCompanion(bool nullToAbsent) {
     return FoodAnalysisRecordsCompanion(
       id: Value(id),
+      remoteId: remoteId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(remoteId),
       foodName: Value(foodName),
       calories: Value(calories),
       protein: Value(protein),
@@ -602,6 +633,7 @@ class FoodAnalysisRecord extends DataClass
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return FoodAnalysisRecord(
       id: serializer.fromJson<int>(json['id']),
+      remoteId: serializer.fromJson<String?>(json['remoteId']),
       foodName: serializer.fromJson<String>(json['foodName']),
       calories: serializer.fromJson<int>(json['calories']),
       protein: serializer.fromJson<int>(json['protein']),
@@ -631,6 +663,7 @@ class FoodAnalysisRecord extends DataClass
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'id': serializer.toJson<int>(id),
+      'remoteId': serializer.toJson<String?>(remoteId),
       'foodName': serializer.toJson<String>(foodName),
       'calories': serializer.toJson<int>(calories),
       'protein': serializer.toJson<int>(protein),
@@ -654,6 +687,7 @@ class FoodAnalysisRecord extends DataClass
 
   FoodAnalysisRecord copyWith({
     int? id,
+    Value<String?> remoteId = const Value.absent(),
     String? foodName,
     int? calories,
     int? protein,
@@ -674,6 +708,7 @@ class FoodAnalysisRecord extends DataClass
     bool? isFavorite,
   }) => FoodAnalysisRecord(
     id: id ?? this.id,
+    remoteId: remoteId.present ? remoteId.value : this.remoteId,
     foodName: foodName ?? this.foodName,
     calories: calories ?? this.calories,
     protein: protein ?? this.protein,
@@ -696,6 +731,7 @@ class FoodAnalysisRecord extends DataClass
   FoodAnalysisRecord copyWithCompanion(FoodAnalysisRecordsCompanion data) {
     return FoodAnalysisRecord(
       id: data.id.present ? data.id.value : this.id,
+      remoteId: data.remoteId.present ? data.remoteId.value : this.remoteId,
       foodName: data.foodName.present ? data.foodName.value : this.foodName,
       calories: data.calories.present ? data.calories.value : this.calories,
       protein: data.protein.present ? data.protein.value : this.protein,
@@ -739,6 +775,7 @@ class FoodAnalysisRecord extends DataClass
   String toString() {
     return (StringBuffer('FoodAnalysisRecord(')
           ..write('id: $id, ')
+          ..write('remoteId: $remoteId, ')
           ..write('foodName: $foodName, ')
           ..write('calories: $calories, ')
           ..write('protein: $protein, ')
@@ -764,6 +801,7 @@ class FoodAnalysisRecord extends DataClass
   @override
   int get hashCode => Object.hash(
     id,
+    remoteId,
     foodName,
     calories,
     protein,
@@ -788,6 +826,7 @@ class FoodAnalysisRecord extends DataClass
       identical(this, other) ||
       (other is FoodAnalysisRecord &&
           other.id == this.id &&
+          other.remoteId == this.remoteId &&
           other.foodName == this.foodName &&
           other.calories == this.calories &&
           other.protein == this.protein &&
@@ -810,6 +849,7 @@ class FoodAnalysisRecord extends DataClass
 
 class FoodAnalysisRecordsCompanion extends UpdateCompanion<FoodAnalysisRecord> {
   final Value<int> id;
+  final Value<String?> remoteId;
   final Value<String> foodName;
   final Value<int> calories;
   final Value<int> protein;
@@ -830,6 +870,7 @@ class FoodAnalysisRecordsCompanion extends UpdateCompanion<FoodAnalysisRecord> {
   final Value<bool> isFavorite;
   const FoodAnalysisRecordsCompanion({
     this.id = const Value.absent(),
+    this.remoteId = const Value.absent(),
     this.foodName = const Value.absent(),
     this.calories = const Value.absent(),
     this.protein = const Value.absent(),
@@ -851,6 +892,7 @@ class FoodAnalysisRecordsCompanion extends UpdateCompanion<FoodAnalysisRecord> {
   });
   FoodAnalysisRecordsCompanion.insert({
     this.id = const Value.absent(),
+    this.remoteId = const Value.absent(),
     required String foodName,
     required int calories,
     required int protein,
@@ -882,6 +924,7 @@ class FoodAnalysisRecordsCompanion extends UpdateCompanion<FoodAnalysisRecord> {
        createdAt = Value(createdAt);
   static Insertable<FoodAnalysisRecord> custom({
     Expression<int>? id,
+    Expression<String>? remoteId,
     Expression<String>? foodName,
     Expression<int>? calories,
     Expression<int>? protein,
@@ -903,6 +946,7 @@ class FoodAnalysisRecordsCompanion extends UpdateCompanion<FoodAnalysisRecord> {
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
+      if (remoteId != null) 'remote_id': remoteId,
       if (foodName != null) 'food_name': foodName,
       if (calories != null) 'calories': calories,
       if (protein != null) 'protein': protein,
@@ -928,6 +972,7 @@ class FoodAnalysisRecordsCompanion extends UpdateCompanion<FoodAnalysisRecord> {
 
   FoodAnalysisRecordsCompanion copyWith({
     Value<int>? id,
+    Value<String?>? remoteId,
     Value<String>? foodName,
     Value<int>? calories,
     Value<int>? protein,
@@ -949,6 +994,7 @@ class FoodAnalysisRecordsCompanion extends UpdateCompanion<FoodAnalysisRecord> {
   }) {
     return FoodAnalysisRecordsCompanion(
       id: id ?? this.id,
+      remoteId: remoteId ?? this.remoteId,
       foodName: foodName ?? this.foodName,
       calories: calories ?? this.calories,
       protein: protein ?? this.protein,
@@ -975,6 +1021,9 @@ class FoodAnalysisRecordsCompanion extends UpdateCompanion<FoodAnalysisRecord> {
     final map = <String, Expression>{};
     if (id.present) {
       map['id'] = Variable<int>(id.value);
+    }
+    if (remoteId.present) {
+      map['remote_id'] = Variable<String>(remoteId.value);
     }
     if (foodName.present) {
       map['food_name'] = Variable<String>(foodName.value);
@@ -1037,6 +1086,7 @@ class FoodAnalysisRecordsCompanion extends UpdateCompanion<FoodAnalysisRecord> {
   String toString() {
     return (StringBuffer('FoodAnalysisRecordsCompanion(')
           ..write('id: $id, ')
+          ..write('remoteId: $remoteId, ')
           ..write('foodName: $foodName, ')
           ..write('calories: $calories, ')
           ..write('protein: $protein, ')
@@ -1075,6 +1125,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
 typedef $$FoodAnalysisRecordsTableCreateCompanionBuilder =
     FoodAnalysisRecordsCompanion Function({
       Value<int> id,
+      Value<String?> remoteId,
       required String foodName,
       required int calories,
       required int protein,
@@ -1097,6 +1148,7 @@ typedef $$FoodAnalysisRecordsTableCreateCompanionBuilder =
 typedef $$FoodAnalysisRecordsTableUpdateCompanionBuilder =
     FoodAnalysisRecordsCompanion Function({
       Value<int> id,
+      Value<String?> remoteId,
       Value<String> foodName,
       Value<int> calories,
       Value<int> protein,
@@ -1128,6 +1180,11 @@ class $$FoodAnalysisRecordsTableFilterComposer
   });
   ColumnFilters<int> get id => $composableBuilder(
     column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get remoteId => $composableBuilder(
+    column: $table.remoteId,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -1236,6 +1293,11 @@ class $$FoodAnalysisRecordsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get remoteId => $composableBuilder(
+    column: $table.remoteId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<String> get foodName => $composableBuilder(
     column: $table.foodName,
     builder: (column) => ColumnOrderings(column),
@@ -1338,6 +1400,9 @@ class $$FoodAnalysisRecordsTableAnnotationComposer
   });
   GeneratedColumn<int> get id =>
       $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get remoteId =>
+      $composableBuilder(column: $table.remoteId, builder: (column) => column);
 
   GeneratedColumn<String> get foodName =>
       $composableBuilder(column: $table.foodName, builder: (column) => column);
@@ -1456,6 +1521,7 @@ class $$FoodAnalysisRecordsTableTableManager
           updateCompanionCallback:
               ({
                 Value<int> id = const Value.absent(),
+                Value<String?> remoteId = const Value.absent(),
                 Value<String> foodName = const Value.absent(),
                 Value<int> calories = const Value.absent(),
                 Value<int> protein = const Value.absent(),
@@ -1476,6 +1542,7 @@ class $$FoodAnalysisRecordsTableTableManager
                 Value<bool> isFavorite = const Value.absent(),
               }) => FoodAnalysisRecordsCompanion(
                 id: id,
+                remoteId: remoteId,
                 foodName: foodName,
                 calories: calories,
                 protein: protein,
@@ -1498,6 +1565,7 @@ class $$FoodAnalysisRecordsTableTableManager
           createCompanionCallback:
               ({
                 Value<int> id = const Value.absent(),
+                Value<String?> remoteId = const Value.absent(),
                 required String foodName,
                 required int calories,
                 required int protein,
@@ -1518,6 +1586,7 @@ class $$FoodAnalysisRecordsTableTableManager
                 Value<bool> isFavorite = const Value.absent(),
               }) => FoodAnalysisRecordsCompanion.insert(
                 id: id,
+                remoteId: remoteId,
                 foodName: foodName,
                 calories: calories,
                 protein: protein,

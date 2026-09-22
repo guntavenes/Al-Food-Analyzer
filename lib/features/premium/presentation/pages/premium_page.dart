@@ -1,3 +1,4 @@
+import 'package:ai_food_analyzer/core/config/legal_links.dart';
 import 'package:ai_food_analyzer/core/theme/app_colors.dart';
 import 'package:ai_food_analyzer/core/widgets/premium_screen_background.dart';
 import 'package:ai_food_analyzer/features/premium/presentation/providers/premium_purchase_provider.dart';
@@ -5,6 +6,7 @@ import 'package:ai_food_analyzer/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class PremiumPage extends ConsumerWidget {
   const PremiumPage({super.key});
@@ -49,7 +51,7 @@ class PremiumPage extends ConsumerWidget {
                   ),
                   const SizedBox(height: 28),
                   Text(
-                    l10n.premiumTitle,
+                    isPremium ? l10n.premiumPurchaseSuccess : l10n.premiumTitle,
                     textAlign: TextAlign.center,
                     style: theme.textTheme.headlineMedium?.copyWith(
                       fontWeight: FontWeight.w900,
@@ -58,7 +60,9 @@ class PremiumPage extends ConsumerWidget {
                   ),
                   const SizedBox(height: 12),
                   Text(
-                    l10n.premiumDescription,
+                    isPremium
+                        ? 'Premium özelliklerin tamamı açık.'
+                        : l10n.premiumDescription,
                     textAlign: TextAlign.center,
                     style: theme.textTheme.bodyLarge?.copyWith(
                       color: theme.colorScheme.onSurfaceVariant,
@@ -70,7 +74,33 @@ class PremiumPage extends ConsumerWidget {
                   _Benefit(label: l10n.premiumBenefitHistory),
                   _Benefit(label: l10n.premiumBenefitNutrition),
                   const SizedBox(height: 24),
-                  if (purchaseState.isLoading)
+                  if (isPremium)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 18),
+                      child: Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: AppColors.emerald.withValues(alpha: .12),
+                          borderRadius: BorderRadius.circular(18),
+                        ),
+                        child: const Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.check_circle_rounded,
+                              color: AppColors.emerald,
+                            ),
+                            SizedBox(width: 8),
+                            Text(
+                              'Premium erişimin aktif',
+                              style: TextStyle(fontWeight: FontWeight.w800),
+                            ),
+                          ],
+                        ),
+                      ),
+                    )
+                  else if (purchaseState.isLoading)
                     const Padding(
                       padding: EdgeInsets.all(24),
                       child: CircularProgressIndicator(),
@@ -164,6 +194,34 @@ class PremiumPage extends ConsumerWidget {
                     style: theme.textTheme.bodySmall?.copyWith(
                       color: theme.colorScheme.onSurfaceVariant,
                     ),
+                  ),
+                  const SizedBox(height: 10),
+                  Wrap(
+                    alignment: WrapAlignment.center,
+                    children: [
+                      TextButton(
+                        onPressed: () => launchUrl(
+                          LegalLinks.privacyPolicy,
+                          mode: LaunchMode.externalApplication,
+                        ),
+                        child: Text(
+                          Localizations.localeOf(context).languageCode == 'tr'
+                              ? 'Gizlilik Politikası'
+                              : 'Privacy Policy',
+                        ),
+                      ),
+                      TextButton(
+                        onPressed: () => launchUrl(
+                          LegalLinks.termsOfUse,
+                          mode: LaunchMode.externalApplication,
+                        ),
+                        child: Text(
+                          Localizations.localeOf(context).languageCode == 'tr'
+                              ? 'Kullanım Koşulları'
+                              : 'Terms of Use',
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),

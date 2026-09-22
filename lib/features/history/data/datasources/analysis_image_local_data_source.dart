@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
@@ -27,6 +28,23 @@ class AnalysisImageLocalDataSource {
     final destination = File(p.join(imageDirectory.path, fileName));
 
     return (await sourceFile.copy(destination.path)).path;
+  }
+
+  Future<String> persistBytes(
+    Uint8List bytes, {
+    String extension = '.jpg',
+  }) async {
+    final imageDirectory = await _imageDirectory();
+    await imageDirectory.create(recursive: true);
+    final safeExtension = extension.startsWith('.') ? extension : '.$extension';
+    final destination = File(
+      p.join(
+        imageDirectory.path,
+        'analysis_${DateTime.now().microsecondsSinceEpoch}$safeExtension',
+      ),
+    );
+    await destination.writeAsBytes(bytes, flush: true);
+    return destination.path;
   }
 
   Future<void> deleteImage(String imagePath) async {

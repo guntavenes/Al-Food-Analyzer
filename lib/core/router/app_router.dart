@@ -1,3 +1,5 @@
+import 'package:ai_food_analyzer/features/account/presentation/pages/account_preferences_pages.dart';
+import 'package:ai_food_analyzer/features/account/presentation/pages/account_settings_page.dart';
 import 'package:ai_food_analyzer/features/analysis/presentation/pages/food_analysis_result_page.dart';
 import 'package:ai_food_analyzer/features/auth/presentation/pages/auth_page.dart';
 import 'package:ai_food_analyzer/features/auth/presentation/pages/forgot_password_page.dart';
@@ -78,6 +80,26 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           child: const HomePage(),
           transition: _AppTransition.fade,
         ),
+      ),
+      GoRoute(
+        path: AppRoutes.accountSettings,
+        pageBuilder: (context, state) =>
+            _premiumPage(state: state, child: const AccountSettingsPage()),
+      ),
+      GoRoute(
+        path: AppRoutes.nutritionGoals,
+        pageBuilder: (context, state) =>
+            _premiumPage(state: state, child: const NutritionGoalsPage()),
+      ),
+      GoRoute(
+        path: AppRoutes.notificationSettings,
+        pageBuilder: (context, state) =>
+            _premiumPage(state: state, child: const NotificationSettingsPage()),
+      ),
+      GoRoute(
+        path: AppRoutes.about,
+        pageBuilder: (context, state) =>
+            _premiumPage(state: state, child: const AboutPage()),
       ),
       GoRoute(
         path: AppRoutes.camera,
@@ -164,6 +186,10 @@ abstract final class AppRoutes {
   static const forgotPassword = '/forgot-password';
   static const resetPassword = '/reset-password';
   static const home = '/';
+  static const accountSettings = '/account-settings';
+  static const nutritionGoals = '/account-settings/nutrition-goals';
+  static const notificationSettings = '/account-settings/notifications';
+  static const about = '/account-settings/about';
   static const camera = '/camera';
   static const preview = '/preview';
   static const result = '/result';

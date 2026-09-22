@@ -1,13 +1,16 @@
 import 'dart:async';
 
+import 'package:ai_food_analyzer/core/config/app_config.dart';
 import 'package:ai_food_analyzer/core/database/app_database.dart';
 import 'package:ai_food_analyzer/features/analysis/domain/entities/food_analysis.dart';
+import 'package:ai_food_analyzer/features/history/data/datasources/analysis_history_cloud_data_source.dart';
 import 'package:ai_food_analyzer/features/history/data/datasources/analysis_history_local_data_source.dart';
 import 'package:ai_food_analyzer/features/history/data/datasources/analysis_image_local_data_source.dart';
 import 'package:ai_food_analyzer/features/history/data/repositories/analysis_history_repository_impl.dart';
 import 'package:ai_food_analyzer/features/history/domain/entities/saved_food_analysis.dart';
 import 'package:ai_food_analyzer/features/history/domain/repositories/analysis_history_repository.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 final appDatabaseProvider = Provider<AppDatabase>((ref) {
   final database = AppDatabase();
@@ -25,18 +28,35 @@ final analysisImageLocalDataSourceProvider =
       return AnalysisImageLocalDataSource();
     });
 
+final analysisHistoryCloudDataSourceProvider =
+    Provider<AnalysisHistoryCloudDataSource?>((ref) {
+      if (!AppConfig.isSupabaseConfigured) return null;
+      return AnalysisHistoryCloudDataSource(Supabase.instance.client);
+    });
+
 final analysisHistoryRepositoryProvider = Provider<AnalysisHistoryRepository>((
   ref,
 ) {
   return AnalysisHistoryRepositoryImpl(
     ref.watch(analysisHistoryLocalDataSourceProvider),
     ref.watch(analysisImageLocalDataSourceProvider),
+    ref.watch(analysisHistoryCloudDataSourceProvider),
   );
 });
 
 final analysisHistoryProvider =
     StreamProvider.autoDispose<List<SavedFoodAnalysis>>((ref) {
-      return ref.watch(analysisHistoryRepositoryProvider).watchAnalyses();
+      final repository = ref.watch(analysisHistoryRepositoryProvider);
+      if (ref.watch(analysisHistoryCloudDataSourceProvider) != null) {
+        unawaited(() async {
+          try {
+            await repository.syncFromCloud();
+          } on Object {
+            // Local history remains available while cloud sync is offline.
+          }
+        }());
+      }
+      return repository.watchAnalyses();
     });
 
 final savedAnalysisProvider = FutureProvider.autoDispose

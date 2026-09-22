@@ -3,6 +3,8 @@ import 'package:drift/drift.dart';
 class FoodAnalysisRecords extends Table {
   IntColumn get id => integer().autoIncrement()();
 
+  TextColumn get remoteId => text().nullable().unique()();
+
   TextColumn get foodName => text()();
 
   IntColumn get calories => integer()();

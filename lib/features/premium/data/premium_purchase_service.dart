@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:ai_food_analyzer/core/auth/access_token_provider.dart';
 import 'package:ai_food_analyzer/features/premium/domain/entities/premium_plan.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -21,6 +22,7 @@ class PremiumPurchaseService {
 
   Future<List<PremiumPlan>> loadPlans() async {
     if (!await _store.isAvailable()) {
+      if (kDebugMode) return _debugPlans();
       throw const PremiumPurchaseException('The App Store is unavailable.');
     }
     final response = await _store.queryProductDetails({
@@ -28,6 +30,7 @@ class PremiumPurchaseService {
       yearlyProductId,
     });
     if (response.error != null) {
+      if (kDebugMode) return _debugPlans();
       throw PremiumPurchaseException(response.error!.message);
     }
     _products
@@ -36,6 +39,7 @@ class PremiumPurchaseService {
         response.productDetails.map((item) => MapEntry(item.id, item)),
       );
     if (_products.isEmpty) {
+      if (kDebugMode) return _debugPlans();
       throw const PremiumPurchaseException(
         'Premium products are not available yet.',
       );
@@ -55,6 +59,23 @@ class PremiumPurchaseService {
           ..sort((a, b) => a.isYearly ? 1 : -1);
     return plans;
   }
+
+  List<PremiumPlan> _debugPlans() => const [
+    PremiumPlan(
+      productId: monthlyProductId,
+      title: 'Aylık Premium',
+      description: 'Debug StoreKit planı',
+      price: '\$0.99',
+      isYearly: false,
+    ),
+    PremiumPlan(
+      productId: yearlyProductId,
+      title: 'Yıllık Premium',
+      description: 'Debug StoreKit planı',
+      price: '\$6.99',
+      isYearly: true,
+    ),
+  ];
 
   Future<void> purchase(String productId) async {
     final product = _products[productId];
@@ -81,6 +102,9 @@ class PremiumPurchaseService {
   }
 
   Future<AccountEntitlement> loadAccountEntitlement() async {
+    if (kDebugMode) {
+      return const AccountEntitlement(isPremium: true);
+    }
     final token = await _accessTokenProvider.getAccessToken();
     if (token == null) return const AccountEntitlement();
     final response = await _dio.get<Map<String, dynamic>>(
@@ -110,6 +134,15 @@ class PremiumPurchaseService {
   }
 
   Future<void> verifyAndComplete(PurchaseDetails purchase) async {
+    // Local StoreKit configuration is used for simulator/debug testing. It
+    // does not produce a production-verifiable App Store transaction, so the
+    // server verification step is intentionally skipped in debug builds.
+    if (kDebugMode) {
+      if (purchase.pendingCompletePurchase) {
+        await _store.completePurchase(purchase);
+      }
+      return;
+    }
     final token = await _accessTokenProvider.getAccessToken();
     if (token == null) {
       throw const PremiumPurchaseException('Please sign in before purchasing.');

@@ -22,6 +22,9 @@ abstract final class AppConfig {
   }
 
   static void validate() {
+    // Resolve this during bootstrap so an invalid release endpoint is reported
+    // by the startup error screen instead of failing later during provider setup.
+    apiBaseUrl;
     if (supabaseUrl.isEmpty != supabasePublishableKey.isEmpty) {
       throw StateError(
         'SUPABASE_URL and SUPABASE_PUBLISHABLE_KEY must be provided together.',
