@@ -481,6 +481,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get analysisSaved => 'Analysis saved';
 
   @override
+  String get iAteThisMeal => 'Add to Daily Log';
+
+  @override
+  String get mealAlreadyTracked => 'Added to daily tracking';
+
+  @override
+  String get mealAddedToTracker =>
+      'Meal added to your daily nutrition tracking';
+
+  @override
   String get saveAnalysisFailed =>
       'The analysis could not be saved. Please try again.';
 
@@ -702,6 +712,15 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get noFilteredHistory => 'No meals match these filters.';
+
+  @override
+  String get consumedMeals => 'Eaten';
+
+  @override
+  String get markAsEaten => 'Add to daily log';
+
+  @override
+  String get removeFromDailyTracking => 'Remove from daily tracking';
 
   @override
   String get addToFavorites => 'Add to favorites';

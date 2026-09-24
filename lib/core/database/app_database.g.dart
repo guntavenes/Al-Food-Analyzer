@@ -234,6 +234,21 @@ class $FoodAnalysisRecordsTable extends FoodAnalysisRecords
     ),
     defaultValue: const Constant(false),
   );
+  static const VerificationMeta _isConsumedMeta = const VerificationMeta(
+    'isConsumed',
+  );
+  @override
+  late final GeneratedColumn<bool> isConsumed = GeneratedColumn<bool>(
+    'is_consumed',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("is_consumed" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -256,6 +271,7 @@ class $FoodAnalysisRecordsTable extends FoodAnalysisRecords
     imagePath,
     createdAt,
     isFavorite,
+    isConsumed,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -429,6 +445,12 @@ class $FoodAnalysisRecordsTable extends FoodAnalysisRecords
         isFavorite.isAcceptableOrUnknown(data['is_favorite']!, _isFavoriteMeta),
       );
     }
+    if (data.containsKey('is_consumed')) {
+      context.handle(
+        _isConsumedMeta,
+        isConsumed.isAcceptableOrUnknown(data['is_consumed']!, _isConsumedMeta),
+      );
+    }
     return context;
   }
 
@@ -518,6 +540,10 @@ class $FoodAnalysisRecordsTable extends FoodAnalysisRecords
         DriftSqlType.bool,
         data['${effectivePrefix}is_favorite'],
       )!,
+      isConsumed: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}is_consumed'],
+      )!,
     );
   }
 
@@ -549,6 +575,7 @@ class FoodAnalysisRecord extends DataClass
   final String imagePath;
   final DateTime createdAt;
   final bool isFavorite;
+  final bool isConsumed;
   const FoodAnalysisRecord({
     required this.id,
     this.remoteId,
@@ -570,6 +597,7 @@ class FoodAnalysisRecord extends DataClass
     required this.imagePath,
     required this.createdAt,
     required this.isFavorite,
+    required this.isConsumed,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -596,6 +624,7 @@ class FoodAnalysisRecord extends DataClass
     map['image_path'] = Variable<String>(imagePath);
     map['created_at'] = Variable<DateTime>(createdAt);
     map['is_favorite'] = Variable<bool>(isFavorite);
+    map['is_consumed'] = Variable<bool>(isConsumed);
     return map;
   }
 
@@ -623,6 +652,7 @@ class FoodAnalysisRecord extends DataClass
       imagePath: Value(imagePath),
       createdAt: Value(createdAt),
       isFavorite: Value(isFavorite),
+      isConsumed: Value(isConsumed),
     );
   }
 
@@ -656,6 +686,7 @@ class FoodAnalysisRecord extends DataClass
       imagePath: serializer.fromJson<String>(json['imagePath']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
       isFavorite: serializer.fromJson<bool>(json['isFavorite']),
+      isConsumed: serializer.fromJson<bool>(json['isConsumed']),
     );
   }
   @override
@@ -682,6 +713,7 @@ class FoodAnalysisRecord extends DataClass
       'imagePath': serializer.toJson<String>(imagePath),
       'createdAt': serializer.toJson<DateTime>(createdAt),
       'isFavorite': serializer.toJson<bool>(isFavorite),
+      'isConsumed': serializer.toJson<bool>(isConsumed),
     };
   }
 
@@ -706,6 +738,7 @@ class FoodAnalysisRecord extends DataClass
     String? imagePath,
     DateTime? createdAt,
     bool? isFavorite,
+    bool? isConsumed,
   }) => FoodAnalysisRecord(
     id: id ?? this.id,
     remoteId: remoteId.present ? remoteId.value : this.remoteId,
@@ -727,6 +760,7 @@ class FoodAnalysisRecord extends DataClass
     imagePath: imagePath ?? this.imagePath,
     createdAt: createdAt ?? this.createdAt,
     isFavorite: isFavorite ?? this.isFavorite,
+    isConsumed: isConsumed ?? this.isConsumed,
   );
   FoodAnalysisRecord copyWithCompanion(FoodAnalysisRecordsCompanion data) {
     return FoodAnalysisRecord(
@@ -768,6 +802,9 @@ class FoodAnalysisRecord extends DataClass
       isFavorite: data.isFavorite.present
           ? data.isFavorite.value
           : this.isFavorite,
+      isConsumed: data.isConsumed.present
+          ? data.isConsumed.value
+          : this.isConsumed,
     );
   }
 
@@ -793,13 +830,14 @@ class FoodAnalysisRecord extends DataClass
           ..write('analysisDescription: $analysisDescription, ')
           ..write('imagePath: $imagePath, ')
           ..write('createdAt: $createdAt, ')
-          ..write('isFavorite: $isFavorite')
+          ..write('isFavorite: $isFavorite, ')
+          ..write('isConsumed: $isConsumed')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(
+  int get hashCode => Object.hashAll([
     id,
     remoteId,
     foodName,
@@ -820,7 +858,8 @@ class FoodAnalysisRecord extends DataClass
     imagePath,
     createdAt,
     isFavorite,
-  );
+    isConsumed,
+  ]);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -844,7 +883,8 @@ class FoodAnalysisRecord extends DataClass
           other.analysisDescription == this.analysisDescription &&
           other.imagePath == this.imagePath &&
           other.createdAt == this.createdAt &&
-          other.isFavorite == this.isFavorite);
+          other.isFavorite == this.isFavorite &&
+          other.isConsumed == this.isConsumed);
 }
 
 class FoodAnalysisRecordsCompanion extends UpdateCompanion<FoodAnalysisRecord> {
@@ -868,6 +908,7 @@ class FoodAnalysisRecordsCompanion extends UpdateCompanion<FoodAnalysisRecord> {
   final Value<String> imagePath;
   final Value<DateTime> createdAt;
   final Value<bool> isFavorite;
+  final Value<bool> isConsumed;
   const FoodAnalysisRecordsCompanion({
     this.id = const Value.absent(),
     this.remoteId = const Value.absent(),
@@ -889,6 +930,7 @@ class FoodAnalysisRecordsCompanion extends UpdateCompanion<FoodAnalysisRecord> {
     this.imagePath = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.isFavorite = const Value.absent(),
+    this.isConsumed = const Value.absent(),
   });
   FoodAnalysisRecordsCompanion.insert({
     this.id = const Value.absent(),
@@ -911,6 +953,7 @@ class FoodAnalysisRecordsCompanion extends UpdateCompanion<FoodAnalysisRecord> {
     required String imagePath,
     required DateTime createdAt,
     this.isFavorite = const Value.absent(),
+    this.isConsumed = const Value.absent(),
   }) : foodName = Value(foodName),
        calories = Value(calories),
        protein = Value(protein),
@@ -943,6 +986,7 @@ class FoodAnalysisRecordsCompanion extends UpdateCompanion<FoodAnalysisRecord> {
     Expression<String>? imagePath,
     Expression<DateTime>? createdAt,
     Expression<bool>? isFavorite,
+    Expression<bool>? isConsumed,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -967,6 +1011,7 @@ class FoodAnalysisRecordsCompanion extends UpdateCompanion<FoodAnalysisRecord> {
       if (imagePath != null) 'image_path': imagePath,
       if (createdAt != null) 'created_at': createdAt,
       if (isFavorite != null) 'is_favorite': isFavorite,
+      if (isConsumed != null) 'is_consumed': isConsumed,
     });
   }
 
@@ -991,6 +1036,7 @@ class FoodAnalysisRecordsCompanion extends UpdateCompanion<FoodAnalysisRecord> {
     Value<String>? imagePath,
     Value<DateTime>? createdAt,
     Value<bool>? isFavorite,
+    Value<bool>? isConsumed,
   }) {
     return FoodAnalysisRecordsCompanion(
       id: id ?? this.id,
@@ -1013,6 +1059,7 @@ class FoodAnalysisRecordsCompanion extends UpdateCompanion<FoodAnalysisRecord> {
       imagePath: imagePath ?? this.imagePath,
       createdAt: createdAt ?? this.createdAt,
       isFavorite: isFavorite ?? this.isFavorite,
+      isConsumed: isConsumed ?? this.isConsumed,
     );
   }
 
@@ -1079,6 +1126,9 @@ class FoodAnalysisRecordsCompanion extends UpdateCompanion<FoodAnalysisRecord> {
     if (isFavorite.present) {
       map['is_favorite'] = Variable<bool>(isFavorite.value);
     }
+    if (isConsumed.present) {
+      map['is_consumed'] = Variable<bool>(isConsumed.value);
+    }
     return map;
   }
 
@@ -1104,7 +1154,8 @@ class FoodAnalysisRecordsCompanion extends UpdateCompanion<FoodAnalysisRecord> {
           ..write('analysisDescription: $analysisDescription, ')
           ..write('imagePath: $imagePath, ')
           ..write('createdAt: $createdAt, ')
-          ..write('isFavorite: $isFavorite')
+          ..write('isFavorite: $isFavorite, ')
+          ..write('isConsumed: $isConsumed')
           ..write(')'))
         .toString();
   }
@@ -1144,6 +1195,7 @@ typedef $$FoodAnalysisRecordsTableCreateCompanionBuilder =
       required String imagePath,
       required DateTime createdAt,
       Value<bool> isFavorite,
+      Value<bool> isConsumed,
     });
 typedef $$FoodAnalysisRecordsTableUpdateCompanionBuilder =
     FoodAnalysisRecordsCompanion Function({
@@ -1167,6 +1219,7 @@ typedef $$FoodAnalysisRecordsTableUpdateCompanionBuilder =
       Value<String> imagePath,
       Value<DateTime> createdAt,
       Value<bool> isFavorite,
+      Value<bool> isConsumed,
     });
 
 class $$FoodAnalysisRecordsTableFilterComposer
@@ -1275,6 +1328,11 @@ class $$FoodAnalysisRecordsTableFilterComposer
 
   ColumnFilters<bool> get isFavorite => $composableBuilder(
     column: $table.isFavorite,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get isConsumed => $composableBuilder(
+    column: $table.isConsumed,
     builder: (column) => ColumnFilters(column),
   );
 }
@@ -1387,6 +1445,11 @@ class $$FoodAnalysisRecordsTableOrderingComposer
     column: $table.isFavorite,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<bool> get isConsumed => $composableBuilder(
+    column: $table.isConsumed,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$FoodAnalysisRecordsTableAnnotationComposer
@@ -1475,6 +1538,11 @@ class $$FoodAnalysisRecordsTableAnnotationComposer
     column: $table.isFavorite,
     builder: (column) => column,
   );
+
+  GeneratedColumn<bool> get isConsumed => $composableBuilder(
+    column: $table.isConsumed,
+    builder: (column) => column,
+  );
 }
 
 class $$FoodAnalysisRecordsTableTableManager
@@ -1540,6 +1608,7 @@ class $$FoodAnalysisRecordsTableTableManager
                 Value<String> imagePath = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<bool> isFavorite = const Value.absent(),
+                Value<bool> isConsumed = const Value.absent(),
               }) => FoodAnalysisRecordsCompanion(
                 id: id,
                 remoteId: remoteId,
@@ -1561,6 +1630,7 @@ class $$FoodAnalysisRecordsTableTableManager
                 imagePath: imagePath,
                 createdAt: createdAt,
                 isFavorite: isFavorite,
+                isConsumed: isConsumed,
               ),
           createCompanionCallback:
               ({
@@ -1584,6 +1654,7 @@ class $$FoodAnalysisRecordsTableTableManager
                 required String imagePath,
                 required DateTime createdAt,
                 Value<bool> isFavorite = const Value.absent(),
+                Value<bool> isConsumed = const Value.absent(),
               }) => FoodAnalysisRecordsCompanion.insert(
                 id: id,
                 remoteId: remoteId,
@@ -1605,6 +1676,7 @@ class $$FoodAnalysisRecordsTableTableManager
                 imagePath: imagePath,
                 createdAt: createdAt,
                 isFavorite: isFavorite,
+                isConsumed: isConsumed,
               ),
           withReferenceMapper: (p0) => p0
               .map((e) => (e.readTable(table), BaseReferences(db, table, e)))

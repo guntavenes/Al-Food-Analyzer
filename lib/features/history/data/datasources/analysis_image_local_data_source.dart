@@ -48,9 +48,10 @@ class AnalysisImageLocalDataSource {
   }
 
   Future<void> deleteImage(String imagePath) async {
+    final resolvedPath = await resolveImagePath(imagePath);
     final imageDirectory = await _imageDirectory();
     final normalizedDirectory = p.normalize(imageDirectory.absolute.path);
-    final file = File(imagePath);
+    final file = File(resolvedPath);
     final normalizedFile = p.normalize(file.absolute.path);
 
     if (!p.isWithin(normalizedDirectory, normalizedFile)) {
@@ -60,6 +61,16 @@ class AnalysisImageLocalDataSource {
     if (await file.exists()) {
       await file.delete();
     }
+  }
+
+  /// Resolves paths saved before an iOS application-container path change.
+  Future<String> resolveImagePath(String storedPath) async {
+    if (await File(storedPath).exists()) return storedPath;
+
+    final fileName = p.basename(storedPath);
+    if (fileName.isEmpty || fileName == '.') return storedPath;
+    final currentPath = p.join((await _imageDirectory()).path, fileName);
+    return await File(currentPath).exists() ? currentPath : storedPath;
   }
 
   Future<Directory> _imageDirectory() async {

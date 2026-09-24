@@ -1,0 +1,75 @@
+ENES GÜNTAV
+BT Uzmanı | .NET ve Full Stack Geliştirici
+PROFIL
+Bankacılık sektöründe hazine ve dış işlemler uygulamaları üzerinde
+çalışıyorum. .NET, ASP.NET Core, Angular, Oracle ve MSSQL
+teknolojileriyle yazılım geliştirme deneyimine sahibim. Kafka,
+Debezium, OpenShift, Redis, Amazon S3, Grafana, Prometheus ve
+İLETIŞIM
+Dynamic Trace teknolojilerini veri akışı, sistem izleme, metrik takibi ve
+İstanbul
+gözlemlenebilirlik süreçlerinde kullanıyorum. Mikroservis mimarisi, API
+0533 560 11 79 geliştirme, performans optimizasyonu ve uygulama entegrasyonu
+guntav.enes@gmail.com alanlarında çalışıyorum. Ayrıca Scrum Master olarak teknik ekip
+koordinasyonu ve mentorluk deneyimine sahibim.
+linkedin.com/in/enes-güntav-85b2051a8
+github.com/guntavenes
+DENEYIM
+TEKNIK ALANLAR BT Uzmanı | VakıfBank İstanbul | Temmuz 2022 –
+C# • .NET 6/8 • ASP.NET Core • Web API Günümüz
+Angular • TypeScript • .NET MAUI • Power Apps Hazine ve Dış İşlemler Uygulama Geliştirme Müdürlüğü
+Oracle • MSSQL • PL/SQL • Redis
+• Yüksek işlem hacimli hazine uygulamalarında yazılım geliştirme, entegrasyon
+Kafka • Debezium • Amazon S3 ve bakım çalışmalarını yürütüyorum.
+• Hazine Arka Ofis, Hazine Ön Ofis, Limit Yönetimi ve Hazine Değerleme
+Azure DevOps • Git • TFS • OpenShift
+projelerinde aktif rol aldım.
+Prometheus • Grafana • Elastic • Hazine Değerleme projesinin geliştirme çalışmalarına devam ediyorum.
+Mikroservis mimarisi • API tasarımı • Hazine uygulamalarının mimari tasarım, teknoloji seçimi, yazılım geliştirme,
+entegrasyon ve canlıya alma süreçlerinde aktif rol alıyorum.
+Performans optimizasyonu • Unit test
+• Hazine Arka Ofis dışındaki projelerin mikroservis mimarisiyle geliştirilmesi ve
+sürdürülebilirliği çalışmalarında görev aldım.
+EK BILGILER
+• Kafka ve Debezium kullanarak gerçek zamanlı veri akışı ve uygulama
+entegrasyonu süreçlerinde çalışıyorum.
+İngilizce: Temel seviye
+• Oracle ve MSSQL veritabanlarında PL/SQL prosedürleri, sorgular, indeksler
+Askerlik: Tamamlandı
+ve tablolar üzerinde performans iyileştirmeleri gerçekleştiriyorum.
+Ehliyet: A, B, B1, D • Kod inceleme, unit test, loglama ve Azure DevOps CI/CD süreçlerinde görev
+alıyorum.
+Hibrit / uzaktan çalışmaya uygun
+• OpenShift, Redis, Amazon S3, Grafana, Prometheus ve Dynamic Trace
+Seyahat engeli yok
+teknolojilerini izleme, metrik takibi ve gözlemlenebilirlik süreçlerinde
+Doğum: 06.09.1997 kullanıyorum.
+• Limit Yönetimi ve Hazine Değerleme projelerinde Scrum Master olarak görev
+alıyorum.
+• 6 kişilik ekibin sprint planlama, daily, review, retrospective ve PBI takip
+süreçlerini yürütüyorum.
+• Teknik karar alma, ekip koordinasyonu ve mentorluk faaliyetlerine katkı
+sağlıyorum.
+Yazılım Uzmanı | NAVAPP Yazılım ve Danışmanlık
+Ankara | Aralık 2021 – Temmuz 2022
+• Dynamics 365 Business Central üzerinde Microsoft AL kullanarak müşteriye
+özel geliştirmeler ve ERP uzantıları hazırladım.
+• Finans, muhasebe, yemek ve benzeri kurumsal süreçler için raporlar
+geliştirdim; müşteri desteği ve iyileştirme çalışmalarını yürüttüm.
+• Power Apps ve .NET MAUI ile uygulama geliştirme süreçlerine katkı
+sağladım.
+PROJELER
+• AI Food Analyzer — Görüntü analizi ve yapay zekâ kullanarak günlük
+öğünlerde ve menülerde yer alan yiyeceklerin kalori ve besin değerlerini
+tahminleyen uygulama. Kullanıcıların günlük kalori takibi yapmasına ve
+kişisel hedefler belirlemesine olanak sağlar.
+• Drinkly — Günlük su tüketimini takip etmeye yardımcı olan ve verileri akıllı
+saat üzerinden görüntülemeyi sağlayan mobil uygulama.
+• Çeyizim — Çeyiz ihtiyaçlarının ve alışveriş listesinin düzenli şekilde
+oluşturulmasını ve takip edilmesini sağlayan uygulama.
+• Tespit Drone — Bitirme Projesi. Görüntü işleme kullanarak belirlenen
+bölgelerde yasa dışı ekimi yapılan bitkileri tespit eden; elde edilen görüntü ve
+konum bilgilerini ilgili kolluk birimlerine aktaran drone projesi.
+EĞITIM
+Bilgisayar Mühendisliği Erciyes Üniversitesi, Kayseri |
+2015 – 2020

@@ -49,6 +49,7 @@ class AnalysisHistoryRepositoryImpl implements AnalysisHistoryRepository {
           detectedFoods: analysis.detectedFoods,
           imagePath: persistentImagePath,
           createdAt: createdAt,
+          isConsumed: false,
         ),
       );
       final cloud = _cloudDataSource;
@@ -62,6 +63,10 @@ class AnalysisHistoryRepositoryImpl implements AnalysisHistoryRepository {
             );
             if (uploaded?.remoteId != null) {
               await _localDataSource.setRemoteId(localId, uploaded!.remoteId!);
+              final current = await _localDataSource.getAnalysis(localId);
+              if (current?.isConsumed ?? false) {
+                await cloud.setConsumed(uploaded.remoteId!, true);
+              }
             }
           } on Object {
             // The local result is already available. A later history sync
@@ -84,6 +89,17 @@ class AnalysisHistoryRepositoryImpl implements AnalysisHistoryRepository {
   @override
   Stream<List<SavedFoodAnalysis>> watchAnalyses() {
     return _localDataSource.watchAnalyses();
+  }
+
+  @override
+  Future<void> repairLocalImagePaths() async {
+    final analyses = await _localDataSource.getAllAnalyses();
+    for (final analysis in analyses) {
+      final resolved = await _imageStore.resolveImagePath(analysis.imagePath);
+      if (resolved != analysis.imagePath) {
+        await _localDataSource.setImagePath(analysis.id, resolved);
+      }
+    }
   }
 
   @override
@@ -112,6 +128,7 @@ class AnalysisHistoryRepositoryImpl implements AnalysisHistoryRepository {
           imagePath: localPath,
           createdAt: item.createdAt,
           isFavorite: item.isFavorite,
+          isConsumed: item.isConsumed,
           foodName: item.foodName,
           calories: item.calories,
           proteinGrams: item.proteinGrams,
@@ -131,10 +148,11 @@ class AnalysisHistoryRepositoryImpl implements AnalysisHistoryRepository {
       );
     }
     for (final item in local.where((entry) => entry.remoteId == null)) {
-      if (!await File(item.imagePath).exists()) continue;
+      final imagePath = await _imageStore.resolveImagePath(item.imagePath);
+      if (!await File(imagePath).exists()) continue;
       final uploaded = await cloud.upload(
         analysis: item,
-        imagePath: item.imagePath,
+        imagePath: imagePath,
         createdAt: item.createdAt,
       );
       if (uploaded?.remoteId != null) {
@@ -144,8 +162,15 @@ class AnalysisHistoryRepositoryImpl implements AnalysisHistoryRepository {
   }
 
   @override
-  Future<SavedFoodAnalysis?> getAnalysis(int id) {
-    return _localDataSource.getAnalysis(id);
+  Future<SavedFoodAnalysis?> getAnalysis(int id) async {
+    var analysis = await _localDataSource.getAnalysis(id);
+    if (analysis == null) return null;
+    final resolved = await _imageStore.resolveImagePath(analysis.imagePath);
+    if (resolved != analysis.imagePath) {
+      await _localDataSource.setImagePath(id, resolved);
+      analysis = await _localDataSource.getAnalysis(id);
+    }
+    return analysis;
   }
 
   @override
@@ -183,6 +208,15 @@ class AnalysisHistoryRepositoryImpl implements AnalysisHistoryRepository {
     final analysis = await _localDataSource.getAnalysis(id);
     if (analysis?.remoteId != null) {
       await _cloudDataSource?.setFavorite(analysis!.remoteId!, isFavorite);
+    }
+  }
+
+  @override
+  Future<void> setConsumed(int id, {required bool isConsumed}) async {
+    await _localDataSource.setConsumed(id, isConsumed: isConsumed);
+    final analysis = await _localDataSource.getAnalysis(id);
+    if (analysis?.remoteId != null) {
+      await _cloudDataSource?.setConsumed(analysis!.remoteId!, isConsumed);
     }
   }
 }

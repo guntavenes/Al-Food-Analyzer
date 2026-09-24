@@ -17,12 +17,18 @@ class _CameraPageState extends State<CameraPage> with WidgetsBindingObserver {
   bool _isCapturing = false;
   bool _isInitializing = true;
   CameraException? _cameraError;
+  int _cameraGeneration = 0;
+  bool _isAppActive = true;
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.inactive) {
+    if (state == AppLifecycleState.inactive ||
+        state == AppLifecycleState.paused) {
+      _isAppActive = false;
+      _cameraGeneration++;
       _disposeController();
-    } else if (state == AppLifecycleState.resumed && _controller == null) {
+    } else if (state == AppLifecycleState.resumed) {
+      _isAppActive = true;
       _initializeCamera();
     }
   }
@@ -48,6 +54,7 @@ class _CameraPageState extends State<CameraPage> with WidgetsBindingObserver {
   }
 
   Future<void> _initializeCamera() async {
+    final generation = ++_cameraGeneration;
     if (mounted) {
       setState(() {
         _isInitializing = true;
@@ -73,7 +80,7 @@ class _CameraPageState extends State<CameraPage> with WidgetsBindingObserver {
       );
 
       await controller.initialize();
-      if (!mounted) {
+      if (!mounted || !_isAppActive || generation != _cameraGeneration) {
         await controller.dispose();
         return;
       }
@@ -84,7 +91,7 @@ class _CameraPageState extends State<CameraPage> with WidgetsBindingObserver {
         _isInitializing = false;
       });
     } on CameraException catch (error) {
-      if (mounted) {
+      if (mounted && generation == _cameraGeneration) {
         setState(() {
           _cameraError = error;
           _isInitializing = false;

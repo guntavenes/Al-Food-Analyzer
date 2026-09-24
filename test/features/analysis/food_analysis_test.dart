@@ -367,7 +367,7 @@ void main() {
     expect(find.text('32 g'), findsOneWidget);
     expect(find.text('%87'), findsOneWidget);
     expect(find.text('Analyze Another Meal'), findsOneWidget);
-    expect(find.text('Save Result'), findsOneWidget);
+    expect(find.text('Add to Daily Log'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
 

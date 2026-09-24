@@ -47,6 +47,7 @@ class AnalysisHistoryLocalDataSource {
             imagePath: analysis.imagePath,
             createdAt: analysis.createdAt,
             isFavorite: Value(analysis.isFavorite),
+            isConsumed: Value(analysis.isConsumed),
           ),
         );
   }
@@ -95,6 +96,18 @@ class AnalysisHistoryLocalDataSource {
         .write(FoodAnalysisRecordsCompanion(remoteId: Value(remoteId)));
   }
 
+  Future<void> setConsumed(int id, {required bool isConsumed}) async {
+    await (_database.update(_database.foodAnalysisRecords)
+          ..where((record) => record.id.equals(id)))
+        .write(FoodAnalysisRecordsCompanion(isConsumed: Value(isConsumed)));
+  }
+
+  Future<void> setImagePath(int id, String imagePath) async {
+    await (_database.update(_database.foodAnalysisRecords)
+          ..where((record) => record.id.equals(id)))
+        .write(FoodAnalysisRecordsCompanion(imagePath: Value(imagePath)));
+  }
+
   SavedFoodAnalysisModel _mapRecord(FoodAnalysisRecord record) {
     return SavedFoodAnalysisModel(
       id: record.id,
@@ -128,6 +141,7 @@ class AnalysisHistoryLocalDataSource {
       imagePath: record.imagePath,
       createdAt: record.createdAt,
       isFavorite: record.isFavorite,
+      isConsumed: record.isConsumed,
     );
   }
 }

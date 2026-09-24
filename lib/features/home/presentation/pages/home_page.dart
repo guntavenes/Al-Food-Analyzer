@@ -409,7 +409,10 @@ class _HomePageState extends ConsumerState<HomePage> {
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: [
-                          const SizedBox(height: 12),
+                          // Reserve the toolbar's complete footprint on compact
+                          // devices so localized language labels never overlap
+                          // the centered brand mark.
+                          const SizedBox(height: 72),
                           _BrandMark(
                             isPremium:
                                 ref.watch(premiumEntitlementProvider).value ??
@@ -524,21 +527,17 @@ class _HomePageState extends ConsumerState<HomePage> {
                           ),
                         ];
                       },
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 10,
+                      child: Container(
+                        width: 48,
+                        height: 48,
+                        decoration: BoxDecoration(
+                          color: colors.surface.withValues(alpha: 0.78),
+                          shape: BoxShape.circle,
                         ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const Icon(Icons.language_rounded, size: 20),
-                            const SizedBox(width: 5),
-                            Text(l10n.languageTitle),
-                          ],
-                        ),
+                        child: const Icon(Icons.language_rounded, size: 21),
                       ),
                     ),
+                    const SizedBox(width: 6),
                     IconButton.filledTonal(
                       onPressed: _isOpeningHistory ? null : _openHistory,
                       tooltip: l10n.historyTitle,

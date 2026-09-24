@@ -926,6 +926,24 @@ abstract class AppLocalizations {
   /// **'Analysis saved'**
   String get analysisSaved;
 
+  /// No description provided for @iAteThisMeal.
+  ///
+  /// In en, this message translates to:
+  /// **'Add to Daily Log'**
+  String get iAteThisMeal;
+
+  /// No description provided for @mealAlreadyTracked.
+  ///
+  /// In en, this message translates to:
+  /// **'Added to daily tracking'**
+  String get mealAlreadyTracked;
+
+  /// No description provided for @mealAddedToTracker.
+  ///
+  /// In en, this message translates to:
+  /// **'Meal added to your daily nutrition tracking'**
+  String get mealAddedToTracker;
+
   /// Error shown when an analysis cannot be saved
   ///
   /// In en, this message translates to:
@@ -1321,6 +1339,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No meals match these filters.'**
   String get noFilteredHistory;
+
+  /// No description provided for @consumedMeals.
+  ///
+  /// In en, this message translates to:
+  /// **'Eaten'**
+  String get consumedMeals;
+
+  /// No description provided for @markAsEaten.
+  ///
+  /// In en, this message translates to:
+  /// **'Add to daily log'**
+  String get markAsEaten;
+
+  /// No description provided for @removeFromDailyTracking.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove from daily tracking'**
+  String get removeFromDailyTracking;
 
   /// No description provided for @addToFavorites.
   ///

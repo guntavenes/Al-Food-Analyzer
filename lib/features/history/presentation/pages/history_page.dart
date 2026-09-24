@@ -182,6 +182,12 @@ class _HistoryPageState extends ConsumerState<HistoryPage> {
                                         analysis.id,
                                         isFavorite: !analysis.isFavorite,
                                       ),
+                                  onConsumed: () => ref
+                                      .read(historyActionsProvider.notifier)
+                                      .setConsumed(
+                                        analysis.id,
+                                        isConsumed: !analysis.isConsumed,
+                                      ),
                                 ),
                               ),
                             );
@@ -213,6 +219,9 @@ class _HistoryPageState extends ConsumerState<HistoryPage> {
           }
           if (_filter == _HistoryFilter.highProtein &&
               analysis.proteinGrams < 25) {
+            return false;
+          }
+          if (_filter == _HistoryFilter.consumed && !analysis.isConsumed) {
             return false;
           }
           if (_selectedDate != null) {
@@ -373,7 +382,7 @@ class _DestructiveConfirmationDialog extends StatelessWidget {
   }
 }
 
-enum _HistoryFilter { all, favorites, highProtein }
+enum _HistoryFilter { all, consumed, favorites, highProtein }
 
 class _HistoryControls extends StatelessWidget {
   const _HistoryControls({
@@ -431,6 +440,13 @@ class _HistoryControls extends StatelessWidget {
               ),
               const SizedBox(width: 8),
               ChoiceChip(
+                avatar: const Icon(Icons.restaurant_rounded, size: 16),
+                label: Text(l10n.consumedMeals),
+                selected: filter == _HistoryFilter.consumed,
+                onSelected: (_) => onFilterChanged(_HistoryFilter.consumed),
+              ),
+              const SizedBox(width: 8),
+              ChoiceChip(
                 avatar: const Icon(Icons.favorite_rounded, size: 16),
                 label: Text(l10n.favorites),
                 selected: filter == _HistoryFilter.favorites,
@@ -484,6 +500,7 @@ class _WeeklyComparison extends StatelessWidget {
     var thisWeekCalories = 0;
     var lastWeekCalories = 0;
     for (final analysis in analyses) {
+      if (!analysis.isConsumed) continue;
       final local = analysis.createdAt.toLocal();
       if (!local.isBefore(thisWeekStart)) {
         thisWeekCalories += analysis.calories;
@@ -611,12 +628,14 @@ class _HistoryCard extends StatelessWidget {
     required this.onTap,
     required this.onDelete,
     required this.onFavorite,
+    required this.onConsumed,
   });
 
   final SavedFoodAnalysis analysis;
   final VoidCallback onTap;
   final VoidCallback onDelete;
   final VoidCallback onFavorite;
+  final VoidCallback onConsumed;
 
   @override
   Widget build(BuildContext context) {
@@ -679,6 +698,22 @@ class _HistoryCard extends StatelessWidget {
                         fontWeight: FontWeight.w800,
                         letterSpacing: -0.25,
                       ),
+                    ),
+                    const SizedBox(height: 8),
+                    ActionChip(
+                      avatar: Icon(
+                        analysis.isConsumed
+                            ? Icons.check_circle_rounded
+                            : Icons.add_circle_outline_rounded,
+                        size: 18,
+                      ),
+                      label: Text(
+                        analysis.isConsumed
+                            ? l10n.removeFromDailyTracking
+                            : l10n.markAsEaten,
+                      ),
+                      onPressed: onConsumed,
+                      visualDensity: VisualDensity.compact,
                     ),
                     const SizedBox(height: 7),
                     Wrap(

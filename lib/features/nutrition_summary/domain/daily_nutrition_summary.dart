@@ -38,6 +38,7 @@ List<DailyNutritionSummary> buildWeeklyNutritionSummary(
   final totals = <DateTime, List<int>>{};
 
   for (final analysis in analyses) {
+    if (!analysis.isConsumed) continue;
     final localDate = analysis.createdAt.toLocal();
     final day = DateTime(localDate.year, localDate.month, localDate.day);
     final firstDay = today.subtract(const Duration(days: 6));

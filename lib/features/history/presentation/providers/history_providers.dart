@@ -45,8 +45,9 @@ final analysisHistoryRepositoryProvider = Provider<AnalysisHistoryRepository>((
 });
 
 final analysisHistoryProvider =
-    StreamProvider.autoDispose<List<SavedFoodAnalysis>>((ref) {
+    StreamProvider.autoDispose<List<SavedFoodAnalysis>>((ref) async* {
       final repository = ref.watch(analysisHistoryRepositoryProvider);
+      await repository.repairLocalImagePaths();
       if (ref.watch(analysisHistoryCloudDataSourceProvider) != null) {
         unawaited(() async {
           try {
@@ -56,7 +57,7 @@ final analysisHistoryProvider =
           }
         }());
       }
-      return repository.watchAnalyses();
+      yield* repository.watchAnalyses();
     });
 
 final savedAnalysisProvider = FutureProvider.autoDispose
@@ -131,6 +132,15 @@ class HistoryActionsController extends AsyncNotifier<void> {
       () => ref
           .read(analysisHistoryRepositoryProvider)
           .setFavorite(id, isFavorite: isFavorite),
+    );
+  }
+
+  Future<void> setConsumed(int id, {required bool isConsumed}) async {
+    state = const AsyncLoading<void>();
+    state = await AsyncValue.guard(
+      () => ref
+          .read(analysisHistoryRepositoryProvider)
+          .setConsumed(id, isConsumed: isConsumed),
     );
   }
 }

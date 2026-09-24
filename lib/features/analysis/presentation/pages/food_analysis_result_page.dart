@@ -10,6 +10,7 @@ import 'package:ai_food_analyzer/features/analysis/domain/entities/food_analysis
 import 'package:ai_food_analyzer/features/analysis/domain/errors/food_analysis_exception.dart';
 import 'package:ai_food_analyzer/features/analysis/domain/repositories/food_analysis_repository.dart';
 import 'package:ai_food_analyzer/features/analysis/presentation/providers/food_analysis_providers.dart';
+import 'package:ai_food_analyzer/features/history/domain/entities/saved_food_analysis.dart';
 import 'package:ai_food_analyzer/features/history/presentation/providers/history_providers.dart';
 import 'package:ai_food_analyzer/features/premium/presentation/providers/premium_purchase_provider.dart';
 import 'package:ai_food_analyzer/l10n/app_localizations.dart';
@@ -52,6 +53,8 @@ class _FoodAnalysisResultPageState
   late final SaveAnalysisRequest _saveRequest;
   bool _isReanalyzing = false;
   bool _isSharing = false;
+  bool _isUpdatingConsumption = false;
+  late bool _isConsumed;
   Object? _correctionError;
   final ScreenshotController _reportController = ScreenshotController();
 
@@ -62,10 +65,41 @@ class _FoodAnalysisResultPageState
       analysis: widget.arguments.analysis,
       imagePath: widget.arguments.imagePath,
     );
+    _isConsumed =
+        widget.arguments.analysis is SavedFoodAnalysis &&
+        (widget.arguments.analysis as SavedFoodAnalysis).isConsumed;
     if (!widget.arguments.initiallySaved && widget.arguments.autoSave) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) _saveResult(showConfirmation: false);
       });
+    }
+  }
+
+  Future<void> _markAsConsumed() async {
+    if (_isUpdatingConsumption || _isConsumed) return;
+    setState(() => _isUpdatingConsumption = true);
+    try {
+      final existing = widget.arguments.analysis;
+      final saveProvider = saveAnalysisProvider(_saveRequest);
+      final savedId = existing is SavedFoodAnalysis
+          ? existing.id
+          : ref.read(saveProvider).isLoading
+          ? await ref.read(saveProvider.future)
+          : await ref.read(saveProvider.notifier).save();
+      if (savedId == null) return;
+      await ref
+          .read(analysisHistoryRepositoryProvider)
+          .setConsumed(savedId, isConsumed: true);
+      ref.invalidate(analysisHistoryProvider);
+      if (!mounted) return;
+      setState(() => _isConsumed = true);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(AppLocalizations.of(context).mealAddedToTracker),
+        ),
+      );
+    } finally {
+      if (mounted) setState(() => _isUpdatingConsumption = false);
     }
   }
 
@@ -222,7 +256,6 @@ class _FoodAnalysisResultPageState
         ? const AsyncData<int?>(0)
         : ref.watch(saveAnalysisProvider(_saveRequest));
     final isSaved = widget.arguments.initiallySaved || saveState.value != null;
-    final isSaving = saveState.isLoading;
 
     return PopScope(
       canPop: false,
@@ -484,25 +517,23 @@ class _FoodAnalysisResultPageState
                         ),
                         const SizedBox(height: 24),
                         PremiumActionButton(
-                          onPressed: () => context.go(AppRoutes.home),
-                          icon: Icons.add_a_photo_rounded,
-                          label: l10n.analyzeAnotherMeal,
+                          onPressed: _isConsumed || _isUpdatingConsumption
+                              ? null
+                              : _markAsConsumed,
+                          loading: _isUpdatingConsumption,
+                          icon: _isConsumed
+                              ? Icons.check_circle_rounded
+                              : Icons.restaurant_rounded,
+                          label: _isConsumed
+                              ? l10n.mealAlreadyTracked
+                              : l10n.iAteThisMeal,
                         ),
                         const SizedBox(height: 12),
                         PremiumActionButton(
-                          onPressed: isSaved || isSaving
-                              ? null
-                              : () => _saveResult(),
+                          onPressed: () => context.go(AppRoutes.home),
                           secondary: true,
-                          loading: isSaving,
-                          icon: isSaved
-                              ? Icons.bookmark_added_rounded
-                              : Icons.bookmark_border_rounded,
-                          label: isSaving
-                              ? l10n.savingResult
-                              : isSaved
-                              ? l10n.saved
-                              : l10n.saveResult,
+                          icon: Icons.add_a_photo_rounded,
+                          label: l10n.analyzeAnotherMeal,
                           height: 62,
                         ),
                         if (saveState.hasError && !isSaved) ...[

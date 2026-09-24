@@ -21,17 +21,34 @@ void main() {
     expect(summaries[5].calories, 500);
     expect(summaries.fold<int>(0, (sum, day) => sum + day.mealCount), 3);
   });
+
+  test('does not count analyses that were not marked as eaten', () {
+    final now = DateTime(2026, 9, 15, 18);
+    final summaries = buildWeeklyNutritionSummary([
+      _meal(
+        DateTime(2026, 9, 15, 8),
+        calories: 400,
+        protein: 20,
+        isConsumed: false,
+      ),
+    ], now: now);
+
+    expect(summaries.last.calories, 0);
+    expect(summaries.last.mealCount, 0);
+  });
 }
 
 SavedFoodAnalysis _meal(
   DateTime date, {
   required int calories,
   required int protein,
+  bool isConsumed = true,
 }) {
   return SavedFoodAnalysis(
     id: date.millisecondsSinceEpoch,
     imagePath: 'meal.jpg',
     createdAt: date,
+    isConsumed: isConsumed,
     foodName: 'Meal',
     calories: calories,
     proteinGrams: protein,

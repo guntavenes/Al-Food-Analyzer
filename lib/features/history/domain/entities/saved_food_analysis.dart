@@ -7,6 +7,7 @@ class SavedFoodAnalysis extends FoodAnalysis {
     required this.imagePath,
     required this.createdAt,
     this.isFavorite = false,
+    this.isConsumed = false,
     required super.foodName,
     required super.calories,
     required super.proteinGrams,
@@ -29,4 +30,5 @@ class SavedFoodAnalysis extends FoodAnalysis {
   final String imagePath;
   final DateTime createdAt;
   final bool isFavorite;
+  final bool isConsumed;
 }

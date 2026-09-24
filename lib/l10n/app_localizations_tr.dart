@@ -477,6 +477,15 @@ class AppLocalizationsTr extends AppLocalizations {
   String get analysisSaved => 'Analiz kaydedildi';
 
   @override
+  String get iAteThisMeal => 'Günlük Takibe Ekle';
+
+  @override
+  String get mealAlreadyTracked => 'Günlük takibe eklendi';
+
+  @override
+  String get mealAddedToTracker => 'Öğün günlük beslenme takibine eklendi';
+
+  @override
   String get saveAnalysisFailed => 'Analiz kaydedilemedi. Lütfen tekrar dene.';
 
   @override
@@ -696,6 +705,15 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get noFilteredHistory => 'Bu filtrelere uygun öğün bulunamadı.';
+
+  @override
+  String get consumedMeals => 'Yediklerim';
+
+  @override
+  String get markAsEaten => 'Günlük takibe ekle';
+
+  @override
+  String get removeFromDailyTracking => 'Günlük takipten çıkar';
 
   @override
   String get addToFavorites => 'Favorilere ekle';

@@ -3,6 +3,7 @@ import 'dart:typed_data';
 
 import 'package:ai_food_analyzer/features/analysis/domain/entities/food_analysis.dart';
 import 'package:ai_food_analyzer/features/history/data/models/saved_food_analysis_model.dart';
+import 'package:ai_food_analyzer/features/history/domain/entities/saved_food_analysis.dart';
 import 'package:path/path.dart' as p;
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -42,6 +43,9 @@ class AnalysisHistoryCloudDataSource {
             'image_path': objectPath,
             'analysis_data': _analysisToJson(analysis),
             'created_at': createdAt.toIso8601String(),
+            'is_consumed': analysis is SavedFoodAnalysis
+                ? analysis.isConsumed
+                : false,
           })
           .select()
           .single();
@@ -94,6 +98,9 @@ class AnalysisHistoryCloudDataSource {
   Future<void> setFavorite(String remoteId, bool value) =>
       _client.from(_table).update({'is_favorite': value}).eq('id', remoteId);
 
+  Future<void> setConsumed(String remoteId, bool value) =>
+      _client.from(_table).update({'is_consumed': value}).eq('id', remoteId);
+
   SavedFoodAnalysisModel _fromRow(Map<String, dynamic> row) {
     final data = row['analysis_data']! as Map<String, dynamic>;
     return SavedFoodAnalysisModel(
@@ -102,6 +109,7 @@ class AnalysisHistoryCloudDataSource {
       imagePath: row['image_path']! as String,
       createdAt: DateTime.parse(row['created_at']! as String).toUtc(),
       isFavorite: row['is_favorite'] as bool? ?? false,
+      isConsumed: row['is_consumed'] as bool? ?? false,
       foodName: data['foodName']! as String,
       calories: data['calories']! as int,
       proteinGrams: data['proteinGrams']! as int,

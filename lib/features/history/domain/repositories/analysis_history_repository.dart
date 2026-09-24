@@ -11,6 +11,8 @@ abstract interface class AnalysisHistoryRepository {
 
   Stream<List<SavedFoodAnalysis>> watchAnalyses();
 
+  Future<void> repairLocalImagePaths();
+
   Future<void> syncFromCloud();
 
   Future<SavedFoodAnalysis?> getAnalysis(int id);
@@ -21,4 +23,6 @@ abstract interface class AnalysisHistoryRepository {
   Future<void> clearLocalHistory();
 
   Future<void> setFavorite(int id, {required bool isFavorite});
+
+  Future<void> setConsumed(int id, {required bool isConsumed});
 }

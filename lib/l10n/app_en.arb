@@ -294,6 +294,9 @@
   "@analysisSaved": {
     "description": "Confirmation shown after saving an analysis"
   },
+  "iAteThisMeal": "Add to Daily Log",
+  "mealAlreadyTracked": "Added to daily tracking",
+  "mealAddedToTracker": "Meal added to your daily nutrition tracking",
   "saveAnalysisFailed": "The analysis could not be saved. Please try again.",
   "@saveAnalysisFailed": {
     "description": "Error shown when an analysis cannot be saved"
@@ -412,6 +415,9 @@
   "selectDate": "Select date",
   "clearDate": "Clear date",
   "noFilteredHistory": "No meals match these filters.",
+  "consumedMeals": "Eaten",
+  "markAsEaten": "Add to daily log",
+  "removeFromDailyTracking": "Remove from daily tracking",
   "addToFavorites": "Add to favorites",
   "removeFromFavorites": "Remove from favorites",
   "weeklyComparison": "Weekly comparison",

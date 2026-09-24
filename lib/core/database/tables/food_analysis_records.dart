@@ -42,4 +42,6 @@ class FoodAnalysisRecords extends Table {
   DateTimeColumn get createdAt => dateTime()();
 
   BoolColumn get isFavorite => boolean().withDefault(const Constant(false))();
+
+  BoolColumn get isConsumed => boolean().withDefault(const Constant(false))();
 }
