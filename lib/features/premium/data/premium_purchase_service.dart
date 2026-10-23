@@ -78,6 +78,11 @@ class PremiumPurchaseService {
   ];
 
   Future<void> purchase(String productId) async {
+    if (!kDebugMode && _accessTokenProvider.requiresPermanentAccount) {
+      throw const PremiumPurchaseException(
+        'Create an account or sign in before subscribing to Premium.',
+      );
+    }
     final product = _products[productId];
     if (product == null) {
       throw const PremiumPurchaseException('This Premium plan is unavailable.');
@@ -142,6 +147,11 @@ class PremiumPurchaseService {
         await _store.completePurchase(purchase);
       }
       return;
+    }
+    if (_accessTokenProvider.requiresPermanentAccount) {
+      throw const PremiumPurchaseException(
+        'Sign in to your account, then restore purchases to activate Premium.',
+      );
     }
     final token = await _accessTokenProvider.getAccessToken();
     if (token == null) {

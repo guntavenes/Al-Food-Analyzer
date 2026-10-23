@@ -28,6 +28,12 @@ class _AccountSettingsPageState extends ConsumerState<AccountSettingsPage> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final user = AppConfig.isSupabaseConfigured
+        ? Supabase.instance.client.auth.currentUser
+        : null;
+    final hasPermanentAccount =
+        !AppConfig.isSupabaseConfigured ||
+        (user != null && user.isAnonymous != true);
     return Scaffold(
       appBar: AppBar(title: Text(_text('Hesap ayarları', 'Account settings'))),
       body: ListView(
@@ -99,38 +105,56 @@ class _AccountSettingsPageState extends ConsumerState<AccountSettingsPage> {
             ),
             onTap: () => _open(LegalLinks.termsOfUse),
           ),
-          const SizedBox(height: 18),
-          _SectionLabel(_text('HESAP', 'ACCOUNT')),
-          Card(
-            color: theme.colorScheme.errorContainer.withValues(alpha: .45),
-            child: ListTile(
-              enabled: !_deleting,
-              onTap: _confirmDeleteAccount,
-              leading: Icon(
-                Icons.delete_forever_outlined,
-                color: theme.colorScheme.error,
-              ),
-              title: Text(
-                _text('Hesabımı sil', 'Delete my account'),
-                style: TextStyle(
-                  fontWeight: FontWeight.w800,
+          if (hasPermanentAccount) ...[
+            const SizedBox(height: 18),
+            _SectionLabel(_text('HESAP', 'ACCOUNT')),
+            Card(
+              color: theme.colorScheme.errorContainer.withValues(alpha: .45),
+              child: ListTile(
+                enabled: !_deleting,
+                onTap: _confirmDeleteAccount,
+                leading: Icon(
+                  Icons.delete_forever_outlined,
                   color: theme.colorScheme.error,
                 ),
-              ),
-              subtitle: Text(
-                _text(
-                  'Hesap, geçmiş ve bulut fotoğrafları kalıcı olarak silinir',
-                  'Permanently deletes the account, history, and cloud photos',
+                title: Text(
+                  _text('Hesabımı sil', 'Delete my account'),
+                  style: TextStyle(
+                    fontWeight: FontWeight.w800,
+                    color: theme.colorScheme.error,
+                  ),
                 ),
+                subtitle: Text(
+                  _text(
+                    'Hesap, geçmiş ve bulut fotoğrafları kalıcı olarak silinir',
+                    'Permanently deletes the account, history, and cloud photos',
+                  ),
+                ),
+                trailing: _deleting
+                    ? const SizedBox.square(
+                        dimension: 22,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : const Icon(Icons.chevron_right_rounded),
               ),
-              trailing: _deleting
-                  ? const SizedBox.square(
-                      dimension: 22,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : const Icon(Icons.chevron_right_rounded),
             ),
-          ),
+          ] else ...[
+            const SizedBox(height: 18),
+            Card(
+              child: ListTile(
+                leading: const Icon(Icons.cloud_outlined),
+                title: Text(_text('Hesap yedeklemesi', 'Account backup')),
+                subtitle: Text(
+                  _text(
+                    'Yeni geçmiş kayıtlarını hesabınla eşitlemek ve hesabını yönetmek için giriş yap.',
+                    'Sign in to sync future history across devices and manage your account.',
+                  ),
+                ),
+                trailing: const Icon(Icons.chevron_right_rounded),
+                onTap: () => context.push(AppRoutes.auth),
+              ),
+            ),
+          ],
         ],
       ),
     );
@@ -151,6 +175,20 @@ class _AccountSettingsPageState extends ConsumerState<AccountSettingsPage> {
 
   Future<void> _confirmDeleteAccount() async {
     if (!AppConfig.isSupabaseConfigured || _deleting) return;
+    final auth = Supabase.instance.client.auth;
+    final user = auth.currentUser;
+    final session = auth.currentSession;
+    final isAppleAccount =
+        user?.identities?.any((identity) => identity.provider == 'apple') ==
+        true;
+    final appleProviderToken = isAppleAccount
+        ? session?.providerRefreshToken ?? session?.providerToken
+        : null;
+    final appleProviderTokenType = session?.providerRefreshToken != null
+        ? 'refresh_token'
+        : session?.providerToken != null
+        ? 'access_token'
+        : null;
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (dialogContext) => AlertDialog(
@@ -166,8 +204,8 @@ class _AccountSettingsPageState extends ConsumerState<AccountSettingsPage> {
         ),
         content: Text(
           _text(
-            'Bu işlem geri alınamaz. Geçmişin ve buluttaki fotoğrafların silinir. Aktif aboneliğin Apple tarafından ayrıca yenilenebilir; devam etmeden önce Premium ekranından aboneliğini iptal etmelisin.',
-            'This cannot be undone. Your history and cloud photos will be deleted. Apple may continue billing an active subscription; cancel it from the Premium screen before continuing.',
+            'Bu işlem geri alınamaz. Geçmişin ve buluttaki fotoğrafların silinir. Aktif aboneliğin Apple tarafından ayrıca yenilenebilir; devam etmeden önce Premium ekranından aboneliğini iptal etmelisin.${isAppleAccount && appleProviderToken == null ? '\n\nApple oturum anahtarı bu cihazda bulunamadı. Silme işleminden sonra Ayarlar > Apple Hesabı > Apple ile Giriş bölümünden AI Food Analyzer erişimini de kaldırmalısın.' : ''}',
+            'This cannot be undone. Your history and cloud photos will be deleted. Apple may continue billing an active subscription; cancel it from the Premium screen before continuing.${isAppleAccount && appleProviderToken == null ? '\n\nThe Apple session token is not available on this device. After deletion, also remove AI Food Analyzer under Settings > Apple Account > Sign in with Apple.' : ''}',
           ),
         ),
         actions: [
@@ -192,10 +230,43 @@ class _AccountSettingsPageState extends ConsumerState<AccountSettingsPage> {
         ref.read(foodAnalysisDioProvider),
         ref.read(accessTokenProvider),
       );
-      await service.deleteAccount();
+      final deletionResult = await service.deleteAccount(
+        appleProviderToken: appleProviderToken,
+        appleProviderTokenType: appleProviderTokenType,
+      );
       await ref.read(analysisHistoryRepositoryProvider).clearLocalHistory();
-      await Supabase.instance.client.auth.signOut(scope: SignOutScope.local);
-      if (mounted) context.go(AppRoutes.auth);
+      final auth = Supabase.instance.client.auth;
+      await auth.signOut(scope: SignOutScope.local);
+      try {
+        await auth.signInAnonymously();
+      } on Object {
+        // Keep the app available even if guest-session creation must be retried.
+      }
+      if (isAppleAccount &&
+          deletionResult.appleAuthorizationRevoked != true &&
+          mounted) {
+        await showDialog<void>(
+          context: context,
+          barrierDismissible: false,
+          builder: (dialogContext) => AlertDialog(
+            icon: const Icon(Icons.apple),
+            title: Text(_text('Apple erişimini kaldır', 'Remove Apple access')),
+            content: Text(
+              _text(
+                'Hesabın ve verilerin silindi. Apple oturum anahtarı artık geçerli olmadığı için son adımı manuel tamamla: Ayarlar > Apple Hesabı > Apple ile Giriş > AI Food Analyzer > Kullanmayı Durdur.',
+                'Your account and data were deleted. Because the Apple session token was no longer valid, finish the last step manually: Settings > Apple Account > Sign in with Apple > AI Food Analyzer > Stop Using Apple ID.',
+              ),
+            ),
+            actions: [
+              FilledButton(
+                onPressed: () => Navigator.pop(dialogContext),
+                child: Text(_text('Tamam', 'Done')),
+              ),
+            ],
+          ),
+        );
+      }
+      if (mounted) context.go(AppRoutes.home);
     } on Object {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(

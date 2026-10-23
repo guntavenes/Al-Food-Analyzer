@@ -2,6 +2,7 @@ import 'package:ai_food_analyzer/app/app.dart';
 import 'package:ai_food_analyzer/core/config/app_config.dart';
 import 'package:ai_food_analyzer/core/notifications/smart_notification_service.dart';
 import 'package:ai_food_analyzer/features/onboarding/data/onboarding_preferences.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -15,6 +16,16 @@ Future<void> main() async {
         url: AppConfig.supabaseUrl,
         publishableKey: AppConfig.supabasePublishableKey,
       );
+      // Let people try the core app without creating an account. If the
+      // network is temporarily unavailable, keep the app usable and retry
+      // lazily when an authenticated feature is requested.
+      try {
+        if (Supabase.instance.client.auth.currentSession == null) {
+          await Supabase.instance.client.auth.signInAnonymously();
+        }
+      } on Object {
+        // Startup must not be blocked by optional guest-session creation.
+      }
     }
     try {
       await SmartNotificationService.instance.initialize();
@@ -57,11 +68,12 @@ class _StartupErrorApp extends StatelessWidget {
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 18),
-                  SelectableText(
-                    message,
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(fontSize: 11),
-                  ),
+                  if (!kReleaseMode)
+                    SelectableText(
+                      message,
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(fontSize: 11),
+                    ),
                 ],
               ),
             ),

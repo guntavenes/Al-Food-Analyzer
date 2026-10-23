@@ -1,11 +1,9 @@
-import 'package:ai_food_analyzer/core/config/app_config.dart';
 import 'package:ai_food_analyzer/core/router/app_router.dart';
 import 'package:ai_food_analyzer/core/theme/app_colors.dart';
 import 'package:ai_food_analyzer/features/onboarding/data/onboarding_preferences.dart';
 import 'package:ai_food_analyzer/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
 class OnboardingPage extends StatefulWidget {
   const OnboardingPage({super.key});
@@ -21,11 +19,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
   Future<void> _finish() async {
     await const OnboardingPreferences().markComplete();
     if (!mounted) return;
-    final hasAccount =
-        !AppConfig.isSupabaseConfigured ||
-        (Supabase.instance.client.auth.currentUser != null &&
-            Supabase.instance.client.auth.currentUser?.isAnonymous != true);
-    context.go(hasAccount ? AppRoutes.home : AppRoutes.auth);
+    context.go(AppRoutes.home);
   }
 
   @override

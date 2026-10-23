@@ -1,8 +1,10 @@
+import 'package:ai_food_analyzer/core/config/legal_links.dart';
 import 'package:ai_food_analyzer/core/notifications/smart_notification_service.dart';
 import 'package:ai_food_analyzer/features/nutrition_summary/presentation/providers/nutrition_summary_providers.dart';
 import 'package:ai_food_analyzer/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 String _localized(BuildContext context, String tr, String en) =>
     Localizations.localeOf(context).languageCode == 'tr' ? tr : en;
@@ -330,6 +332,16 @@ class AboutPage extends StatelessWidget {
             'A daily nutrition companion that estimates nutrition from meal photos. Results are not medical advice.',
           ),
           textAlign: TextAlign.center,
+        ),
+        const SizedBox(height: 28),
+        Card(
+          child: ListTile(
+            leading: const Icon(Icons.support_agent_rounded),
+            title: Text(_localized(context, 'Destek', 'Support')),
+            subtitle: const Text(LegalLinks.supportEmail),
+            trailing: const Icon(Icons.open_in_new_rounded),
+            onTap: () => launchUrl(LegalLinks.support),
+          ),
         ),
       ],
     ),

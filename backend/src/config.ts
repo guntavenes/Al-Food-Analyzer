@@ -21,6 +21,10 @@ const environmentSchema = z.object({
   APPLE_BUNDLE_ID: z.string().trim().min(1).default('com.enesguntav.aiFoodAnalyzer'),
   APPLE_APP_ID: z.coerce.number().int().positive().default(6806656867),
   APPLE_ROOT_CA_BASE64: z.string().trim().optional(),
+  APPLE_SIGN_IN_CLIENT_ID: z.string().trim().min(1).optional(),
+  APPLE_SIGN_IN_TEAM_ID: z.string().trim().min(1).optional(),
+  APPLE_SIGN_IN_KEY_ID: z.string().trim().min(1).optional(),
+  APPLE_SIGN_IN_PRIVATE_KEY_BASE64: z.string().trim().min(1).optional(),
   OPENAI_API_KEY: z.string().trim().min(1).optional(),
   OPENAI_MODEL: z.string().trim().min(1).optional(),
   OPENAI_TIMEOUT_MS: z.coerce.number().int().min(1000).max(120000).default(30000),
@@ -34,6 +38,14 @@ const environmentSchema = z.object({
   }
   if (value.AUTH_REQUIRED && !value.SUPABASE_URL) context.addIssue({ code: 'custom', path: ['SUPABASE_URL'], message: 'SUPABASE_URL is required when authentication is enabled.' });
   if (value.AUTH_REQUIRED && !value.SUPABASE_SERVER_KEY_V2) context.addIssue({ code: 'custom', path: ['SUPABASE_SERVER_KEY_V2'], message: 'SUPABASE_SERVER_KEY_V2 is required when authentication is enabled.' });
+  const appleSignInValues = [value.APPLE_SIGN_IN_CLIENT_ID, value.APPLE_SIGN_IN_TEAM_ID, value.APPLE_SIGN_IN_KEY_ID, value.APPLE_SIGN_IN_PRIVATE_KEY_BASE64];
+  if (appleSignInValues.some(Boolean) && !appleSignInValues.every(Boolean)) {
+    context.addIssue({
+      code: 'custom',
+      path: ['APPLE_SIGN_IN_CLIENT_ID'],
+      message: 'All Apple Sign in revocation settings must be provided together.'
+    });
+  }
 });
 
 export type AppConfig = {
@@ -56,6 +68,10 @@ export type AppConfig = {
   appleBundleId: string;
   appleAppId: number;
   appleRootCertificates: Buffer[];
+  appleSignInClientId?: string;
+  appleSignInTeamId?: string;
+  appleSignInKeyId?: string;
+  appleSignInPrivateKey?: string;
   openaiApiKey?: string;
   openaiModel?: string;
   openaiTimeoutMs: number;
@@ -88,6 +104,12 @@ export function loadConfig(environment: NodeJS.ProcessEnv = process.env): AppCon
     appleRootCertificates: value.APPLE_ROOT_CA_BASE64
       ? value.APPLE_ROOT_CA_BASE64.split(',').map((certificate) => Buffer.from(certificate.trim(), 'base64'))
       : [],
+    appleSignInClientId: value.APPLE_SIGN_IN_CLIENT_ID,
+    appleSignInTeamId: value.APPLE_SIGN_IN_TEAM_ID,
+    appleSignInKeyId: value.APPLE_SIGN_IN_KEY_ID,
+    appleSignInPrivateKey: value.APPLE_SIGN_IN_PRIVATE_KEY_BASE64
+      ? Buffer.from(value.APPLE_SIGN_IN_PRIVATE_KEY_BASE64, 'base64').toString('utf8')
+      : undefined,
     openaiApiKey: value.OPENAI_API_KEY,
     openaiModel: value.OPENAI_MODEL,
     openaiTimeoutMs: value.OPENAI_TIMEOUT_MS,

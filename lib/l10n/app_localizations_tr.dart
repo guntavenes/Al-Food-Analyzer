@@ -135,6 +135,13 @@ class AppLocalizationsTr extends AppLocalizations {
       'Güvenli oturumun doğrulanamadı. Lütfen tekrar dene.';
 
   @override
+  String get premiumAccountRequired =>
+      'Abone olmak için hesap oluştur veya giriş yap. Yemek analizini hesapsız kullanabilirsin.';
+
+  @override
+  String get signInOrCreateAccount => 'Giriş yap veya hesap oluştur';
+
+  @override
   String get analysisTimeout =>
       'Analiz çok uzun sürdü. Bağlantını kontrol edip tekrar dene.';
 
@@ -263,6 +270,21 @@ class AppLocalizationsTr extends AppLocalizations {
   String get passwordUpdated => 'Şifren başarıyla güncellendi.';
 
   @override
+  String get passwordResetLinkExpired =>
+      'Bu şifre sıfırlama bağlantısının süresi dolmuş. Yeni bir bağlantı isteyip tekrar dene.';
+
+  @override
+  String get passwordSameAsOld => 'Mevcut şifrenden farklı bir şifre seç.';
+
+  @override
+  String get passwordResetRequestFailed =>
+      'Sıfırlama e-postası gönderilemedi. Adresi kontrol edip tekrar dene.';
+
+  @override
+  String get passwordUpdateFailed =>
+      'Şifren güncellenemedi. Yeni bir sıfırlama bağlantısı isteyip tekrar dene.';
+
+  @override
   String get accountTitle => 'Hesap';
 
   @override
@@ -320,6 +342,24 @@ class AppLocalizationsTr extends AppLocalizations {
   String get premiumYearlyPlan => 'Yıllık Premium';
 
   @override
+  String premiumPricePerMonth(String price) {
+    return '$price / ay';
+  }
+
+  @override
+  String premiumPricePerYear(String price) {
+    return '$price / yıl';
+  }
+
+  @override
+  String get premiumMonthlyBillingDescription =>
+      'Her ay tahsil edilir • Otomatik yenilenir';
+
+  @override
+  String get premiumYearlyBillingDescription =>
+      'Yılda bir kez tahsil edilir • Otomatik yenilenir';
+
+  @override
   String get premiumBestValue => 'EN AVANTAJLI';
 
   @override
@@ -337,7 +377,7 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get premiumRenewalDisclosure =>
-      'Abonelikler, mevcut dönemin bitiminden en az 24 saat önce iptal edilmezse otomatik yenilenir. App Store hesabından yönetebilir veya iptal edebilirsin.';
+      'Ödeme, satın alma onaylandığında Apple hesabından tahsil edilir. Abonelik, mevcut dönemin bitiminden en az 24 saat önce iptal edilmezse aynı dönem ve gösterilen fiyat üzerinden otomatik yenilenir. App Store hesabından yönetebilir veya iptal edebilirsin.';
 
   @override
   String get resultTitle => 'Yemek Analizi';

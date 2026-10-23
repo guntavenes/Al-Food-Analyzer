@@ -1,12 +1,12 @@
 # AI Food Analyzer Terms of Use
 
-**Last updated: September 22, 2026**
+**Last updated: October 23, 2026**
 
 AI Food Analyzer provides estimated nutritional information from meal photos. Results may be incomplete or inaccurate and are not medical, dietary, or professional advice. Do not use the service for diagnosis, treatment, allergy safety, or emergency decisions.
 
-## Accounts
+## Guest use and accounts
 
-You are responsible for maintaining the security of your account. You may permanently delete your account from Account Settings. Account deletion removes associated cloud history and photos, but it does not automatically cancel an App Store subscription.
+Core analysis features can be tried without registering. Guest data is tied to the app installation and may not be recoverable after sign-out, deletion, or a device change. If you create an account, you are responsible for maintaining its security. You may permanently delete it from Account Settings. Account deletion removes associated cloud history and photos, but it does not automatically cancel an App Store subscription.
 
 ## Premium subscriptions
 
@@ -24,19 +24,19 @@ The service may occasionally be unavailable and features may change. Where permi
 
 ## Contact
 
-For support, open a request through the repository's Support page.
+For support, email guntav.enes@gmail.com.
 
 ---
 
 # AI Food Analyzer Kullanım Koşulları
 
-**Son güncelleme: 22 Eylül 2026**
+**Son güncelleme: 23 Ekim 2026**
 
 AI Food Analyzer, yemek fotoğraflarından tahmini besin bilgileri sunar. Sonuçlar eksik veya hatalı olabilir; tıbbi, diyetetik ya da profesyonel tavsiye değildir. Tanı, tedavi, alerji güvenliği veya acil kararlar için kullanılmamalıdır.
 
-## Hesaplar
+## Misafir kullanım ve hesaplar
 
-Hesabınızın güvenliğinden siz sorumlusunuz. Hesap Ayarları üzerinden hesabınızı kalıcı olarak silebilirsiniz. Hesap silme, ilişkili bulut geçmişini ve fotoğrafları kaldırır; App Store aboneliğini otomatik olarak iptal etmez.
+Temel analiz özellikleri kayıt olmadan denenebilir. Misafir verileri uygulama kurulumuna bağlıdır ve çıkış, uygulamanın silinmesi veya cihaz değişikliği sonrasında geri getirilemeyebilir. Hesap oluşturursanız hesabınızın güvenliğinden siz sorumlusunuz. Hesap Ayarları üzerinden hesabınızı kalıcı olarak silebilirsiniz. Hesap silme, ilişkili bulut geçmişini ve fotoğrafları kaldırır; App Store aboneliğini otomatik olarak iptal etmez.
 
 ## Premium abonelikler
 
@@ -54,4 +54,4 @@ Hizmet zaman zaman kullanılamayabilir ve özellikler değişebilir. Yasaların 
 
 ## İletişim
 
-Destek için deponun Destek sayfası üzerinden talep oluşturun.
+Destek için guntav.enes@gmail.com adresine e-posta gönderin.

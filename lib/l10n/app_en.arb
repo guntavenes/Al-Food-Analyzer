@@ -94,6 +94,8 @@
   "rateLimited": "Too many analyses were requested. Please wait and try again.",
   "@rateLimited": {"description": "Shown when the backend rate limits requests"},
   "authenticationRequired": "Your secure session could not be verified. Please try again.",
+  "premiumAccountRequired": "Create an account or sign in to subscribe. You can use food analysis without an account.",
+  "signInOrCreateAccount": "Sign in or create an account",
   "@authenticationRequired": {"description": "Shown when anonymous authentication fails"},
   "analysisTimeout": "The analysis took too long. Check your connection and try again.",
   "@analysisTimeout": {"description": "Shown when an analysis request times out"},
@@ -136,6 +138,10 @@
   "passwordsDoNotMatch": "Passwords do not match.",
   "updatePassword": "Update password",
   "passwordUpdated": "Your password was updated successfully.",
+  "passwordResetLinkExpired": "This password reset link has expired. Request a new link and try again.",
+  "passwordSameAsOld": "Choose a password different from your current password.",
+  "passwordResetRequestFailed": "We could not send the reset email. Check the address and try again.",
+  "passwordUpdateFailed": "We could not update your password. Request a new reset link and try again.",
   "accountTitle": "Account",
   "signOut": "Sign out",
   "signOutTitle": "Sign out?",
@@ -154,12 +160,22 @@
   "purchaseNotAvailable": "Purchasing will be enabled after App Store and Google Play products are configured.",
   "premiumMonthlyPlan": "Monthly Premium",
   "premiumYearlyPlan": "Yearly Premium",
+  "premiumPricePerMonth": "{price} / month",
+  "@premiumPricePerMonth": {
+    "placeholders": {"price": {"type": "String"}}
+  },
+  "premiumPricePerYear": "{price} / year",
+  "@premiumPricePerYear": {
+    "placeholders": {"price": {"type": "String"}}
+  },
+  "premiumMonthlyBillingDescription": "Billed monthly • Auto-renewing",
+  "premiumYearlyBillingDescription": "Billed once a year • Auto-renewing",
   "premiumBestValue": "BEST VALUE",
   "restorePurchases": "Restore purchases",
   "restorePurchasesDescription": "Already subscribed with this Apple ID? Restore your access without being charged again.",
   "manageSubscription": "Manage or cancel subscription",
   "premiumPurchaseSuccess": "Premium is active",
-  "premiumRenewalDisclosure": "Subscriptions renew automatically unless canceled at least 24 hours before the end of the current period. You can manage or cancel them in your App Store account.",
+  "premiumRenewalDisclosure": "Payment is charged to your Apple account when the purchase is confirmed. The subscription renews for the same period at the displayed price unless canceled at least 24 hours before the end of the current period. You can manage or cancel it in your App Store account.",
   "resultTitle": "Food Analysis",
   "@resultTitle": {
     "description": "Food analysis result screen title"

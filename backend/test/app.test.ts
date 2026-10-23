@@ -11,6 +11,10 @@ import { MockFoodAnalysisProvider } from '../src/providers/mock-food-analysis-pr
 import type { AppleNotificationVerifying, ApplePurchaseVerifying } from '../src/purchases/apple-purchase-verifier.js';
 import type { MenuAnalysisProvider } from '../src/providers/menu-analysis-provider.js';
 import type { AccountDeletionService } from '../src/account/supabase-account-deletion-service.js';
+import type {
+  AppleProviderCredential,
+  AppleTokenRevoking
+} from '../src/auth/apple-token-revocation-service.js';
 
 const png = Buffer.from([137, 80, 78, 71, 13, 10, 26, 10, 1, 2, 3]);
 const baseConfig: AppConfig = {
@@ -32,6 +36,20 @@ describe('backend API', () => {
     const response = await request(createApp(baseConfig)).get('/health');
     expect(response.status).toBe(200);
     expect(response.body).toEqual({ status: 'ok', provider: 'mock' });
+  });
+
+  it('serves public privacy and terms pages', async () => {
+    const app = createApp(baseConfig);
+    const privacy = await request(app).get('/privacy');
+    const terms = await request(app).get('/terms');
+
+    expect(privacy.status).toBe(200);
+    expect(privacy.type).toMatch(/html/);
+    expect(privacy.text).toContain('AI Food Analyzer Privacy Policy');
+    expect(privacy.text).toContain('mailto:guntav.enes@gmail.com');
+    expect(terms.status).toBe(200);
+    expect(terms.type).toMatch(/html/);
+    expect(terms.text).toContain('AI Food Analyzer Terms of Use');
   });
 
   it('analyzes a valid image', async () => {
@@ -135,6 +153,19 @@ describe('backend API', () => {
     expect(usageRepository.userIds).toEqual(['3d13ab9e-2bb0-4949-b352-02fb91e1761e']);
   });
 
+  it('allows an anonymous session to use the guest analysis flow', async () => {
+    const usageRepository = new TestUsageRepository();
+    const response = await request(createApp({ ...baseConfig, authRequired: true }, {
+      authTokenVerifier: new TestAnonymousAuthTokenVerifier(),
+      usageRepository
+    })).post('/v1/food/analyze')
+      .set('Authorization', 'Bearer anonymous-token')
+      .attach('image', png, { filename: 'meal.png', contentType: 'image/png' });
+
+    expect(response.status).toBe(200);
+    expect(usageRepository.userIds).toEqual(['7fc176c2-44dd-41be-a0de-c606aa0b4383']);
+  });
+
   it('does not call the analysis provider when usage cannot be recorded', async () => {
     const provider = new CountingFoodAnalysisProvider();
     const response = await request(createApp({ ...baseConfig, authRequired: true }, {
@@ -206,7 +237,50 @@ describe('backend API', () => {
       accountDeletionService: deletionService
     })).delete('/v1/account').set('Authorization', 'Bearer valid-token');
 
-    expect(response.status).toBe(204);
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual({ appleAuthorizationRevoked: null });
+    expect(deletionService.deletedUserIds).toEqual(['3d13ab9e-2bb0-4949-b352-02fb91e1761e']);
+  });
+
+  it('revokes Apple authorization before deleting an Apple account', async () => {
+    const deletionService = new TestAccountDeletionService();
+    const appleTokenRevoker = new TestAppleTokenRevoker();
+    const response = await request(createApp({ ...baseConfig, authRequired: true }, {
+      authTokenVerifier: new TestAuthTokenVerifier(),
+      usageRepository: new TestUsageRepository(),
+      accountDeletionService: deletionService,
+      appleTokenRevoker
+    })).delete('/v1/account')
+      .set('Authorization', 'Bearer valid-token')
+      .send({
+        appleProviderToken: 'apple-provider-refresh-token-value',
+        appleProviderTokenType: 'refresh_token'
+      });
+
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual({ appleAuthorizationRevoked: true });
+    expect(appleTokenRevoker.credentials).toEqual([{
+      token: 'apple-provider-refresh-token-value',
+      tokenType: 'refresh_token'
+    }]);
+    expect(deletionService.deletedUserIds).toEqual(['3d13ab9e-2bb0-4949-b352-02fb91e1761e']);
+  });
+
+  it('deletes the account and reports when Apple authorization cannot be revoked', async () => {
+    const deletionService = new TestAccountDeletionService();
+    const response = await request(createApp({ ...baseConfig, authRequired: true }, {
+      authTokenVerifier: new TestAuthTokenVerifier(),
+      usageRepository: new TestUsageRepository(),
+      accountDeletionService: deletionService
+    })).delete('/v1/account')
+      .set('Authorization', 'Bearer valid-token')
+      .send({
+        appleProviderToken: 'apple-provider-access-token-value',
+        appleProviderTokenType: 'access_token'
+      });
+
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual({ appleAuthorizationRevoked: false });
     expect(deletionService.deletedUserIds).toEqual(['3d13ab9e-2bb0-4949-b352-02fb91e1761e']);
   });
 
@@ -246,11 +320,26 @@ class TestAuthTokenVerifier implements AuthTokenVerifier {
   }
 }
 
+class TestAnonymousAuthTokenVerifier implements AuthTokenVerifier {
+  async verify(token: string) {
+    if (token !== 'anonymous-token') throw new AppError('UNAUTHORIZED', 'Invalid session.', 401);
+    return { userId: '7fc176c2-44dd-41be-a0de-c606aa0b4383', isAnonymous: true };
+  }
+}
+
 class TestAccountDeletionService implements AccountDeletionService {
   readonly deletedUserIds: string[] = [];
 
   async deleteAccount(userId: string) {
     this.deletedUserIds.push(userId);
+  }
+}
+
+class TestAppleTokenRevoker implements AppleTokenRevoking {
+  readonly credentials: AppleProviderCredential[] = [];
+
+  async revoke(credential: AppleProviderCredential) {
+    this.credentials.push(credential);
   }
 }
 

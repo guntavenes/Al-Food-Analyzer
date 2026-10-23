@@ -3,6 +3,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 abstract interface class AccessTokenProvider {
   Future<String?> getAccessToken();
   String? get userId;
+  bool get requiresPermanentAccount;
 }
 
 class SupabaseAccessTokenProvider implements AccessTokenProvider {
@@ -14,12 +15,17 @@ class SupabaseAccessTokenProvider implements AccessTokenProvider {
   String? get userId => _client.auth.currentUser?.id;
 
   @override
+  bool get requiresPermanentAccount =>
+      _client.auth.currentUser?.isAnonymous != false;
+
+  @override
   Future<String?> getAccessToken() async {
-    final currentSession = _client.auth.currentSession;
-    if (currentSession != null && currentSession.user.isAnonymous != true) {
-      return currentSession.accessToken;
+    var currentSession = _client.auth.currentSession;
+    currentSession ??= (await _client.auth.signInAnonymously()).session;
+    if (currentSession == null) {
+      throw const AuthException('A valid user session is required.');
     }
-    throw const AuthException('A permanent user account is required.');
+    return currentSession.accessToken;
   }
 }
 
@@ -31,4 +37,7 @@ class NoopAccessTokenProvider implements AccessTokenProvider {
 
   @override
   String? get userId => null;
+
+  @override
+  bool get requiresPermanentAccount => true;
 }

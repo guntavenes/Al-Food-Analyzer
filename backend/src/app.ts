@@ -4,7 +4,7 @@ import express, { type NextFunction, type Request, type Response } from 'express
 import rateLimit, { ipKeyGenerator } from 'express-rate-limit';
 import helmet from 'helmet';
 import multer from 'multer';
-import { requireAuth } from './auth/require-auth.js';
+import { requireAuth, requireSession } from './auth/require-auth.js';
 import { SupabaseAuthTokenVerifier } from './auth/supabase-auth-token-verifier.js';
 import type { AuthTokenVerifier } from './auth/auth-token-verifier.js';
 import { analysisCorrectionSchema, localeSchema, foodAnalysisResponseSchema, menuAnalysisResponseSchema } from './contracts.js';
@@ -21,6 +21,8 @@ import { ApplePurchaseVerifier, type AppleNotificationVerifying, type ApplePurch
 import { z } from 'zod';
 import { findProductByBarcode } from './products/open-food-facts-service.js';
 import { SupabaseAccountDeletionService, type AccountDeletionService } from './account/supabase-account-deletion-service.js';
+import { AppleTokenRevocationService, type AppleTokenRevoking } from './auth/apple-token-revocation-service.js';
+import { renderLegalPage } from './legal-page.js';
 
 type AppDependencies = {
   provider?: FoodAnalysisProvider;
@@ -30,6 +32,7 @@ type AppDependencies = {
   appleNotificationVerifier?: AppleNotificationVerifying;
   menuProvider?: MenuAnalysisProvider;
   accountDeletionService?: AccountDeletionService;
+  appleTokenRevoker?: AppleTokenRevoking;
 };
 
 export function createApp(config: AppConfig, dependencies: AppDependencies = {}) {
@@ -53,6 +56,19 @@ export function createApp(config: AppConfig, dependencies: AppDependencies = {})
   const accountDeletionService = dependencies.accountDeletionService ?? (config.authRequired
     ? new SupabaseAccountDeletionService(config.supabaseUrl!, config.supabaseSecretKey!)
     : undefined);
+  const appleTokenRevoker = dependencies.appleTokenRevoker ?? (
+    config.appleSignInClientId &&
+    config.appleSignInTeamId &&
+    config.appleSignInKeyId &&
+    config.appleSignInPrivateKey
+      ? new AppleTokenRevocationService(
+        config.appleSignInClientId,
+        config.appleSignInTeamId,
+        config.appleSignInKeyId,
+        config.appleSignInPrivateKey
+      )
+      : undefined
+  );
 
   app.disable('x-powered-by');
   app.use(helmet());
@@ -74,6 +90,12 @@ export function createApp(config: AppConfig, dependencies: AppDependencies = {})
   }));
 
   app.get('/health', (_request, response) => response.json({ status: 'ok', provider: provider.name }));
+  app.get('/privacy', (_request, response) => response.type('html').send(
+    renderLegalPage('PRIVACY_POLICY.md', 'AI Food Analyzer Privacy Policy')
+  ));
+  app.get('/terms', (_request, response) => response.type('html').send(
+    renderLegalPage('TERMS_OF_USE.md', 'AI Food Analyzer Terms of Use')
+  ));
   app.get('/v1/products/barcode/:barcode', async (request, response, next) => {
     try {
       const barcode = z.string().regex(/^\d{8,14}$/).parse(request.params.barcode);
@@ -96,7 +118,7 @@ export function createApp(config: AppConfig, dependencies: AppDependencies = {})
     }
   });
   if (config.authRequired && authTokenVerifier) {
-    app.get('/v1/account/entitlement', requireAuth(authTokenVerifier), async (request, response, next) => {
+    app.get('/v1/account/entitlement', requireSession(authTokenVerifier), async (request, response, next) => {
       try {
         if (!usageRepository.getPremiumEntitlement) {
           throw new AppError('SERVICE_UNAVAILABLE', 'Premium status is unavailable.', 503);
@@ -120,8 +142,32 @@ export function createApp(config: AppConfig, dependencies: AppDependencies = {})
         if (!accountDeletionService) {
           throw new AppError('SERVICE_UNAVAILABLE', 'Account deletion is unavailable.', 503);
         }
+        const input = z.object({
+          appleProviderToken: z.string().min(20).max(8192).optional(),
+          appleProviderTokenType: z.enum(['access_token', 'refresh_token']).optional()
+        }).refine(
+          (value) => Boolean(value.appleProviderToken) === Boolean(value.appleProviderTokenType),
+          { message: 'Apple provider token and token type must be supplied together.' }
+        ).parse(request.body ?? {});
+        let appleAuthorizationRevoked: boolean | null = null;
+        if (input.appleProviderToken && input.appleProviderTokenType) {
+          appleAuthorizationRevoked = false;
+          if (appleTokenRevoker) {
+            try {
+              await appleTokenRevoker.revoke({
+                token: input.appleProviderToken,
+                tokenType: input.appleProviderTokenType
+              });
+              appleAuthorizationRevoked = true;
+            } catch {
+              // Apple requires account deletion to remain available even when
+              // a valid provider token can no longer be revoked. The client
+              // uses this result to show the manual revocation instructions.
+            }
+          }
+        }
         await accountDeletionService.deleteAccount(request.auth!.userId);
-        response.sendStatus(204);
+        response.json({ appleAuthorizationRevoked });
       } catch (error) {
         next(error);
       }
@@ -161,7 +207,7 @@ export function createApp(config: AppConfig, dependencies: AppDependencies = {})
     })
   });
   const analysisMiddleware = config.authRequired && authTokenVerifier
-    ? [requireAuth(authTokenVerifier), analysisRateLimiter, upload.single('image')]
+    ? [requireSession(authTokenVerifier), analysisRateLimiter, upload.single('image')]
     : [analysisRateLimiter, upload.single('image')];
   app.post('/v1/food/analyze', ...analysisMiddleware, async (request, response, next) => {
     try {

@@ -137,9 +137,15 @@ class _HomePageState extends ConsumerState<HomePage> {
     setState(() => _isSigningOut = true);
     try {
       if (AppConfig.isSupabaseConfigured) {
-        await Supabase.instance.client.auth.signOut();
+        final auth = Supabase.instance.client.auth;
+        await auth.signOut();
+        try {
+          await auth.signInAnonymously();
+        } on Object {
+          // The home screen remains available while the connection recovers.
+        }
       }
-      if (mounted) context.go(AppRoutes.auth);
+      if (mounted) context.go(AppRoutes.home);
     } on AuthException {
       if (!mounted) return;
       ScaffoldMessenger.of(
@@ -158,6 +164,8 @@ class _HomePageState extends ConsumerState<HomePage> {
     final user = AppConfig.isSupabaseConfigured
         ? Supabase.instance.client.auth.currentUser
         : null;
+    final isGuest =
+        AppConfig.isSupabaseConfigured && user?.isAnonymous != false;
     final email =
         user?.email ??
         (user?.userMetadata?['email'] as String?) ??
@@ -314,24 +322,39 @@ class _HomePageState extends ConsumerState<HomePage> {
                 icon: const Icon(Icons.settings_outlined),
                 label: const Text('Hesap ayarları'),
               ),
-              const SizedBox(height: 18),
-              SizedBox(
-                width: double.infinity,
-                height: 50,
-                child: OutlinedButton.icon(
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: Theme.of(sheetContext).colorScheme.error,
-                    side: BorderSide(
-                      color: Theme.of(
-                        sheetContext,
-                      ).colorScheme.error.withValues(alpha: 0.55),
-                    ),
+              if (isGuest) ...[
+                const SizedBox(height: 10),
+                SizedBox(
+                  width: double.infinity,
+                  child: FilledButton.icon(
+                    onPressed: () {
+                      Navigator.of(sheetContext).pop();
+                      context.push(AppRoutes.auth);
+                    },
+                    icon: const Icon(Icons.person_add_alt_1_rounded),
+                    label: Text(l10n.signInOrCreateAccount),
                   ),
-                  onPressed: () => Navigator.of(sheetContext).pop('signOut'),
-                  icon: const Icon(Icons.logout_rounded),
-                  label: Text(l10n.signOut),
                 ),
-              ),
+              ],
+              const SizedBox(height: 18),
+              if (!isGuest)
+                SizedBox(
+                  width: double.infinity,
+                  height: 50,
+                  child: OutlinedButton.icon(
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: Theme.of(sheetContext).colorScheme.error,
+                      side: BorderSide(
+                        color: Theme.of(
+                          sheetContext,
+                        ).colorScheme.error.withValues(alpha: 0.55),
+                      ),
+                    ),
+                    onPressed: () => Navigator.of(sheetContext).pop('signOut'),
+                    icon: const Icon(Icons.logout_rounded),
+                    label: Text(l10n.signOut),
+                  ),
+                ),
             ],
           ),
         ),

@@ -1,15 +1,15 @@
 # AI Food Analyzer Privacy Policy
 
-**Last updated:** September 22, 2026
+**Last updated:** October 23, 2026
 
 AI Food Analyzer helps users estimate nutritional information from meal photos. This policy explains what information is processed and why.
 
 ## Information we process
 
-- **Account information:** Email address and authentication information are processed by Supabase to create and secure your account. The app does not receive or store your password in readable form.
+- **Guest and account information:** The app creates a pseudonymous guest identifier so core features work without registration. If you choose to create an account, your email address and authentication information are processed by Supabase. The app does not receive or store your password in readable form.
 - **Meal photos:** A photo you choose or take is sent securely to the AI Food Analyzer backend and OpenAI only when you request an analysis.
 - **Analysis and usage information:** The analysis result, request identifier, account identifier, and limited usage counters may be processed to provide the service, enforce usage limits, prevent abuse, and diagnose failures.
-- **Saved history:** Analyses and meal photos that you save are stored locally and, for signed-in users, synchronized to a private Supabase database and Storage bucket so they can be restored after reinstalling the app.
+- **Saved history:** Analyses and meal photos that you save are stored locally and synchronized to a private Supabase database and Storage bucket. Guest cloud data remains tied to that guest installation; creating an account enables recoverable account-based access.
 - **Technical information:** The backend may process limited network and diagnostic information, such as IP address, request time, response status, and request identifier, for security, rate limiting, and reliability. Meal photos are not written to application logs.
 
 ## How information is used
@@ -53,22 +53,22 @@ This policy may be updated when the app or its providers change. The latest vers
 
 ## Contact
 
-For privacy questions or requests, open a support request through the repository's Support page.
+For privacy questions or requests, email guntav.enes@gmail.com.
 
 ---
 
 # AI Food Analyzer Gizlilik Politikası
 
-**Son güncelleme:** 22 Eylül 2026
+**Son güncelleme:** 23 Ekim 2026
 
 AI Food Analyzer, yemek fotoğraflarından tahmini besin bilgileri üretir. Bu politika hangi bilgilerin neden işlendiğini açıklar.
 
 ## İşlenen bilgiler
 
-- **Hesap bilgileri:** E-posta adresi ve kimlik doğrulama bilgileri, hesabınızı oluşturmak ve güvenliğini sağlamak amacıyla Supabase tarafından işlenir. Uygulama şifrenizi okunabilir biçimde almaz veya saklamaz.
+- **Misafir ve hesap bilgileri:** Temel özelliklerin kayıt olmadan çalışması için takma adlı bir misafir kimliği oluşturulur. Hesap oluşturmayı seçerseniz e-posta adresiniz ve kimlik doğrulama bilgileriniz Supabase tarafından işlenir. Uygulama şifrenizi okunabilir biçimde almaz veya saklamaz.
 - **Yemek fotoğrafları:** Seçtiğiniz veya çektiğiniz fotoğraf, yalnızca analiz istediğinizde güvenli biçimde AI Food Analyzer backend'ine ve OpenAI'a gönderilir.
 - **Analiz ve kullanım bilgileri:** Analiz sonucu, istek kimliği, hesap kimliği ve sınırlı kullanım sayaçları; hizmeti sunmak, kullanım sınırlarını uygulamak, kötüye kullanımı önlemek ve hataları teşhis etmek amacıyla işlenebilir.
-- **Kaydedilen geçmiş:** Kaydettiğiniz analizler ve yemek fotoğrafları cihazınızda saklanır; giriş yapmış kullanıcılar için uygulama yeniden kurulduğunda geri getirilebilmesi amacıyla özel Supabase veritabanı ve Storage alanıyla eşitlenir.
+- **Kaydedilen geçmiş:** Kaydettiğiniz analizler ve yemek fotoğrafları cihazınızda saklanır ve özel Supabase veritabanı ile Storage alanına eşitlenir. Misafir bulut verileri ilgili misafir kurulumuna bağlıdır; hesap oluşturmak hesap tabanlı, geri getirilebilir erişimi etkinleştirir.
 - **Teknik bilgiler:** Backend; güvenlik, hız sınırlandırması ve güvenilirlik amacıyla IP adresi, istek zamanı, yanıt durumu ve istek kimliği gibi sınırlı ağ ve tanılama bilgilerini işleyebilir. Yemek fotoğrafları uygulama günlüklerine yazılmaz.
 
 ## Bilgilerin kullanım amaçları
@@ -112,4 +112,4 @@ Uygulama veya hizmet sağlayıcılar değiştiğinde bu politika güncellenebili
 
 ## İletişim
 
-Gizlilik soruları ve talepler için deponun Destek sayfası üzerinden bir destek kaydı açın.
+Gizlilik soruları ve talepler için guntav.enes@gmail.com adresine e-posta gönderin.

@@ -326,6 +326,18 @@ abstract class AppLocalizations {
   /// **'Your secure session could not be verified. Please try again.'**
   String get authenticationRequired;
 
+  /// No description provided for @premiumAccountRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Create an account or sign in to subscribe. You can use food analysis without an account.'**
+  String get premiumAccountRequired;
+
+  /// No description provided for @signInOrCreateAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in or create an account'**
+  String get signInOrCreateAccount;
+
   /// Shown when an analysis request times out
   ///
   /// In en, this message translates to:
@@ -548,6 +560,30 @@ abstract class AppLocalizations {
   /// **'Your password was updated successfully.'**
   String get passwordUpdated;
 
+  /// No description provided for @passwordResetLinkExpired.
+  ///
+  /// In en, this message translates to:
+  /// **'This password reset link has expired. Request a new link and try again.'**
+  String get passwordResetLinkExpired;
+
+  /// No description provided for @passwordSameAsOld.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a password different from your current password.'**
+  String get passwordSameAsOld;
+
+  /// No description provided for @passwordResetRequestFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'We could not send the reset email. Check the address and try again.'**
+  String get passwordResetRequestFailed;
+
+  /// No description provided for @passwordUpdateFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'We could not update your password. Request a new reset link and try again.'**
+  String get passwordUpdateFailed;
+
   /// No description provided for @accountTitle.
   ///
   /// In en, this message translates to:
@@ -656,6 +692,30 @@ abstract class AppLocalizations {
   /// **'Yearly Premium'**
   String get premiumYearlyPlan;
 
+  /// No description provided for @premiumPricePerMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'{price} / month'**
+  String premiumPricePerMonth(String price);
+
+  /// No description provided for @premiumPricePerYear.
+  ///
+  /// In en, this message translates to:
+  /// **'{price} / year'**
+  String premiumPricePerYear(String price);
+
+  /// No description provided for @premiumMonthlyBillingDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Billed monthly • Auto-renewing'**
+  String get premiumMonthlyBillingDescription;
+
+  /// No description provided for @premiumYearlyBillingDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Billed once a year • Auto-renewing'**
+  String get premiumYearlyBillingDescription;
+
   /// No description provided for @premiumBestValue.
   ///
   /// In en, this message translates to:
@@ -689,7 +749,7 @@ abstract class AppLocalizations {
   /// No description provided for @premiumRenewalDisclosure.
   ///
   /// In en, this message translates to:
-  /// **'Subscriptions renew automatically unless canceled at least 24 hours before the end of the current period. You can manage or cancel them in your App Store account.'**
+  /// **'Payment is charged to your Apple account when the purchase is confirmed. The subscription renews for the same period at the displayed price unless canceled at least 24 hours before the end of the current period. You can manage or cancel it in your App Store account.'**
   String get premiumRenewalDisclosure;
 
   /// Food analysis result screen title

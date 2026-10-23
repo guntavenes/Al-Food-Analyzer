@@ -52,7 +52,21 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
       ).showSnackBar(SnackBar(content: Text(l10n.passwordUpdated)));
       context.go(AppRoutes.home);
     } on AuthException catch (error) {
-      if (mounted) setState(() => _message = error.message);
+      if (mounted) {
+        final message = error.message.toLowerCase();
+        final friendlyMessage =
+            error.code == 'same_password' || message.contains('same password')
+            ? l10n.passwordSameAsOld
+            : error.code == 'session_not_found' ||
+                  error.code == 'otp_expired' ||
+                  message.contains('expired') ||
+                  message.contains('session')
+            ? l10n.passwordResetLinkExpired
+            : error.code == 'weak_password' || message.contains('weak')
+            ? l10n.passwordTooShortMessage
+            : l10n.passwordUpdateFailed;
+        setState(() => _message = friendlyMessage);
+      }
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }

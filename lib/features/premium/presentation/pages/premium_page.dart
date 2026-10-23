@@ -1,11 +1,15 @@
+import 'package:ai_food_analyzer/core/config/app_config.dart';
 import 'package:ai_food_analyzer/core/config/legal_links.dart';
+import 'package:ai_food_analyzer/core/router/app_router.dart';
 import 'package:ai_food_analyzer/core/theme/app_colors.dart';
 import 'package:ai_food_analyzer/core/widgets/premium_screen_background.dart';
 import 'package:ai_food_analyzer/features/premium/presentation/providers/premium_purchase_provider.dart';
 import 'package:ai_food_analyzer/l10n/app_localizations.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class PremiumPage extends ConsumerWidget {
@@ -18,6 +22,10 @@ class PremiumPage extends ConsumerWidget {
     final purchaseState = ref.watch(premiumPurchaseProvider);
     final isPremium =
         ref.watch(premiumEntitlementProvider).value ?? purchaseState.isPremium;
+    final requiresAccount =
+        !kDebugMode &&
+        (!AppConfig.isSupabaseConfigured ||
+            Supabase.instance.client.auth.currentUser?.isAnonymous != false);
     return Scaffold(
       body: PremiumScreenBackground(
         child: SafeArea(
@@ -100,6 +108,12 @@ class PremiumPage extends ConsumerWidget {
                         ),
                       ),
                     )
+                  else if (requiresAccount)
+                    _PurchaseError(
+                      message: l10n.premiumAccountRequired,
+                      actionLabel: l10n.signInOrCreateAccount,
+                      onRetry: () => context.push(AppRoutes.auth),
+                    )
                   else if (purchaseState.isLoading)
                     const Padding(
                       padding: EdgeInsets.all(24),
@@ -122,7 +136,12 @@ class PremiumPage extends ConsumerWidget {
                           title: plan.isYearly
                               ? l10n.premiumYearlyPlan
                               : l10n.premiumMonthlyPlan,
-                          price: plan.price,
+                          price: plan.isYearly
+                              ? l10n.premiumPricePerYear(plan.price)
+                              : l10n.premiumPricePerMonth(plan.price),
+                          billingDescription: plan.isYearly
+                              ? l10n.premiumYearlyBillingDescription
+                              : l10n.premiumMonthlyBillingDescription,
                           badge: plan.isYearly ? l10n.premiumBestValue : null,
                           enabled: !purchaseState.isPurchasing,
                           onTap: () => ref
@@ -152,29 +171,31 @@ class PremiumPage extends ConsumerWidget {
                         ),
                       ),
                     ),
-                  TextButton.icon(
-                    onPressed: purchaseState.isPurchasing
-                        ? null
-                        : () => ref
-                              .read(premiumPurchaseProvider.notifier)
-                              .restore(),
-                    icon: const Icon(Icons.restore_rounded, size: 19),
-                    label: Text(
-                      l10n.restorePurchases,
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
-                    child: Text(
-                      l10n.restorePurchasesDescription,
-                      textAlign: TextAlign.center,
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        color: theme.colorScheme.onSurfaceVariant,
-                        height: 1.35,
+                  if (!requiresAccount)
+                    TextButton.icon(
+                      onPressed: purchaseState.isPurchasing
+                          ? null
+                          : () => ref
+                                .read(premiumPurchaseProvider.notifier)
+                                .restore(),
+                      icon: const Icon(Icons.restore_rounded, size: 19),
+                      label: Text(
+                        l10n.restorePurchases,
+                        textAlign: TextAlign.center,
                       ),
                     ),
-                  ),
+                  if (!requiresAccount)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      child: Text(
+                        l10n.restorePurchasesDescription,
+                        textAlign: TextAlign.center,
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: theme.colorScheme.onSurfaceVariant,
+                          height: 1.35,
+                        ),
+                      ),
+                    ),
                   if (isPremium) ...[
                     const SizedBox(height: 6),
                     TextButton.icon(
@@ -237,6 +258,7 @@ class _PlanCard extends StatelessWidget {
   const _PlanCard({
     required this.title,
     required this.price,
+    required this.billingDescription,
     required this.enabled,
     required this.onTap,
     this.badge,
@@ -244,6 +266,7 @@ class _PlanCard extends StatelessWidget {
 
   final String title;
   final String price;
+  final String billingDescription;
   final String? badge;
   final bool enabled;
   final VoidCallback onTap;
@@ -273,14 +296,30 @@ class _PlanCard extends StatelessWidget {
                           fontWeight: FontWeight.w800,
                         ),
                       ),
-                    Text(title, style: theme.textTheme.titleMedium),
+                    Text(
+                      title,
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      billingDescription,
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: theme.colorScheme.onSurfaceVariant,
+                      ),
+                    ),
                   ],
                 ),
               ),
-              Text(
-                price,
-                style: theme.textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.w900,
+              const SizedBox(width: 12),
+              Flexible(
+                child: Text(
+                  price,
+                  textAlign: TextAlign.end,
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w900,
+                  ),
                 ),
               ),
               const SizedBox(width: 8),
@@ -294,10 +333,15 @@ class _PlanCard extends StatelessWidget {
 }
 
 class _PurchaseError extends StatelessWidget {
-  const _PurchaseError({required this.message, required this.onRetry});
+  const _PurchaseError({
+    required this.message,
+    required this.onRetry,
+    this.actionLabel,
+  });
 
   final String message;
   final VoidCallback onRetry;
+  final String? actionLabel;
 
   @override
   Widget build(BuildContext context) {
@@ -307,7 +351,7 @@ class _PurchaseError extends StatelessWidget {
         const SizedBox(height: 8),
         TextButton(
           onPressed: onRetry,
-          child: Text(AppLocalizations.of(context).tryAgain),
+          child: Text(actionLabel ?? AppLocalizations.of(context).tryAgain),
         ),
       ],
     );

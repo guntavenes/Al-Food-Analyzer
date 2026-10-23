@@ -22,7 +22,7 @@ class AnalysisHistoryCloudDataSource {
     required DateTime createdAt,
   }) async {
     final user = _user;
-    if (user == null || user.isAnonymous) return null;
+    if (user == null) return null;
     final extension = p.extension(imagePath).isEmpty
         ? '.jpg'
         : p.extension(imagePath);
@@ -58,7 +58,7 @@ class AnalysisHistoryCloudDataSource {
 
   Future<List<SavedFoodAnalysisModel>> fetchAll() async {
     final user = _user;
-    if (user == null || user.isAnonymous) return const [];
+    if (user == null) return const [];
     final rows = await _client
         .from(_table)
         .select()

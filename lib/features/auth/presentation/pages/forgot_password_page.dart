@@ -46,14 +46,16 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
       if (mounted) setState(() => _isSent = true);
     } on AuthException catch (error) {
       if (mounted) {
+        final message = error.message.toLowerCase();
         final isRateLimited =
             error.statusCode == '429' ||
             error.code == 'over_email_send_rate_limit' ||
-            error.message.toLowerCase().contains('rate limit');
+            message.contains('rate limit') ||
+            message.contains('too many requests');
         setState(
           () => _errorMessage = isRateLimited
               ? l10n.emailRateLimitedMessage
-              : error.message,
+              : l10n.passwordResetRequestFailed,
         );
       }
     } finally {

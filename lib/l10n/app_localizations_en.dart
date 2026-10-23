@@ -136,6 +136,13 @@ class AppLocalizationsEn extends AppLocalizations {
       'Your secure session could not be verified. Please try again.';
 
   @override
+  String get premiumAccountRequired =>
+      'Create an account or sign in to subscribe. You can use food analysis without an account.';
+
+  @override
+  String get signInOrCreateAccount => 'Sign in or create an account';
+
+  @override
   String get analysisTimeout =>
       'The analysis took too long. Check your connection and try again.';
 
@@ -265,6 +272,22 @@ class AppLocalizationsEn extends AppLocalizations {
   String get passwordUpdated => 'Your password was updated successfully.';
 
   @override
+  String get passwordResetLinkExpired =>
+      'This password reset link has expired. Request a new link and try again.';
+
+  @override
+  String get passwordSameAsOld =>
+      'Choose a password different from your current password.';
+
+  @override
+  String get passwordResetRequestFailed =>
+      'We could not send the reset email. Check the address and try again.';
+
+  @override
+  String get passwordUpdateFailed =>
+      'We could not update your password. Request a new reset link and try again.';
+
+  @override
   String get accountTitle => 'Account';
 
   @override
@@ -322,6 +345,24 @@ class AppLocalizationsEn extends AppLocalizations {
   String get premiumYearlyPlan => 'Yearly Premium';
 
   @override
+  String premiumPricePerMonth(String price) {
+    return '$price / month';
+  }
+
+  @override
+  String premiumPricePerYear(String price) {
+    return '$price / year';
+  }
+
+  @override
+  String get premiumMonthlyBillingDescription =>
+      'Billed monthly • Auto-renewing';
+
+  @override
+  String get premiumYearlyBillingDescription =>
+      'Billed once a year • Auto-renewing';
+
+  @override
   String get premiumBestValue => 'BEST VALUE';
 
   @override
@@ -339,7 +380,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get premiumRenewalDisclosure =>
-      'Subscriptions renew automatically unless canceled at least 24 hours before the end of the current period. You can manage or cancel them in your App Store account.';
+      'Payment is charged to your Apple account when the purchase is confirmed. The subscription renews for the same period at the displayed price unless canceled at least 24 hours before the end of the current period. You can manage or cancel it in your App Store account.';
 
   @override
   String get resultTitle => 'Food Analysis';
